@@ -1,0 +1,93 @@
+<!--
+<p>update-affectation works!</p>
+<div class="update-container">
+  <div class="header">
+    <h2>Modifier l'Affectation #{{affectationId}}</h2>
+    <button mat-stroked-button (click)="router.navigate(['/affectations', affectationId])">
+      <mat-icon>visibility</mat-icon> Voir les détails
+    </button>
+  </div>
+
+  <form *ngIf="!loading; else loadingSpinner" [formGroup]="updateForm" (ngSubmit)="onSubmit()">
+    <div class="form-section">
+      <mat-form-field appearance="outline">
+        <mat-label>ID Commande</mat-label>
+        <input matInput formControlName="commandeId" readonly>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Statut</mat-label>
+        <mat-select formControlName="statut" (selectionChange)="updateStatus($event.value)">
+          <mat-option *ngFor="let statut of statuts" [value]="statut">
+            {{statut}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Notes</mat-label>
+      <textarea matInput formControlName="notes" rows="3"></textarea>
+    </mat-form-field>
+
+    <div class="installateurs-section">
+      <h3>Installateurs</h3>
+      <div formArrayName="installateurs">
+        <div *ngFor="let inst of installateurs.controls; let i = index" [formGroupName]="i" class="installateur-card">
+          <div class="installateur-header">
+            <h4>Installateur #{{i + 1}}</h4>
+            <button mat-icon-button color="warn" (click)="removeInstaller(i)" type="button">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Nom</mat-label>
+              <input matInput formControlName="installateurNom" readonly>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Date</mat-label>
+              <input matInput type="date" formControlName="dateInstallation">
+              <mat-error *ngIf="installateurs.at(i).get('dateInstallation')?.invalid">
+                Date requise
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Heure début</mat-label>
+              <input matInput type="time" formControlName="heureDebut">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Heure fin</mat-label>
+              <input matInput type="time" formControlName="heureFin">
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <button mat-stroked-button type="button" (click)="addNewInstaller()" class="add-button">
+        <mat-icon>add</mat-icon> Ajouter un installateur
+      </button>
+    </div>
+
+    <div class="actions">
+      <button mat-raised-button color="primary" type="submit" [disabled]="updateForm.invalid || loading">
+        <mat-icon>save</mat-icon> Enregistrer
+      </button>
+      <button mat-stroked-button type="button" (click)="router.navigate(['/affectations'])">
+        Annuler
+      </button>
+    </div>
+  </form>
+
+  <ng-template #loadingSpinner>
+    <div class="spinner-container">
+      <mat-spinner diameter="50"></mat-spinner>
+    </div>
+  </ng-template>
+</div>
+
+-->

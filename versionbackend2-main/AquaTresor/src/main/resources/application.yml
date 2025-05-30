@@ -1,0 +1,212 @@
+spring:
+  main:
+    web-application-type: servlet
+  application:
+    name: aquatresor-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/aquatresorbddproject
+    username: postgres
+    password: "123456"
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 5MB
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: hanabelhadj27@gmail.com
+    password: cebu udyr xvoo tmwu
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: "*"
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      adjust-dates-to-context-time-zone: true
+  cloud:
+    loadbalancer:
+      retry:
+        enabled: true
+        max-retries-on-same-service-instance: 2
+        max-retries-on-next-service-instance: 3
+        retryable-status-codes: 500,502,503,504
+    compatibility-verifier:
+      enabled: false
+    discovery:
+      client:
+        simple:
+          instances:
+            users-microservice:
+              - uri: http://USERS-MICROSERVICE
+            notifications-microservice:
+              - uri: http://NOTIFICATIONS-MICROSERVICE
+
+server:
+  port: 8089
+  servlet:
+    context-path: /aquatresor
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/html,text/xml,text/plain,application/javascript,text/css
+    min-response-size: 1024
+
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 5000
+        read-timeout: 5000
+        logger-level: basic
+      USERS-MICROSERVICE:
+        connect-timeout: 6000
+        read-timeout: 6000
+        logger-level: full
+      NOTIFICATIONS-MICROSERVICE:
+        connect-timeout: 6000
+        read-timeout: 6000
+  circuitbreaker:
+    enabled: true
+  httpclient:
+    enabled: true
+    max-connections: 200
+    max-connections-per-route: 50
+    connection-timeout: 5000
+    follow-redirects: true
+  compression:
+    request:
+      enabled: true
+    response:
+      enabled: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      users-service:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        failure-rate-threshold: 50
+        event-consumer-buffer-size: 10
+      notifications-service:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+        wait-duration-in-open-state: 5s
+        failure-rate-threshold: 50
+        event-consumer-buffer-size: 10
+  retry:
+    instances:
+      users-service:
+        maxAttempts: 3
+        waitDuration: 1000ms
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+      notifications-service:
+        maxAttempts: 3
+        waitDuration: 1000ms
+        retryExceptions:
+          - org.springframework.web.client.HttpServerErrorException
+          - java.io.IOException
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    org.springframework.web: INFO
+    org.springframework.cloud: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+    com.example.gestionbassins: DEBUG
+    feign: DEBUG
+    com.netflix: WARN
+    org.springframework.security: DEBUG
+    com.example.gestionbassins.service.NotificationServiceClient: DEBUG
+    com.netflix.eureka: DEBUG
+    com.netflix.discovery: DEBUG
+  file:
+    name: logs/aquatresor-service.log
+    max-history: 7
+    max-size: 10MB
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+upload:
+  dir: C:/shared/imagesaccessoiresbassin/
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+    healthcheck:
+      enabled: true
+    registry-fetch-interval-seconds: 5
+    eureka-server-connect-timeout-seconds: 5
+    eureka-server-read-timeout-seconds: 8
+    eureka-connection-idle-timeout-seconds: 10
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 15
+    instance-id: ${spring.application.name}:${server.port}
+    metadata-map:
+      zone: primary
+      instance-group: aquatresor-group
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /management
+      path-mapping:
+        health: healthcheck
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+      mail:
+        enabled: false
+      group:
+        custom:
+          include: db,diskSpace
+    info:
+      enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  health:
+    db:
+      enabled: true
+    diskspace:
+      enabled: true
+    defaults:
+      enabled: false
+  prometheus:
+    metrics:
+      export:
+        enabled: true

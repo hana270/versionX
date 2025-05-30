@@ -1,0 +1,62 @@
+<!-- edit-specialty-dialog.component.html -->
+<div class="specialty-dialog">
+  <!-- Dialog Header -->
+  <div class="dialog-header">
+    <h2 mat-dialog-title class="dialog-title">
+      <i class="fas fa-tools dialog-icon"></i>
+      Modifier la spécialité
+    </h2>
+  </div>
+
+  <!-- Dialog Content -->
+  <mat-dialog-content class="dialog-content">
+    <div class="user-info">
+      <p class="user-description">
+        Modifier la spécialité pour <strong class="username">{{ data.username }}</strong>
+      </p>
+    </div>
+
+    <div class="form-section">
+      <mat-form-field appearance="outline" class="specialty-field">
+        <mat-label>Spécialité</mat-label>
+        <mat-select [(ngModel)]="selectedSpecialty" required class="specialty-select">
+          <mat-option value="">
+            <em>Sélectionner une spécialité</em>
+          </mat-option>
+          <mat-option *ngFor="let specialty of specialties" [value]="specialty.value">
+            {{ specialty.displayName }}
+          </mat-option>
+        </mat-select>
+        <mat-icon matSuffix class="select-icon">business</mat-icon>
+      </mat-form-field>
+    </div>
+
+    <div class="info-note">
+      <mat-icon class="info-icon">info</mat-icon>
+      <span>La modification prendra effet immédiatement après la sauvegarde.</span>
+    </div>
+  </mat-dialog-content>
+
+  <!-- Dialog Actions -->
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-stroked-button 
+            color="warn" 
+            (click)="onCancel()" 
+            [disabled]="isLoading"
+            class="cancel-button">
+      <mat-icon>close</mat-icon>
+      Annuler
+    </button>
+    
+    <button mat-raised-button 
+            color="primary" 
+            (click)="onSave()" 
+            [disabled]="isLoading || !selectedSpecialty"
+            class="save-button">
+      <mat-spinner *ngIf="isLoading" diameter="20" class="button-spinner"></mat-spinner>
+      <mat-icon *ngIf="!isLoading">save</mat-icon>
+      <span *ngIf="!isLoading">Enregistrer</span>
+      <span *ngIf="isLoading">Sauvegarde...</span>
+    </button>
+  </mat-dialog-actions>
+</div>

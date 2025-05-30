@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Model Viewer Script -->
+  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+</head>
+<body class="detail-bassin-body font-inter">
+  <app-loading></app-loading>
+  <div class="detail-bassin-content-wrapper">
+    <app-header></app-header>
+
+ <!-- Main Product Section -->
+  <section class="detail-bassin-shop-details py-5">
+    <div class="container">
+      <div class="row g-4">
+        <!-- Image Gallery -->
+        <div class="col-lg-7 col-md-12">
+          <div class="detail-bassin-product-gallery bg-white p-4 animate__animated animate__fadeIn">
+            <!-- Main Image with Zoom -->
+            <div class="detail-bassin-main-image mb-4 position-relative">
+              <img [src]="selectedImage || 'assets/default-image.webp'" [alt]="bassin?.nomBassin"
+                   class="img-fluid detail-bassin-main-image-img" (click)="toggleZoom()"
+                   [ngClass]="{'detail-bassin-zoomed': isZoomed}" (error)="handleImageError($event)">
+              <button *ngIf="isZoomed" class="detail-bassin-zoom-close btn btn-dark" (click)="toggleZoom()">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <!-- Thumbnails -->
+            <div class="detail-bassin-thumbnails d-flex flex-wrap gap-2">
+              <div *ngFor="let image of imagePreviews" class="detail-bassin-thumbnail-item"
+                   [ngClass]="{'active': selectedImage === image}" (click)="changeImage(image)">
+                <img [src]="image" [alt]="bassin?.nomBassin" class="img-thumbnail rounded"
+                     (error)="handleImageError($event)">
+              </div>
+            </div>
+            <!-- 3D and AR Buttons -->
+            <div *ngIf="bassin?.image3DPath" class="detail-bassin-innovative-features d-flex gap-3 mt-4">
+              <button class="btn btn-dark w-50" (click)="viewIn3D()">
+                <i class="fas fa-cube me-2"></i> Vue 3D
+              </button>
+              <button class="btn btn-secondary w-50" (click)="viewInAR()">
+                <i class="fas fa-vr-cardboard me-2"></i> Vue AR
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- Product Details -->
+        <div class="col-lg-5 col-md-12">
+          <div class="detail-bassin-product-details bg-white p-4 animate__animated animate__fadeIn">
+            <h1 class="detail-bassin-product-title">{{ bassin?.nomBassin }}</h1>
+            <!-- Average Rating -->
+            <div class="detail-bassin-average-rating mb-3 d-flex align-items-center">
+              <div class="detail-bassin-stars me-2">
+                <i *ngFor="let star of [1,2,3,4,5]" class="fas fa-star"
+                   [ngClass]="{'text-warning': star <= calculateAverageRating(), 'text-muted': star > calculateAverageRating()}"></i>
+              </div>
+              <span class="badge bg-primary">{{ calculateAverageRating() | number:'1.1-1' }}/5 ({{ avisList.length }} avis)</span>
+            </div>
+            <div *ngIf="hasActivePromotion(bassin)" class="detail-bassin-promo-badge badge bg-danger">
+              {{ getPromotionPercentage(bassin) }}
+            </div>
+            <!-- Price -->
+            <div class="detail-bassin-price-display mb-3">
+              <span class="detail-bassin-current-price" [ngClass]="{'text-danger': hasActivePromotion(bassin)}">
+                {{ getDisplayPrice(bassin) }}
+              </span>
+              <span *ngIf="hasActivePromotion(bassin)" class="detail-bassin-original-price text-muted">
+                {{ getOriginalPrice(bassin) }}
+              </span>
+            </div>
+            <!-- Promotion Timer -->
+            <div *ngIf="bassin?.promotionActive && timeLeftForPromo" class="detail-bassin-promotion-timer mt-2">
+              <span class="text-muted small">Offre se termine dans : </span>
+              <span class="fw-bold">
+                <span *ngIf="timeLeftForPromo.days > 0">{{ timeLeftForPromo.days }}j </span>
+                {{ timeLeftForPromo.hours }}h {{ timeLeftForPromo.minutes }}m {{ timeLeftForPromo.seconds }}s
+              </span>
+            </div>
+            <!-- Quick Specs -->
+            <div class="detail-bassin-product-specs mt-4">
+              <div class="row">
+                <div class="col-6 mb-2">
+                  <span class="detail-bassin-spec-label">Dimensions:</span>
+                  <span class="detail-bassin-spec-value">{{ bassin?.dimensions || 'Non spécifié' }}</span>
+                </div>
+                <div class="col-6 mb-2">
+                  <span class="detail-bassin-spec-label">Matériau:</span>
+                  <span class="detail-bassin-spec-value">{{ bassin?.materiau || 'Non spécifié' }}</span>
+                </div>
+                <div class="col-6 mb-2">
+                  <span class="detail-bassin-spec-label">Couleur:</span>
+                  <span class="detail-bassin-spec-value">{{ bassin?.couleur || 'Non spécifié' }}</span>
+                </div>
+              </div>
+              <div class="detail-bassin-status mt-2">
+                <span class="badge" [ngClass]="{
+                  'bg-success': bassin?.statut === 'DISPONIBLE',
+                  'bg-warning': bassin?.statut === 'SUR_COMMANDE',
+                  'bg-danger': bassin?.statut === 'RUPTURE_STOCK'
+                }">
+                  {{ bassin?.statut || 'Non spécifié' }}
+                </span>
+                <span *ngIf="bassin?.surCommande" class="detail-bassin-fabrication-time ms-2">
+                  <i class="fas fa-clock"></i> {{ getFabricationTime() }}
+                </span>
+              </div>
+            </div>
+            <!-- Quantity Selector -->
+            <div class="detail-bassin-quantity-selector mt-4">
+              <label class="fw-bold">Quantité</label>
+              <div class="input-group">
+                <button class="btn btn-outline-secondary" (click)="decreaseQuantity()" [disabled]="quantity <= 1">-</button>
+                <input type="number" class="form-control text-center" [(ngModel)]="quantity" min="1"
+                       [max]="bassin?.stock ?? null" (input)="restrictQuantity($event)">
+                <button class="btn btn-outline-secondary" (click)="increaseQuantity()">+</button>
+              </div>
+            </div>
+            <!-- Action Buttons -->
+            <div class="detail-bassin-action-buttons mt-4">
+              <button class="btn btn-primary btn-lg w-100 mb-2" (click)="addToCart()"
+                      [disabled]="!bassin?.disponible || (bassin?.statut === 'DISPONIBLE' && (bassin?.stock ?? 0) <= 0)">
+                <i class="fas fa-cart-plus me-2"></i>
+                {{ !bassin?.disponible || (bassin?.statut === 'DISPONIBLE' && (bassin?.stock ?? 0) <= 0) ? 'Indisponible' : 'Ajouter au panier' }}
+              </button>
+              <button *ngIf="bassin?.hasCustomizationOptions" class="btn btn-outline-primary btn-lg w-100"
+                      (click)="startCustomization()">
+                <i class="fas fa-sliders-h me-2"></i> Personnaliser
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Tabs for Description and Reviews -->
+      <div class="detail-bassin-tabs-section mt-5">
+        <ul class="nav nav-tabs" id="productTabs" role="tablist">
+          <li class="nav-item">
+            <a class="nav-link" [ngClass]="{'active': activeTab === 'description'}"
+               (click)="selectTab('description')" role="tab">Description</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [ngClass]="{'active': activeTab === 'reviews'}"
+               (click)="selectTab('reviews')" role="tab">Avis ({{ avisList.length }})</a>
+          </li>
+        </ul>
+        <div class="tab-content bg-white rounded-3 shadow-sm p-4">
+          <!-- Description Tab -->
+          <div class="tab-pane fade" [ngClass]="{'show active': activeTab === 'description'}" id="description" role="tabpanel">
+            <h3 class="fw-bold mb-3">Description du produit</h3>
+            <p class="text-muted">{{ bassin?.description || 'Aucune description disponible.' }}</p>
+          </div>
+          <!-- Reviews Tab -->
+          <div class="tab-pane fade" [ngClass]="{'show active': activeTab === 'reviews'}" id="reviews" role="tabpanel">
+            <div class="detail-bassin-reviews-content py-4">
+              <!-- Reviews List -->
+              <div class="detail-bassin-review-list mb-4">
+                <div *ngIf="avisList.length === 0" class="text-center py-5 animate__animated animate__fadeIn">
+                  <i class="fas fa-comment-slash fa-3x text-muted mb-3"></i>
+                  <h5 class="fw-bold">Aucun avis pour ce produit</h5>
+                  <p class="text-muted">Soyez le premier à partager votre expérience !</p>
+                </div>
+                <div *ngFor="let avis of paginatedAvis; let i = index" class="detail-bassin-review-card card mb-3 animate__animated animate__fadeInUp" [attr.data-animation-delay]="i * 100 + 'ms'">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div>
+                        <h5 class="fw-bold mb-1">{{ avis.nom }}</h5>
+                        <div class="detail-bassin-stars">
+                          <i *ngFor="let star of [1,2,3,4,5]" class="fas fa-star"
+                             [ngClass]="{'text-warning': star <= avis.note, 'text-muted': star > avis.note}"></i>
+                          <span class="ms-2 badge bg-primary">{{ getRatingLabel(avis.note) }}</span>
+                        </div>
+                      </div>
+                      <div class="text-muted small">{{ avis.dateSoumission | date:'dd/MM/yyyy' }}</div>
+                    </div>
+                    <p class="mt-3 mb-0">{{ avis.message }}</p>
+                    <div *ngIf="isCurrentUserAuthor(avis)" class="detail-bassin-review-actions mt-3 d-flex gap-2">
+                      <button class="btn btn-sm btn-outline-primary" (click)="editAvis(avis)">
+                        <i class="fas fa-edit"></i> Modifier
+                      </button>
+                      <button class="btn btn-sm btn-outline-danger" (click)="deleteAvis(avis.idAvis)">
+                        <i class="fas fa-trash"></i> Supprimer
+                      </button>
+
+                    </div>
+                  <!-- Review History Button and Section -->
+<div *ngIf="isCurrentUserAuthor(avis)" class="review-history-actions mt-3 d-flex gap-2">
+  <button *ngIf="avis.historiqueModifications!.length > 0" class="history-toggle-btn btn btn-sm btn-outline-secondary" (click)="toggleHistorique(avis)">
+    <i class="fas fa-history me-1"></i> Historique
+  </button>
+</div>
+<div *ngIf="avis.showHistorique && isCurrentUserAuthor(avis) && avis.historiqueModifications!.length > 0" class="review-history-container mt-3 animate__animated animate__slideInUp">
+  <h6 class="review-history-title fw-bold mb-3">Historique des modifications</h6>
+  <ul class="list-group list-group-flush review-history-list">
+    <li *ngFor="let mod of avis.historiqueModifications; let i = index" class="list-group-item review-history-item animate__animated animate__fadeIn" [attr.data-animation-delay]="i * 100 + 'ms'">
+      <div class="d-flex flex-column">
+        <span class="review-history-date fw-medium">
+          Modifié le {{ mod.dateModification | date:'dd/MM/yyyy HH:mm' }}
+        </span>
+        <div class="review-history-rating mt-1">
+          <span class="fw-semibold">Note :</span>
+          <span class="review-history-old-rating mx-1">{{ mod.ancienneNote }}</span>
+          <i class="fas fa-arrow-right text-primary mx-1"></i>
+          <span class="review-history-new-rating fw-bold">{{ avis.note }}</span>
+        </div>
+        <div class="review-history-message mt-1">
+          <span class="fw-semibold">Message :</span> {{ mod.ancienMessage }}
+        </div>
+      </div>
+    </li>
+  </ul>
+</div>
+                  </div>
+                </div>
+              </div>
+              <!-- Pagination -->
+              <div class="detail-bassin-pagination d-flex justify-content-center align-items-center mb-4">
+                <button class="btn btn-outline-primary me-2" (click)="previousPage()" [disabled]="currentPage === 1">
+                  <i class="fas fa-arrow-left"></i> Précédent
+                </button>
+                <span class="mx-3">Page {{ currentPage }} / {{ totalPages }}</span>
+                <button class="btn btn-outline-primary ms-2" (click)="nextPage()" [disabled]="currentPage === totalPages">
+                  Suivant <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+              <!-- Review Form -->
+              <div class="detail-bassin-add-review mt-5">
+                <h3 class="fw-bold mb-4 animate__animated animate__fadeIn">{{ editingAvis ? 'Modifier votre avis' : 'Laisser un avis' }}</h3>
+                <form *ngIf="isLoggedIn && isClient()" [formGroup]="avisForm" (ngSubmit)="editingAvis ? updateAvis() : onSubmitAvis()" class="animate__animated animate__fadeIn" novalidate>
+                  <div class="mb-3">
+                    <label for="nom" class="form-label fw-bold">Nom</label>
+                    <input type="text" class="form-control" id="nom" formControlName="nom" readonly>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold">Note</label>
+                    <div class="detail-bassin-star-rating">
+                      <i *ngFor="let star of [1,2,3,4,5]" class="fas fa-star fa-2x"
+                         [ngClass]="{'text-warning': star <= avisForm.get('note')?.value, 'text-muted': star > avisForm.get('note')?.value}"
+                         (click)="avisForm.get('note')?.setValue(star)"></i>
+                      <span class="ms-2 badge bg-primary">{{ getRatingLabel(avisForm.get('note')?.value) }}</span>
+                    </div>
+                    <input type="hidden" formControlName="note" [class.is-invalid]="avisForm.get('note')?.invalid && avisForm.get('note')?.touched">
+                    <div *ngIf="avisForm.get('note')?.invalid && avisForm.get('note')?.touched" class="invalid-feedback">
+                      Veuillez sélectionner une note.
+                    </div>
+                  </div>
+                  <div class="mb-3">
+                    <label for="message" class="form-label fw-bold">Commentaire</label>
+                    <textarea class="form-control" id="message" formControlName="message" rows="4"
+                              placeholder="Votre avis sur ce produit..." [class.is-invalid]="avisForm.get('message')?.invalid && avisForm.get('message')?.touched"></textarea>
+                    <div class="d-flex justify-content-between mt-1">
+                      <div *ngIf="avisForm.get('message')?.invalid && avisForm.get('message')?.touched" class="invalid-feedback">
+                        <div *ngIf="avisForm.get('message')?.errors?.['required']">Le commentaire est requis.</div>
+                        <div *ngIf="avisForm.get('message')?.errors?.['minlength']">Le commentaire doit contenir au moins 10 caractères.</div>
+                        <div *ngIf="avisForm.get('message')?.errors?.['maxlength']">Le commentaire ne peut pas dépasser 500 caractères.</div>
+                      </div>
+                      <div class="text-muted small">{{ avisForm.get('message')?.value?.length || 0 }}/500</div>
+                    </div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary" [disabled]="avisForm.invalid">
+                      <i class="fas" [ngClass]="editingAvis ? 'fa-save' : 'fa-paper-plane'"></i>
+                      {{ editingAvis ? 'Enregistrer' : 'Publier' }}
+                    </button>
+                    <button *ngIf="editingAvis" type="button" class="btn btn-outline-secondary" (click)="cancelEdit()">
+                      <i class="fas fa-times"></i> Annuler
+                    </button>
+                  </div>
+                </form>
+                <div *ngIf="!isLoggedIn || !isClient()" class="alert alert-info mt-3 animate__animated animate__fadeIn">
+                  <h5>Connectez-vous pour laisser un avis</h5>
+                  <button class="btn btn-primary" (click)="navigateToLogin()">
+                    <i class="fas fa-sign-in-alt"></i> Connexion
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+ 
+
+ <!-- Customization Modal -->
+<!-- Customization Modal -->
+<div *ngIf="isCustomizing" class="detail-bassin-customization-modal" [@fadeInOut]>
+  <div class="detail-bassin-customization-content p-4 bg-white rounded-3 shadow">
+    <!-- Header -->
+    <div class="detail-bassin-customization-header d-flex justify-content-between align-items-center mb-3">
+      <h3 class="detail-bassin-customization-title">Personnalisation</h3>
+      <button class="detail-bassin-customization-close btn btn-outline-secondary" (click)="cancelCustomization()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Progress Steps -->
+    <div class="detail-bassin-progress-section mb-4">
+      <div class="detail-bassin-progress-bar progress" style="height: 8px;">
+        <div class="progress-bar bg-primary" [style.width]="(customizationStep / totalSteps * 100) + '%'"></div>
+      </div>
+      <div class="detail-bassin-progress-labels d-flex justify-content-between mt-2">
+        <span *ngIf="listeMateriaux.length" 
+              [ngClass]="{'detail-bassin-step-active fw-bold': customizationStep === 1, 'detail-bassin-step-completed': customizationStep > 1}">
+          <i class="fas fa-cube me-1"></i>Matériaux
+        </span>
+        <span *ngIf="listeDimensions.length" 
+              [ngClass]="{'detail-bassin-step-active fw-bold': customizationStep === (listeMateriaux.length ? 2 : 1), 'detail-bassin-step-completed': customizationStep > (listeMateriaux.length ? 2 : 1)}">
+          <i class="fas fa-ruler-combined me-1"></i>Dimensions
+        </span>
+        <span *ngIf="listeAccessoires.length" 
+              [ngClass]="{'detail-bassin-step-active fw-bold': customizationStep === (listeMateriaux.length && listeDimensions.length ? 3 : (listeMateriaux.length || listeDimensions.length ? 2 : 1)), 'detail-bassin-step-completed': customizationStep > (listeMateriaux.length && listeDimensions.length ? 3 : (listeMateriaux.length || listeDimensions.length ? 2 : 1))}">
+          <i class="fas fa-puzzle-piece me-1"></i>Accessoires
+        </span>
+        <span [ngClass]="{'detail-bassin-step-active fw-bold': customizationStep === totalSteps, 'detail-bassin-step-completed': customizationStep > totalSteps}">
+          <i class="fas fa-palette me-1"></i>Couleur
+        </span>
+      </div>
+    </div>
+
+    <!-- Scrollable Content Area -->
+    <div class="detail-bassin-customization-scrollable">
+      <form [formGroup]="customizationForm">
+        
+        <!-- Step 1: Materials -->
+        <div *ngIf="customizationStep === 1 && listeMateriaux.length" [@slideInOut] class="detail-bassin-step-content">
+          <div class="detail-bassin-step-header">
+            <h4 class="detail-bassin-step-title">
+              <i class="fas fa-cube text-primary me-2"></i>
+              Choisissez un matériau
+            </h4>
+            <p class="detail-bassin-step-description text-muted">
+              Sélectionnez le matériau qui convient le mieux à vos besoins
+            </p>
+          </div>
+          
+          <div class="detail-bassin-material-catalog">
+            <div *ngFor="let materiau of listeMateriaux" 
+                 class="detail-bassin-material-item"
+                 [ngClass]="{'detail-bassin-item-selected': customizationForm.get('materiau')?.value === materiau}"
+                 (click)="selectMaterial(materiau)">
+              <div class="detail-bassin-item-image-container">
+                <img [src]="materiauxImages[materiau] || 'assets/default-image.webp'" 
+                     [alt]="materiau"
+                     class="detail-bassin-item-image"
+                     (error)="handleImageError($event)">
+                <i *ngIf="customizationForm.get('materiau')?.value === materiau" 
+                   class="fas fa-check-circle detail-bassin-selection-badge"></i>
+              </div>
+              <div class="detail-bassin-item-name">{{ materiau }}</div>
+              <div class="detail-bassin-price-tag">
+                <i class="fas fa-tag me-1"></i>{{ prixMateriaux[materiau] | currency:'TND' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Dimensions -->
+        <div *ngIf="customizationStep === (listeMateriaux.length ? 2 : 1) && listeDimensions.length" [@slideInOut] class="detail-bassin-step-content">
+          <div class="detail-bassin-step-header">
+            <h4 class="detail-bassin-step-title">
+              <i class="fas fa-ruler-combined text-primary me-2"></i>
+              Choisissez une dimension
+            </h4>
+            <p class="detail-bassin-step-description text-muted">
+              Sélectionnez la taille qui s'adapte parfaitement à votre espace
+            </p>
+          </div>
+          
+          <div class="detail-bassin-dimension-catalog">
+            <div *ngFor="let dimension of listeDimensions" 
+                 class="detail-bassin-dimension-item"
+                 [ngClass]="{'detail-bassin-item-selected': customizationForm.get('dimension')?.value === dimension}"
+                 (click)="selectDimension(dimension)">
+              <div class="detail-bassin-dimension-icon">
+                <i class="fas fa-ruler-combined"></i>
+              </div>
+              <div class="detail-bassin-item-name">{{ dimension }}</div>
+              <div class="detail-bassin-price-tag">
+                <i class="fas fa-tag me-1"></i>{{ prixDimensions[dimension] | currency:'TND' }}
+              </div>
+              <i *ngIf="customizationForm.get('dimension')?.value === dimension" 
+                 class="fas fa-check-circle detail-bassin-selection-badge"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Accessories -->
+        <div *ngIf="customizationStep === (listeMateriaux.length && listeDimensions.length ? 3 : (listeMateriaux.length || listeDimensions.length ? 2 : 1)) && listeAccessoires.length" [@slideInOut] class="detail-bassin-step-content">
+          <div class="detail-bassin-step-header">
+            <h4 class="detail-bassin-step-title">
+              <i class="fas fa-puzzle-piece text-primary me-2"></i>
+              Choisissez des accessoires
+            </h4>
+            <p class="detail-bassin-step-description text-muted">
+              Ajoutez des accessoires pour personnaliser votre bassin (sélection multiple possible)
+            </p>
+          </div>
+          
+          <div class="detail-bassin-accessoire-catalog">
+            <div *ngFor="let accessoire of listeAccessoires" 
+                 class="detail-bassin-accessoire-item"
+                 [ngClass]="{'detail-bassin-item-selected': isAccessoireSelected(accessoire)}" 
+                 (click)="toggleAccessoire(accessoire)">
+              <div class="detail-bassin-item-image-container">
+                <img [src]="accessoire.imageUrl || 'assets/default-accessoire.jpg'" 
+                     [alt]="accessoire.nomAccessoire"
+                     class="detail-bassin-item-image"
+                     (error)="handleImageError($event)">
+                <i *ngIf="isAccessoireSelected(accessoire)" 
+                   class="fas fa-check-circle detail-bassin-selection-badge"></i>
+              </div>
+              <div class="detail-bassin-item-name">{{ accessoire.nomAccessoire }}</div>
+              <div class="detail-bassin-price-tag">
+                <i class="fas fa-tag me-1"></i>{{ accessoire.prixAccessoire | currency:'TND' }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Color -->
+        <div *ngIf="customizationStep === totalSteps" [@slideInOut] class="detail-bassin-step-content">
+          <div class="detail-bassin-step-header">
+            <h4 class="detail-bassin-step-title">
+              <i class="fas fa-palette text-primary me-2"></i>
+              Choisissez une couleur
+            </h4>
+            <p class="detail-bassin-step-description text-muted">
+              Sélectionnez la couleur parfaite pour votre bassin
+            </p>
+          </div>
+          
+          <div class="detail-bassin-color-selection">
+            <div class="detail-bassin-selected-color-preview">
+              <div class="detail-bassin-selected-color" [style.backgroundColor]="selectedColor"></div>
+              <div class="detail-bassin-selected-color-name">
+                <span class="text-muted">Couleur sélectionnée:</span>
+                <strong>{{ getColorName(selectedColor) }}</strong>
+              </div>
+            </div>
+            
+            <div class="detail-bassin-color-categories">
+              <div *ngFor="let category of colorPalette | keyvalue" class="detail-bassin-color-category">
+                <h5 class="detail-bassin-color-category-title">
+                  <i class="fas fa-circle me-2" [style.color]="category.value[0]"></i>
+                  {{ category.key | titlecase }}
+                </h5>
+                <div class="detail-bassin-color-palette">
+                  <div *ngFor="let color of category.value" 
+                       class="detail-bassin-color-square"
+                       [style.backgroundColor]="color" 
+                       [ngClass]="{'detail-bassin-color-selected': selectedColor === color}"
+                       [title]="getColorName(color)"
+                       (click)="selectColor(color)">
+                    <i *ngIf="selectedColor === color" class="fas fa-check text-white"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Fixed Navigation Buttons -->
+    <div class="detail-bassin-customization-navigation">
+      <div class="detail-bassin-navigation-buttons d-flex justify-content-between">
+        <button class="detail-bassin-nav-button detail-bassin-nav-cancel btn btn-outline-secondary" 
+                (click)="customizationStep === 1 ? cancelCustomization() : previousStep()">
+          <i class="fas fa-arrow-left me-2"></i>
+          {{ customizationStep === 1 ? 'Annuler' : 'Précédent' }}
+        </button>
+        
+        <div class="detail-bassin-step-indicator">
+          <span class="badge bg-primary">{{ customizationStep }} / {{ totalSteps }}</span>
+        </div>
+        
+        <button class="detail-bassin-nav-button detail-bassin-nav-next btn btn-primary" 
+                (click)="nextStep()"
+                [disabled]="!canProceedToNextStep()">
+          {{ customizationStep < totalSteps ? 'Suivant' : 'Finaliser' }}
+          <i class="fas fa-arrow-right ms-2"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Customization Summary -->
+<div *ngIf="isCustomizationComplete" class="detail-bassin-customization-modal" [@fadeInOut]>
+  <div class="detail-bassin-customization-content p-4 bg-white rounded-3 shadow">
+    <!-- Summary Header -->
+    <div class="detail-bassin-summary-header d-flex justify-content-between align-items-center mb-3">
+      <h3 class="detail-bassin-summary-title">
+        <i class="fas fa-clipboard-check text-success me-2"></i>
+        Résumé de la personnalisation
+      </h3>
+      <button class="detail-bassin-summary-close btn btn-outline-secondary" (click)="closeCustomization()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Scrollable Summary Content -->
+    <div class="detail-bassin-summary-scrollable">
+      <div class="detail-bassin-summary-card p-3">
+        
+        <!-- Product Preview -->
+        <div class="detail-bassin-summary-preview mb-3">
+          <div class="detail-bassin-preview-color" [style.backgroundColor]="customizationSummary.couleur"></div>
+          <div class="detail-bassin-preview-info">
+            <h5 class="detail-bassin-preview-title">{{ bassin?.nomBassin }}</h5>
+            <p class="detail-bassin-preview-subtitle text-muted">Version personnalisée</p>
+          </div>
+        </div>
+
+        <!-- Customization Details -->
+        <div class="detail-bassin-summary-details">
+          
+          <!-- Material -->
+          <div *ngIf="customizationSummary.materiau !== 'Standard'" class="detail-bassin-summary-item row mb-2">
+            <div class="col-6 detail-bassin-summary-label">
+              <i class="fas fa-cube text-primary me-2"></i>
+              <strong>Matériau:</strong>
+            </div>
+            <div class="col-6 detail-bassin-summary-value">
+              {{ customizationSummary.materiau }}
+              <span class="detail-bassin-price-addition text-success">
+                (+{{ prixMateriaux[customizationSummary.materiau] | currency:'TND' }})
+              </span>
+            </div>
+          </div>
+
+          <!-- Dimensions -->
+          <div *ngIf="customizationSummary.dimension !== 'Standard'" class="detail-bassin-summary-item row mb-2">
+            <div class="col-6 detail-bassin-summary-label">
+              <i class="fas fa-ruler-combined text-primary me-2"></i>
+              <strong>Dimensions:</strong>
+            </div>
+            <div class="col-6 detail-bassin-summary-value">
+              {{ customizationSummary.dimension }}
+              <span class="detail-bassin-price-addition text-success">
+                (+{{ prixDimensions[customizationSummary.dimension] | currency:'TND' }})
+              </span>
+            </div>
+          </div>
+
+          <!-- Color -->
+          <div class="detail-bassin-summary-item row mb-2">
+            <div class="col-6 detail-bassin-summary-label">
+              <i class="fas fa-palette text-primary me-2"></i>
+              <strong>Couleur:</strong>
+            </div>
+            <div class="col-6 detail-bassin-summary-value">
+              <span class="detail-bassin-color-dot" [style.backgroundColor]="customizationSummary.couleur"></span>
+              {{ getColorName(customizationSummary.couleur) }}
+            </div>
+          </div>
+
+          <!-- Accessories -->
+          <div class="detail-bassin-summary-item row mb-2">
+            <div class="col-6 detail-bassin-summary-label">
+              <i class="fas fa-puzzle-piece text-primary me-2"></i>
+              <strong>Accessoires:</strong>
+            </div>
+            <div class="col-6 detail-bassin-summary-value">
+              <div *ngIf="customizationSummary.accessoires?.length === 0" class="text-muted">Aucun</div>
+              <div *ngIf="customizationSummary.accessoires?.length > 0" class="detail-bassin-accessories-list">
+                <div *ngFor="let acc of customizationSummary.accessoires" class="detail-bassin-accessory-item">
+                  <span class="detail-bassin-accessory-name">{{ acc.nomAccessoire }}</span>
+                  <span class="detail-bassin-price-addition text-success">
+                    (+{{ acc.prixAccessoire | currency:'TND' }})
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fabrication Time -->
+          <div class="detail-bassin-summary-item row mb-2">
+            <div class="col-6 detail-bassin-summary-label">
+              <i class="fas fa-clock text-primary me-2"></i>
+              <strong>Durée estimée:</strong>
+            </div>
+            <div class="col-6 detail-bassin-summary-value">
+              <span class="badge bg-info">{{ customizationSummary.dureeFabrication }} jours</span>
+            </div>
+          </div>
+
+          <!-- Quantity Selector -->
+          <div class="detail-bassin-summary-item row mb-3">
+            <div class="col-6 detail-bassin-summary-label">
+              <i class="fas fa-sort-numeric-up text-primary me-2"></i>
+              <strong>Quantité:</strong>
+            </div>
+            <div class="col-6 detail-bassin-summary-value">
+              <div class="detail-bassin-quantity-selector d-flex align-items-center">
+                <button class="btn btn-outline-secondary btn-sm" 
+                        (click)="decreaseCustomQuantity()" 
+                        [disabled]="customQuantity <= 1">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <input type="number" 
+                       class="form-control form-control-sm mx-2 text-center" 
+                       [(ngModel)]="customQuantity" 
+                       [ngModelOptions]="{standalone: true}"
+                       min="1" 
+                       style="width: 70px;"
+                       (change)="validateCustomQuantity()">
+                <button class="btn btn-outline-secondary btn-sm" 
+                        (click)="increaseCustomQuantity()">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Price -->
+          <div class="detail-bassin-summary-total">
+            <div class="row">
+              <div class="col-6">
+                <strong class="detail-bassin-total-label">
+                  <i class="fas fa-calculator text-primary me-2"></i>
+                  Prix unitaire:
+                </strong>
+              </div>
+              <div class="col-6">
+                <strong class="detail-bassin-total-price">
+                  {{ customizationSummary.prixEstime | currency:'TND' }}
+                </strong>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-6">
+                <strong class="detail-bassin-total-label">
+                  <i class="fas fa-shopping-cart text-primary me-2"></i>
+                  Prix total ({{ customQuantity }} {{ customQuantity > 1 ? 'unités' : 'unité' }}):
+                </strong>
+              </div>
+              <div class="col-6">
+                <strong class="detail-bassin-final-price text-success">
+                  {{ (customizationSummary.prixEstime * customQuantity) | currency:'TND' }}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fixed Action Buttons -->
+    <div class="detail-bassin-summary-actions">
+      <div class="d-flex gap-2">
+        <button class="detail-bassin-action-button detail-bassin-add-to-cart btn btn-primary flex-fill" 
+                (click)="addCustomToCart()">
+          <i class="fas fa-cart-plus me-2"></i>
+          Ajouter au panier
+          <span class="detail-bassin-cart-quantity badge bg-light text-dark ms-2">{{ customQuantity }}</span>
+        </button>
+        <button class="detail-bassin-action-button detail-bassin-edit-custom btn btn-outline-secondary" 
+                (click)="editCustomization()">
+          <i class="fas fa-edit"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Customization Summary -->
+<div *ngIf="isCustomizationComplete" class="detail-bassin-customization-modal" [@fadeInOut]>
+  <div class="detail-bassin-customization-content p-4 bg-white rounded-3 shadow">
+    <!-- Summary Header -->
+    <div class="detail-bassin-summary-header d-flex justify-content-between align-items-center mb-3">
+      <h3 class="detail-bassin-summary-title">
+        <i class="fas fa-clipboard-check text-success me-2"></i>
+        Résumé de la personnalisation
+      </h3>
+      <button class="detail-bassin-summary-close btn btn-outline-secondary" (click)="closeCustomization()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Scrollable Summary Content -->
+    <div class="detail-bassin-summary-scrollable">
+      <div class="detail-bassin-summary-card p-3">
+        
+        <!-- Product Preview -->
+        <div class="detail-bassin-summary-preview mb-3">
+          <div class="detail-bassin-preview-color" [style.backgroundColor]="customizationSummary.couleur"></div>
+          <div class="detail-bassin-preview-info">
+            <h5 class="detail-bassin-preview-title">{{ customizationSummary?.nomBassin }}</h5>
+            <p class="detail-bassin-preview-subtitle text-muted">Version personnalisée</p>
+          </div>
+        </div>
+
+        <!-- Customization Details -->
+        <div class="detail-bassin-summary-details">
+          
+          <!-- Material -->
+          <div *ngIf="customizationSummary.materiau !== 'Standard'" class="detail-bassin-summary-item row mb-2">
+            <div class="col-6 detail-bassin-summary-label">
+              <i class="fas fa-cube text-primary me-2"></i>
+              <strong>Matériau:</strong>
+            </div>
+            <div class="col-6 detail-bassin-summary-value">
+              {{ customizationSummary.materiau }}
+              <span class="detail-bassin-price-addition text-success">
+                (+{{ prixMateriaux[customizationSummary.materiau] | currency:'TND' }})
+              </span>
+            </div>
+          </div>
+
+          <!-- Dimensions -->
+          <div *ngIf="customizationSummary.dimension !== 'Standard'" class="detail-bassin-summary-item row mb-2">
+            <div class="col-6 detail-bassin-summary-label">
+              <i class="fas fa-ruler-combined text-primary me-2"></i>
+              <strong>Dimensions:</strong>
+            </div>
+            <div class="col-6 detail-bassin-summary-value">
+              {{ customizationSummary.dimension }}
+              <span class="detail-bassin-price-addition text-success">
+                (+{{ prixDimensions[customizationSummary.dimension] | currency:'TND' }})
+              </span>
+            </div>
+          </div>
+
+          <!-- Color -->
+          <div class="detail-bassin-summary-item row mb-2">
+            <div class="col-6 detail-bassin-summary-label">
+              <i class="fas fa-palette text-primary me-2"></i>
+              <strong>Couleur:</strong>
+            </div>
+            <div class="col-6 detail-bassin-summary-value">
+              <span class="detail-bassin-color-dot" [style.backgroundColor]="customizationSummary.couleur"></span>
+              {{ getColorName(customizationSummary.couleur) }}
+            </div>
+          </div>
+
+          <!-- Accessories -->
+          <div class="detail-bassin-summary-item row mb-2">
+            <div class="col-6 detail-bassin-summary-label">
+              <i class="fas fa-puzzle-piece text-primary me-2"></i>
+              <strong>Accessoires:</strong>
+            </div>
+            <div class="col-6 detail-bassin-summary-value">
+              <div *ngIf="customizationSummary.accessoires?.length === 0" class="text-muted">Aucun</div>
+              <div *ngIf="customizationSummary.accessoires?.length > 0" class="detail-bassin-accessories-list">
+                <div *ngFor="let acc of customizationSummary.accessoires" class="detail-bassin-accessory-item">
+                  <span class="detail-bassin-accessory-name">{{ acc.nomAccessoire }}</span>
+                  <span class="detail-bassin-price-addition text-success">
+                    (+{{ acc.prixAccessoire | currency:'TND' }})
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fabrication Time -->
+          <div class="detail-bassin-summary-item row mb-2">
+            <div class="col-6 detail-bassin-summary-label">
+              <i class="fas fa-clock text-primary me-2"></i>
+              <strong>Durée estimée:</strong>
+            </div>
+            <div class="col-6 detail-bassin-summary-value">
+              <span class="badge bg-info">{{ customizationSummary.dureeFabrication }} jours</span>
+            </div>
+          </div>
+
+          <!-- Quantity Selector -->
+          <div class="detail-bassin-summary-item row mb-3">
+            <div class="col-6 detail-bassin-summary-label">
+              <i class="fas fa-sort-numeric-up text-primary me-2"></i>
+              <strong>Quantité:</strong>
+            </div>
+            <div class="col-6 detail-bassin-summary-value">
+              <div class="detail-bassin-quantity-selector d-flex align-items-center">
+                <button class="btn btn-outline-secondary btn-sm" 
+                        (click)="decreaseCustomQuantity()" 
+                        [disabled]="customQuantity <= 1">
+                  <i class="fas fa-minus"></i>
+                </button>
+                <input type="number" 
+                       class="form-control form-control-sm mx-2 text-center" 
+                       [(ngModel)]="customQuantity" 
+                       [ngModelOptions]="{standalone: true}"
+                       min="1" 
+                       style="width: 70px;"
+                       (change)="validateCustomQuantity()">
+                <button class="btn btn-outline-secondary btn-sm" 
+                        (click)="increaseCustomQuantity()">
+                  <i class="fas fa-plus"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Total Price -->
+          <div class="detail-bassin-summary-total">
+            <div class="row">
+              <div class="col-6">
+                <strong class="detail-bassin-total-label">
+                  <i class="fas fa-calculator text-primary me-2"></i>
+                  Prix unitaire:
+                </strong>
+              </div>
+              <div class="col-6">
+                <strong class="detail-bassin-total-price">
+                  {{ customizationSummary.prixEstime | currency:'TND' }}
+                </strong>
+              </div>
+            </div>
+            <div class="row mt-2">
+              <div class="col-6">
+                <strong class="detail-bassin-total-label">
+                  <i class="fas fa-shopping-cart text-primary me-2"></i>
+                  Prix total ({{ customQuantity }} {{ customQuantity > 1 ? 'unités' : 'unité' }}):
+                </strong>
+              </div>
+              <div class="col-6">
+                <strong class="detail-bassin-final-price text-success">
+                  {{ (customizationSummary.prixEstime * customQuantity) | currency:'TND' }}
+                </strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fixed Action Buttons -->
+    <div class="detail-bassin-summary-actions">
+      <div class="d-flex gap-2">
+        <button class="detail-bassin-action-button detail-bassin-add-to-cart btn btn-primary flex-fill" 
+                (click)="addCustomToCart()">
+          <i class="fas fa-cart-plus me-2"></i>
+          Ajouter au panier
+          <span class="detail-bassin-cart-quantity badge bg-light text-dark ms-2">{{ customQuantity }}</span>
+        </button>
+        <button class="detail-bassin-action-button detail-bassin-edit-custom btn btn-outline-secondary" 
+                (click)="editCustomization()">
+          <i class="fas fa-edit"></i>
+        </button>
+      </div>
+    </div>
+
+
+
+<!-- 3D and AR Viewer Modal -->
+<div *ngIf="showViewerModal" class="detail-bassin-viewer-modal-overlay" [@fadeInOut] (click)="closeViewerModal()">
+  <div class="detail-bassin-viewer-modal-content" (click)="$event.stopPropagation()">
+    <button class="detail-bassin-viewer-modal-close" (click)="closeViewerModal()">
+      <i class="fas fa-times"></i>
+    </button>
+    <h3>{{ isARMode ? 'Visionnage en Réalité Augmentée' : 'Visionnage 3D' }}</h3>
+    
+    <!-- Loader Overlay -->
+    <div *ngIf="isLoading" class="loader-overlay">
+      <div class="loader"></div>
+      <p>Chargement du modèle 3D...</p>
+    </div>
+    
+    <!-- 3D Model Viewer (visible only in 3D mode) -->
+    <div *ngIf="!isARMode && !isLoading" class="model-3d-container">
+      <model-viewer 
+        #modelViewer
+        [src]="modelUrl"
+        [ios-src]="usdzUrl"
+        [alt]="bassin?.nomBassin || 'Modèle 3D'"
+        ar
+        ar-modes="webxr scene-viewer quick-look"
+        camera-controls
+        auto-rotate
+        shadow-intensity="1"
+        loading="eager"
+        environment-image="neutral"
+        exposure="1"
+        shadow-softness="0.3"
+        class="detail-bassin-model-viewer"
+        (load)="onModelLoad()"
+        (error)="onModelError($event)"
+        style="width: 100%; height: 500px; background-color: #f5f5f5;">
+        
+        <!-- Slot pour les contrôles additionnels -->
+        <div class="progress-bar" slot="progress-bar">
+          <div class="update-bar"></div>
+        </div>
+        
+        <!-- Message de fallback -->
+        <div slot="poster">
+          <div class="model-loading-placeholder">
+            <i class="fas fa-cube fa-3x mb-3"></i>
+            <p>Chargement du modèle 3D...</p>
+          </div>
+        </div>
+      </model-viewer>
+    </div>
+    
+    <!-- QR Code for AR (visible only in AR mode) -->
+   <div *ngIf="isARMode && !isLoading" class="detail-bassin-qr-container">
+  <div *ngIf="qrCodeImageUrl && !isGeneratingQR" class="qr-code-wrapper">
+    <div class="qr-code-background">
+      <img [src]="qrCodeImageUrl" alt="QR Code pour AR" class="detail-bassin-qr-code-image">
+    </div>
+    <div class="qr-code-instructions">
+      <h4>Comment utiliser :</h4>
+      <ol>
+        <li>Ouvrez l'appareil photo de votre téléphone</li>
+        <li>Scannez ce QR Code</li>
+        <li>Suivez les instructions pour voir le modèle en AR</li>
+      </ol>
+      <button class="btn btn-outline-primary mt-3" (click)="downloadQRCode()">
+        <i class="fas fa-download"></i> Télécharger QR Code
+      </button>
+    </div>
+  </div>
+  <div *ngIf="isGeneratingQR" class="detail-bassin-qr-code-placeholder">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Chargement...</span>
+    </div>
+    <p class="mt-2">Génération du QR Code...</p>
+  </div>
+</div>
+
+    <!-- Toggle Button (visible only on mobile) -->
+    <div class="mt-3 d-flex justify-content-center gap-2" *ngIf="isMobileDevice && !isLoading">
+      <button class="btn btn-outline-secondary" (click)="toggleViewerMode()">
+        <i class="fas" [ngClass]="isARMode ? 'fa-cube' : 'fa-vr-cardboard'"></i>
+        {{ isARMode ? 'Passer à la vue 3D' : 'Passer à la vue AR' }}
+      </button>
+    </div>
+    
+    <!-- Debug Info (à supprimer en production) -->
+    <div *ngIf="showDebugInfo" class="debug-info mt-3">
+      <small>
+        <strong>Debug:</strong><br>
+        Model URL: {{ modelUrl }}<br>
+        USDZ URL: {{ usdzUrl }}<br>
+        Error: {{ modelError }}<br>
+        Loading: {{ isLoading }}
+      </small>
+    </div>
+  </div>
+</div></div></div>
+
+    <app-footer></app-footer>
+  </div>
+
+
+   <!-- Bootstrap JS, Popper.js, and jQuery -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  <script>
+    $(document).ready(function() {
+      // Add animation delay for review cards
+      $('.detail-bassin-review-card').each(function(index) {
+        $(this).css('animation-delay', (index * 100) + 'ms');
+      });
+      // Real-time form validation
+      $('#message').on('input', function() {
+        $(this).trigger('change'); // Trigger change to update Angular form control
+      });
+    });
+  </script>
+</body>
+</html>

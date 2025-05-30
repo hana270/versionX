@@ -1,0 +1,242 @@
+<app-layout-installateur>
+  <!-- Header avec profil -->
+ <!--     <header class="header">
+      <div class="container">
+          <div class="profile-section">
+              <div class="profile-image">
+                  <span class="material-icons">person</span>
+              </div>
+              
+              <div class="profile-info">
+                  <h1>Marc Dubois</h1>
+                  <p class="profile-title">Expert Installateur Aquatique • 12 ans d'expérience</p>
+                  <div class="profile-stats">
+                      <div class="stat-item">
+                          <span class="stat-number">150+</span>
+                          <span class="stat-label">Projets</span>
+                      </div>
+                      <div class="stat-item">
+                          <span class="stat-number">4.9★</span>
+                          <span class="stat-label">Note</span>
+                      </div>
+                      <div class="stat-item">
+                          <span class="stat-number">98%</span>
+                          <span class="stat-label">Satisfaction</span>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="contact-quick">
+                  <button class="contact-btn" (click)="callInstaller()">
+                      <span class="material-icons">phone</span>
+                      Appeler
+                  </button>
+                  <button class="contact-btn" (click)="messageInstaller()">
+                      <span class="material-icons">message</span>
+                      Message
+                  </button>
+              </div>
+          </div>
+      </div>
+  </header>   -->
+
+  <!-- Spécialités -->
+ <!---- <section class="specialties-section">
+    <div class="container">
+      <h2 class="section-title">Mes Spécialités</h2>
+      <div class="specialties-grid">
+        <div *ngFor="let specialty of specialties; trackBy: trackByFn" class="specialty-card">
+          <div class="specialty-icon">
+            <span class="material-icons">{{specialty.icon}}</span>
+          </div>
+          <h3 class="specialty-name">{{specialty.name}}</h3>
+          <p class="specialty-desc">{{specialty.description}}</p>
+          <ul class="specialty-features">
+            <li *ngFor="let feature of specialty.features; trackBy: trackByFeature">
+              <span class="material-icons">check_circle</span>{{feature}}
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>   -->
+
+  <!-- Portfolio -->
+ <!---- <section class="portfolio-section">
+      <div class="container">
+          <h2 class="section-title">Projets Récents</h2>
+          <div class="portfolio-grid">
+              <div class="portfolio-item">
+                  <div class="portfolio-image">
+                      <span class="material-icons">pool</span>
+                  </div>
+                  <div class="portfolio-content">
+                      <h3 class="portfolio-title">Piscine Familiale Premium</h3>
+                      <p class="portfolio-desc">Installation complète d'une piscine 8x4m avec système de filtration et éclairage LED.</p>
+                      <div class="portfolio-tags">
+                          <span class="tag">Piscine</span>
+                          <span class="tag">Éclairage</span>
+                          <span class="tag">Filtration</span>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="portfolio-item">
+                  <div class="portfolio-image">
+                      <span class="material-icons">water_drop</span>
+                  </div>
+                  <div class="portfolio-content">
+                      <h3 class="portfolio-title">Aquarium Sur Mesure</h3>
+                      <p class="portfolio-desc">Création d'un aquarium tropical de 500L avec système de filtration biologique.</p>
+                      <div class="portfolio-tags">
+                          <span class="tag">Aquarium</span>
+                          <span class="tag">Sur mesure</span>
+                          <span class="tag">Tropical</span>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="portfolio-item">
+                  <div class="portfolio-image">
+                      <span class="material-icons">landscape</span>
+                  </div>
+                  <div class="portfolio-content">
+                      <h3 class="portfolio-title">Aménagement Paysager</h3>
+                      <p class="portfolio-desc">Conception d'un jardin aquatique avec cascade et bassins décoratifs.</p>
+                      <div class="portfolio-tags">
+                          <span class="tag">Paysagisme</span>
+                          <span class="tag">Cascade</span>
+                          <span class="tag">Bassin</span>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>   -->
+
+  <!-- Témoignages -->
+ <!---- <section class="testimonials-section">
+      <div class="container">
+          <h2 class="section-title">Témoignages Clients</h2>
+          <div class="testimonials-grid">
+              <div class="testimonial-card">
+                  <p class="testimonial-text">"Marc a réalisé notre piscine de rêve ! Professionnel, ponctuel et d'excellents conseils. Je recommande vivement ses services."</p>
+                  <div class="testimonial-author">
+                      <div class="author-avatar">SL</div>
+                      <div class="author-info">
+                          <h4>Sophie Lefebvre</h4>
+                          <p>Particulier • Montpellier</p>
+                          <div class="rating">
+                              <span class="material-icons">star</span>
+                              <span class="material-icons">star</span>
+                              <span class="material-icons">star</span>
+                              <span class="material-icons">star</span>
+                              <span class="material-icons">star</span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="testimonial-card">
+                  <p class="testimonial-text">"Installation d'aquarium parfaite ! Marc maîtrise parfaitement son domaine et propose des solutions innovantes."</p>
+                  <div class="testimonial-author">
+                      <div class="author-avatar">PM</div>
+                      <div class="author-info">
+                          <h4>Pierre Martin</h4>
+                          <p>Restaurant • Lyon</p>
+                          <div class="rating">
+                              <span class="material-icons">star</span>
+                              <span class="material-icons">star</span>
+                              <span class="material-icons">star</span>
+                              <span class="material-icons">star</span>
+                              <span class="material-icons">star</span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="testimonial-card">
+                  <p class="testimonial-text">"Travail soigné et dans les délais. Marc a su nous accompagner tout au long du projet avec professionnalisme."</p>
+                  <div class="testimonial-author">
+                      <div class="author-avatar">AD</div>
+                      <div class="author-info">
+                          <h4>Anne Dubois</h4>
+                          <p>Particulier • Toulouse</p>
+                          <div class="rating">
+                              <span class="material-icons">star</span>
+                              <span class="material-icons">star</span>
+                              <span class="material-icons">star</span>
+                              <span class="material-icons">star</span>
+                              <span class="material-icons">star</span>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>   -->
+
+  <!-- Contact -->
+ <!---- <section class="contact-section">
+      <div class="container">
+          <div class="contact-grid">
+              <div class="contact-info">
+                  <h2>Contactez-moi</h2>
+                  <p>Prêt à concrétiser votre projet aquatique ? Contactez-moi pour un devis gratuit et personnalisé.</p>
+                  
+                  <div class="contact-methods">
+                      <div class="contact-method">
+                          <div class="contact-icon">
+                              <span class="material-icons">phone</span>
+                          </div>
+                          <div>
+                              <strong>Téléphone</strong><br>
+                              06 12 34 56 78
+                          </div>
+                      </div>
+                      
+                      <div class="contact-method">
+                          <div class="contact-icon">
+                              <span class="material-icons">email</span>
+                          </div>
+                          <div>
+                               <strong>Email</strong><br>
+marc.dubois&#64;aqua-expert.fr
+                      </div>
+                      </div>
+                      
+                      <div class="contact-method">
+                          <div class="contact-icon">
+                              <span class="material-icons">location_on</span>
+                          </div>
+                          <div>
+                              <strong>Zone d'intervention</strong><br>
+                              Montpellier et 50km autour
+                          </div>
+                      </div>
+                  </div>
+              </div>
+
+              <div class="availability">
+                  <h3>Disponibilités</h3>
+                  <div class="schedule-item">
+                      <span>Lundi - Mercredi</span>
+                      <span class="status-badge">Disponible</span>
+                  </div>
+                  <div class="schedule-item">
+                      <span>Jeudi - Vendredi</span>
+                      <span style="background: var(--accent)" class="status-badge">Occupé</span>
+                  </div>
+                  <div class="schedule-item">
+                      <span>Week-end</span>
+                      <span class="status-badge">Sur demande</span>
+                  </div>
+                  <div class="schedule-item">
+                      <span>Délai moyen</span>
+                      <strong>2-3 jours</strong>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </section>   -->
+</app-layout-installateur>

@@ -1,0 +1,251 @@
+<app-layout >
+  <div class="users-management-container">
+    <!-- Main Content Card -->
+    <div class="main-card">
+      <!-- Loading Spinner -->
+      <div *ngIf="isLoading" class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Chargement des utilisateurs...</p>
+      </div>
+
+      <!-- Main Content -->
+      <div *ngIf="!isLoading">
+
+        <div class="top-bar card shadow-sm mb-4">
+          <div class="card-body py-3">
+            <div class="d-flex justify-content-between align-items-center">
+              <label class="mb-0 text-h4">
+  <i class="fas fa-users me-2"></i>
+Gestion des Utilisateurs
+</label>
+
+              <div class="search-bar" style="color:black">
+                <div class="input-group search-bar">
+                  <input type="text" [(ngModel)]="searchQuery" (keyup)="applyGlobalFilter()" class="form-control"
+                    placeholder="Rechercher...">
+
+                  <button *ngIf="searchQuery" (click)="clearSearch()" class="clear-search-btn">
+                    <i class="fas fa-times"></i>
+                  </button>
+
+                  <button class="btn btn-primary" type="button">
+                    <i class="fas fa-search"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Tabs Section -->
+        <div class="tabs-container">
+          <!-- Tab Headers -->
+          <div class="tab-headers">
+            <button class="tab-header" [class.active]="activeTab === 'clients'" (click)="switchTab('clients')">
+              <i class="fas fa-user"></i>
+              Clients ({{filteredClients.length}})
+            </button>
+            <button class="tab-header" [class.active]="activeTab === 'installers'" (click)="switchTab('installers')">
+              <i class="fas fa-hard-hat"></i>
+              Installateurs ({{filteredInstallers.length}})
+            </button>
+          </div>
+
+          <!-- Tab Content -->
+          <div class="tab-content">
+            <!-- Clients Tab -->
+            <div *ngIf="activeTab === 'clients'" class="clients-tab">
+              <div class="table-container">
+                <div class="table-wrapper">
+                  <table class="professional-table">
+                    <thead>
+                      <tr>
+                        <th class="profile-col">Photo</th>
+                        <th class="name-col" (click)="sortClients('fullName')">
+                          Nom Complet
+                          <i class="fas fa-sort sort-icon"></i>
+                        </th>
+                        <th class="email-col" (click)="sortClients('email')">
+                          Email
+                          <i class="fas fa-sort sort-icon"></i>
+                        </th>
+                        <th class="status-col" (click)="sortClients('enabled')">
+                          Statut
+                          <i class="fas fa-sort sort-icon"></i>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let client of paginatedClients; trackBy: trackByUserId" class="table-row"
+                        [class.disabled-row]="!client.enabled">
+                        <td class="profile-col">
+                          <div class="profile-image-container">
+                            <img [src]="getProfileImageUrl(client.profileImage)" [alt]="client.fullName"
+                              class="profile-image" (error)="onImageError($event)">
+                          </div>
+                        </td>
+                        <td class="name-col">
+                          <div class="user-info">
+                            <div class="user-name">{{ client.fullName }}</div>
+                            <div class="user-username">{{ client.username }}</div>
+                          </div>
+                        </td>
+                        <td class="email-col">
+                          <a [href]="'mailto:' + client.email" class="email-link">
+                            {{ client.email }}
+                          </a>
+                        </td>
+                        <td class="status-col">
+                          <span class="status-badge" [ngClass]="client.enabled ? 'status-active' : 'status-inactive'">
+                            {{ client.enabled ? 'Actif' : 'Inactif' }}
+                          </span>
+                        </td>
+                      </tr>
+                      <tr *ngIf="paginatedClients.length === 0" class="no-data-row">
+                        <td colspan="4" class="no-data">
+                          <i class="fas fa-search"></i>
+                          Aucun client trouvé
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Pagination for Clients -->
+                <div class="pagination-container" *ngIf="filteredClients.length > pageSize">
+                  <div class="pagination-info">
+                    Affichage de {{ getCurrentPageStart('clients') }} à {{ getCurrentPageEnd('clients') }}
+                    sur {{ filteredClients.length }} clients
+                  </div>
+                  <div class="pagination-controls">
+                    <button class="pagination-btn" [disabled]="currentClientPage === 1"
+                      (click)="goToPage('clients', 1)">
+                      <i class="fas fa-angle-double-left"></i>
+                    </button>
+                    <button class="pagination-btn" [disabled]="currentClientPage === 1"
+                      (click)="goToPage('clients', currentClientPage - 1)">
+                      <i class="fas fa-angle-left"></i>
+                    </button>
+                    <span class="page-info">{{ currentClientPage }} / {{ getTotalPages('clients') }}</span>
+                    <button class="pagination-btn" [disabled]="currentClientPage === getTotalPages('clients')"
+                      (click)="goToPage('clients', currentClientPage + 1)">
+                      <i class="fas fa-angle-right"></i>
+                    </button>
+                    <button class="pagination-btn" [disabled]="currentClientPage === getTotalPages('clients')"
+                      (click)="goToPage('clients', getTotalPages('clients'))">
+                      <i class="fas fa-angle-double-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Installers Tab -->
+            <div *ngIf="activeTab === 'installers'" class="installers-tab">
+              <div class="table-container">
+                <div class="table-wrapper">
+                  <table class="professional-table">
+                    <thead>
+                      <tr>
+                        <th class="profile-col">Photo</th>
+                        <th class="name-col" (click)="sortInstallers('fullName')">
+                          Nom Complet
+                          <i class="fas fa-sort sort-icon"></i>
+                        </th>
+                        <th class="specialty-col" (click)="sortInstallers('specialty')">
+                          Spécialité
+                          <i class="fas fa-sort sort-icon"></i>
+                        </th>
+                        <th class="status-col" (click)="sortInstallers('enabled')">
+                          Statut
+                          <i class="fas fa-sort sort-icon"></i>
+                        </th>
+                        <th class="actions-col">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let installer of paginatedInstallers; trackBy: trackByUserId" class="table-row"
+                        [class.disabled-row]="!installer.enabled">
+                        <td class="profile-col">
+                          <div class="profile-image-container">
+                            <img [src]="installer.profileImage" [alt]="installer.fullName" class="profile-image"
+                              (error)="onImageError($event)">
+                          </div>
+                        </td>
+                        <td class="name-col">
+                          <div class="user-info">
+                            <div class="user-name">{{ installer.fullName }}</div>
+                            <div class="user-username">{{ installer.username }}</div>
+                          </div>
+                        </td>
+                        <td class="specialty-col">
+                          <span class="specialty-badge">
+                            {{ getSpecialtyDisplayName(installer.specialty) }}
+                          </span>
+                        </td>
+                        <td class="status-col">
+                          <span class="status-badge"
+                            [ngClass]="installer.enabled ? 'status-active' : 'status-inactive'">
+                            {{ installer.enabled ? 'Actif' : 'Inactif' }}
+                          </span>
+                        </td>
+                        <td class="actions-col">
+                          <div class="action-buttons">
+                            <button class="action-btn specialty-btn" (click)="openEditSpecialtyDialog(installer)"
+                              title="Modifier spécialité">
+                              <i class="fas fa-tools"></i>
+                            </button>
+                            <button class="action-btn" [ngClass]="installer.enabled ? 'deactivate-btn' : 'activate-btn'"
+                              (click)="toggleUserStatus(installer)"
+                              [title]="installer.enabled ? 'Désactiver' : 'Activer'">
+                              <i class="fas" [ngClass]="installer.enabled ? 'fa-ban' : 'fa-check-circle'"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+
+                      <tr *ngIf="paginatedInstallers.length === 0" class="no-data-row">
+                        <td colspan="5" class="no-data">
+                          <i class="fas fa-search"></i>
+                          Aucun installateur trouvé
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Pagination for Installers -->
+                <div class="pagination-container" *ngIf="filteredInstallers.length > pageSize">
+                  <div class="pagination-info">
+                    Affichage de {{ getCurrentPageStart('installers') }} à {{ getCurrentPageEnd('installers') }}
+                    sur {{ filteredInstallers.length }} installateurs
+                  </div>
+                  <div class="pagination-controls">
+                    <button class="pagination-btn" [disabled]="currentInstallerPage === 1"
+                      (click)="goToPage('installers', 1)">
+                      <i class="fas fa-angle-double-left"></i>
+                    </button>
+                    <button class="pagination-btn" [disabled]="currentInstallerPage === 1"
+                      (click)="goToPage('installers', currentInstallerPage - 1)">
+                      <i class="fas fa-angle-left"></i>
+                    </button>
+                    <span class="page-info">{{ currentInstallerPage }} / {{ getTotalPages('installers') }}</span>
+                    <button class="pagination-btn" [disabled]="currentInstallerPage === getTotalPages('installers')"
+                      (click)="goToPage('installers', currentInstallerPage + 1)">
+                      <i class="fas fa-angle-right"></i>
+                    </button>
+                    <button class="pagination-btn" [disabled]="currentInstallerPage === getTotalPages('installers')"
+                      (click)="goToPage('installers', getTotalPages('installers'))">
+                      <i class="fas fa-angle-double-right"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-layout>

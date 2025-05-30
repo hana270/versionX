@@ -1,0 +1,95 @@
+<app-layout>
+  <div class="messaging-container">
+    <div class="conversation-list">
+      <div class="role-switcher">
+        <button [class.active]="currentRole === 'clients'" (click)="switchRole('clients')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+  <circle cx="9" cy="7" r="4"></circle>
+  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+</svg>
+          Clients
+        </button>
+
+        <button [class.active]="currentRole === 'installers'" (click)="switchRole('installers')">
+         <i class="fas fa-hard-hat"></i>
+          Installateurs
+        </button>
+      </div>
+
+      <!-- Barre de recherche -->
+      <div class="conversation-search">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          (input)="filterConversations()"
+          placeholder="Rechercher un utilisateur..."
+          class="search-input">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="search-icon">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </div>
+      
+      <app-conversation-item
+        *ngFor="let conv of conversations"
+        [conversation]="conv"
+        [isActive]="currentConversation === conv.id"
+        (select)="selectConversation($event)">
+      </app-conversation-item>
+    </div>
+    
+    <div class="message-area" *ngIf="selectedConversation">
+      <div class="message-header">
+        <div class="header-left">
+             <div class="participant-avatar">
+        <img *ngIf="selectedConversation.photoUrl" [src]="selectedConversation.photoUrl" alt="Profile">
+        <span *ngIf="!selectedConversation.photoUrl" class="avatar-fallback">{{ selectedConversation.avatar }}</span>
+      </div>
+          <h3>{{ selectedConversation.name }}</h3>
+        </div>
+      </div>
+      
+      <div class="messages">
+        <app-message
+          *ngFor="let msg of messages"
+          [message]="msg"
+          [role]="currentRole">
+        </app-message>
+        
+        <div class="typing-indicator" *ngIf="isTyping">
+         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <circle cx="12" cy="12" r="10"></circle>
+  <path d="M8 12h.01M12 12h.01M16 12h.01"></path>
+</svg>
+          {{ typingUser }} est en train d'écrire...
+        </div>
+      </div>
+      
+      <div class="message-input-container">
+        <div class="input-wrapper">
+          
+          <textarea
+            #messageInputRef
+            (keyup.enter)="sendMessage(messageInputRef.value); messageInputRef.value = ''"
+            (input)="autoResize($event)"
+            placeholder="Écrivez votre message..."
+            class="message-textarea"
+            rows="1">
+          </textarea>
+          
+          <button 
+            class="send-button"
+            (click)="sendMessage(messageInputRef.value); messageInputRef.value = ''"
+            [disabled]="!messageInputRef.value?.trim()">
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M22 2L11 13"></path>
+  <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>
+</svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-layout>

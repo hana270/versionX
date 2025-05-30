@@ -1,0 +1,21 @@
+<div class="message" [class.sent]="message.type === 'sent'">
+    <div class="message-avatar" 
+         [class.admin-avatar]="message.type === 'sent'"
+         [class.client-avatar]="message.type === 'received' && role === 'clients'"
+         [class.installer-avatar]="message.type === 'received' && role === 'installers'">
+         <img *ngIf="message.photoUrl" [src]="message.photoUrl" alt="Profile" class="avatar-image">
+        <span *ngIf="!message.photoUrl" class="avatar-fallback">{{ message.avatar }}</span>
+    </div>
+    <div class="message-content">
+       <!--<div class="priority-badge priority-{{ message.priority }}" *ngIf="message.priority && message.priority !== 'normal'">
+            {{ getPriorityText(message.priority) }}
+        </div>-->
+        <div class="message-bubble">
+            <div class="message-text">{{ message.text }}</div>
+            <div class="message-meta">
+                <span class="message-time">{{ message.time }}</span>
+                <div class="message-status" *ngIf="message.type === 'sent'">✓✓</div>
+            </div>
+        </div>
+    </div>
+</div>

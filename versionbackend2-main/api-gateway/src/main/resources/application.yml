@@ -1,0 +1,145 @@
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: api-gateway
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin, RETAIN_UNIQUE
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: "http://localhost:4200"
+            allowed-methods: 
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowed-headers: "*"
+            allow-credentials: true
+            exposed-headers: 
+              - Authorization
+              - X-Session-ID
+            max-age: 3600
+      routes:
+        - id: aquatresor-service
+          uri: lb://aquatresor-service
+          predicates:
+            - Path=/api/aquatresor/**
+          filters:
+            - StripPrefix=1
+
+        - id: aquatresor-service-with-prefix
+          uri: lb://aquatresor-service
+          predicates:
+            - Path=/aquatresor/api/**
+          filters:
+            - StripPrefix=1
+
+        - id: notifications-service
+          uri: lb://notifications-microservice
+          predicates:
+            - Path=/notifications/**
+            
+        - id: orders-service
+          uri: lb://orders-microservice
+          predicates:
+            - Path=/api/panier/**
+            
+        - id: users-service
+          uri: lb://users-microservice
+          predicates:
+            - Path=/api/users/**
+                
+        - id: users-service-direct
+          uri: lb://users-microservice
+          predicates:
+            - Path=/users/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: users-service
+                fallbackUri: forward:/fallback/users
+            - RewritePath=/users/(?<segment>.*), /api/users/$\{segment}
+            
+        - id: installations-service
+          uri: lb://installations-service
+          predicates:
+            - Path=/api/installations/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: installations-service
+                fallbackUri: forward:/fallback/installations
+            
+        - id: fallback
+          uri: no://op
+          predicates:
+            - Path=/fallback/**
+
+server:
+  port: 8087
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+    registry-fetch-interval-seconds: 5
+    eureka-server-connect-timeout-seconds: 5
+    eureka-server-read-timeout-seconds: 8
+    eureka-connection-idle-timeout-seconds: 10
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 15
+    instance-id: ${spring.application.name}:${server.port}
+    appname: ${spring.application.name}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      users-service:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+      installations-service:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.client.discovery: DEBUG
+    com.netflix.eureka: DEBUG
+    com.netflix.discovery: DEBUG

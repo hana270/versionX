@@ -1,0 +1,114 @@
+spring:
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+  application:
+    name: orders-microservice
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orders
+    username: postgres
+    password: "123456"
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      connection-timeout: 5000
+      maximum-pool-size: 10
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: hanabelhadj27@gmail.com
+    password: cebu udyr xvoo tmwu
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 8000
+          timeout: 8000
+          writetimeout: 8000
+          ssl:
+            trust: "*"
+            protocols: TLSv1.2
+        transport:
+          protocol: smtp
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 5000
+        readTimeout: 5000
+      AQUATRESOR-SERVICE:
+        connectTimeout: 6000
+        readTimeout: 6000
+      NOTIFICATIONS-MICROSERVICE:
+        connectTimeout: 6000
+        readTimeout: 6000
+  circuitbreaker:
+    enabled: true
+  httpclient:
+    enabled: true
+
+server:
+  port: 8090
+
+eureka:
+  client:
+    enabled: true
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+    healthcheck:
+      enabled: true
+    registry-fetch-interval-seconds: 5
+    eureka-server-connect-timeout-seconds: 5
+    eureka-server-read-timeout-seconds: 8
+    eureka-connection-idle-timeout-seconds: 10
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${server.port}
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 15
+    metadata-map:
+      zone: primary
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true
+    mail:
+      enabled: false
+
+logging:
+  level:
+    org.springframework.cloud.netflix.eureka: DEBUG
+    com.netflix.discovery: TRACE
+    org.springframework.web: DEBUG
+    org.springframework.cloud: DEBUG
+    org.springframework.boot.autoconfigure: DEBUG
+    org.springframework.mail: DEBUG

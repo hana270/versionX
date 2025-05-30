@@ -1,0 +1,459 @@
+/* Variables principales - noir et blanc */
+:root {
+    --primary-color: #333333;
+    --secondary-color: #666666;
+    --success-color: #2dce89; /* Gardé pour l'icône d'édition */
+    --danger-color: #f5365c; /* Gardé pour l'icône de suppression */
+    --background-color: #f8f9fa;
+    --card-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --sidebar-width: 250px;
+  }
+  
+  /* Reset complet */
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  }
+  
+.text-h4 {
+  font-size: 1.5rem;    /* Taille équivalente à h4 */
+  font-weight: 600;     /* Épaisseur de police */
+  line-height: 1.2;     /* Hauteur de ligne */
+  margin-bottom: 0.5rem;/* Marge basse */
+  display: block;       /* Comportement block comme un h4 */
+  color: inherit;       /* Hérite la couleur du parent */
+}
+  /* Layout principal */
+  app-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--background-color);
+  }
+  
+  /* Conteneur admin */
+  .admin-container {
+    flex: 1;
+    padding: 20px;
+    margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width));
+    transition: margin-left 0.3s ease, width 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  /* Cartes et ombres */
+  .card {
+    border-radius: 10px;
+    border: none;
+    background-color: white;
+    overflow: hidden;
+  }
+  
+  .shadow-sm {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+  
+  /* Barre supérieure */
+  .top-bar {
+    background-color: white;
+    border-radius: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .top-bar .card-body {
+    padding: 1rem 1.5rem;
+  }
+  
+  .top-bar h4 {
+    color: #333333;
+    font-weight: 600;
+  }
+  
+  .top-bar .fas {
+    color: #333333;
+  }
+  
+  /* Barre de recherche */
+  .search-bar {
+    max-width: 300px;
+  }
+  
+  .search-bar .form-control {
+    border-radius: 5px 0 0 5px;
+    border: 1px solid #ced4da;
+    padding: 0.5rem 1rem;
+    height: 40px;
+  }
+  
+  .search-bar .btn-primary {
+    background-color: #333333;
+    border-color: #333333;
+    border-radius: 0 5px 5px 0;
+    height: 40px;
+  }
+  
+  .search-bar .btn-primary:hover {
+    background-color: #1a1a1a;
+    border-color: #1a1a1a;
+  }
+
+  /* icône est blanche search */
+.search-bar .btn-primary i {
+  color: white !important;
+}
+  
+  /* Carte principale */
+  .main-content-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+  
+  .card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+  }
+  
+  .card-title {
+    color: #333333;
+    font-weight: 600;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+  }
+  
+  .card-title i {
+    margin-right: 10px;
+  }
+  
+  /* Boutons */
+  .btn-primary {
+    background-color: #333333;
+    border-color: #333333;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    background-color: #1a1a1a;
+    border-color: #1a1a1a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .btn-outline-secondary {
+    color: #666666;
+    border-color: #666666;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-outline-secondary:hover {
+    background-color: #666666;
+    color: white;
+  }
+  
+  /* Filtres */
+  .form-select {
+    padding: 0.5rem 1rem;
+    border-radius: 5px 0 0 5px;
+    border: 1px solid #ced4da;
+    height: 40px;
+  }
+  
+  /* Conteneur du tableau */
+  .table-container {
+    flex: 1;
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  /* Tableau */
+  .bassin-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: white;
+    table-layout: fixed;
+  }
+  
+  .bassin-table th,
+  .bassin-table td {
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+    vertical-align: middle;
+  }
+  
+  .bassin-table th {
+    background-color: #333333;
+    color: white;
+    font-weight: 500;
+    font-size: 0.95rem;
+    position: sticky;
+    top: 0;
+  }
+  
+  .bassin-table th:first-child {
+    border-top-left-radius: 8px;
+  }
+  
+  .bassin-table th:last-child {
+    border-top-right-radius: 8px;
+  }
+  
+  .bassin-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .bassin-table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Checkbox style */
+  .form-check-input {
+    width: 18px;
+    height: 18px;
+    margin-top: 0;
+    cursor: pointer;
+    border: 1px solid #ced4da;
+  }
+  
+  .form-check-input:checked {
+    background-color: #333333;
+    border-color: #333333;
+  }
+  
+  /* Icônes d'action - Conserver les couleurs originales */
+ /* Icônes d'action */
+.action-icon {
+  background: none;
+  border: none;
+  padding: 8px;
+  margin: 0 3px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s;
+  border-radius: 50%;
+}
+
+.action-icon:hover {
+  transform: scale(1.2);
+}
+
+/* Icône de modification - Verte */
+.edit-icon {
+  color: #28a745; /* Vert Bootstrap */
+}
+
+.edit-icon:hover {
+  color: #218838; /* Vert plus foncé */
+  background-color: rgba(40, 167, 69, 0.1); /* Fond vert très léger */
+}
+
+/* Icône de suppression - Rouge */
+.delete-icon {
+  color: #dc3545; /* Rouge Bootstrap */
+}
+
+.delete-icon:hover {
+  color: #c82333; /* Rouge plus foncé */
+  background-color: rgba(220, 53, 69, 0.1); /* Fond rouge très léger */
+}
+
+.actions-cell {
+  text-align: center;
+  white-space: nowrap;
+}
+  
+  /* Pagination */
+  .pagination {
+    margin-bottom: 0;
+  }
+  
+  .page-link {
+    color: #333333;
+    padding: 0.5rem 0.75rem;
+    margin: 0 3px;
+    border-radius: 5px;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+  }
+  
+  .page-link:hover {
+    background-color: #e9ecef;
+    color: #333333;
+    z-index: 2;
+  }
+  
+  .page-item.active .page-link {
+    background-color: #333333;
+    border-color: #333333;
+  }
+  
+  .page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+  }
+  
+  /* Responsive */
+  @media (max-width: 992px) {
+    .admin-container {
+      padding: 15px;
+    }
+    
+    .card-body {
+      padding: 1rem;
+    }
+    
+    .btn {
+      padding: 0.4rem 0.8rem;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    .admin-container {
+      margin-left: 0 !important;
+      width: 100% !important;
+      padding: 15px;
+    }
+    
+    .d-flex.justify-content-between {
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .search-bar {
+      max-width: 100%;
+      margin-top: 10px;
+    }
+    
+    .row.mb-4 {
+      flex-direction: column;
+      gap: 15px;
+    }
+    
+    .col-md-6 {
+      width: 100%;
+    }
+    
+    .col-md-6.text-end {
+      text-align: left !important;
+      margin-top: 10px;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .admin-container {
+      padding: 10px;
+    }
+    
+    .card-body {
+      padding: 0.75rem;
+    }
+    
+    .bassin-table th,
+    .bassin-table td {
+      padding: 10px 5px;
+      font-size: 0.9rem;
+    }
+    
+    .action-icon {
+      font-size: 1rem;
+      margin: 0 2px;
+      padding: 5px;
+    }
+    
+    .btn {
+      font-size: 0.9rem;
+      padding: 0.35rem 0.7rem;
+    }
+    
+    .card-title {
+      font-size: 1.3rem;
+    }
+    
+    .top-bar h4 {
+      font-size: 1.2rem;
+    }
+  }
+  
+  /* Animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .main-content-card {
+    animation: fadeIn 0.3s ease-out;
+  }
+  
+  /* État :hover et :focus améliorés */
+  .form-control:focus,
+  .form-select:focus {
+    border-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25);
+  }
+  
+  .btn:focus {
+    box-shadow: 0 0 0 0.2rem rgba(0, 0, 0, 0.25);
+  }
+
+  /* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.pagination button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 0.9rem;
+  color: #343a40;
+}

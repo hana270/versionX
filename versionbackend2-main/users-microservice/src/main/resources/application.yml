@@ -1,0 +1,65 @@
+spring:
+  application:
+    name: users-microservice
+  datasource:
+    url: jdbc:postgresql://localhost:5432/users_db
+    username: postgres
+    password: "123456"
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+    open-in-view: false
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: hanabelhadj27@gmail.com
+    password: "cebu udyr xvoo tmwu"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+          ssl:
+            trust: "*"
+            protocols: TLSv1.2
+  # Ajoutez ces nouvelles configurations ici:
+  security:
+    filter:
+      dispatcher-types: REQUEST, ASYNC, FORWARD, ERROR # Important pour le routage
+  profiles:
+    active: dev
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+
+server:
+  port: 8002
+  # Ajoutez cette configuration ici:
+  forward-headers-strategy: framework # Gestion des headers forwardés
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 5
+    lease-expiration-duration-in-seconds: 10
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org.springframework.cors: DEBUG
+    org.springframework.core.env: DEBUG

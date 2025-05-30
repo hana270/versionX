@@ -1,0 +1,52 @@
+<app-header></app-header>
+<div class="container mt-5">
+  <h2>Vérification du paiement</h2>
+  <p>Un code de vérification a été envoyé à {{ transactionData?.email }}.</p>
+  <p>Temps restant: <span class="timer">{{ timerDisplay }}</span></p>
+  <p>Tentatives de renvoi restantes: {{ maxResendAttempts - resendAttempts }}</p>
+
+  <form [formGroup]="verificationForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+    <div class="form-group">
+      <label for="verificationCode">Code de vérification</label>
+      <input
+        type="text"
+        id="verificationCode"
+        formControlName="verificationCode"
+        class="form-control"
+        maxlength="6"
+        placeholder="123456"
+        [disabled]="timeLeft <= 0"
+      />
+      <div
+        *ngIf="verificationForm.get('verificationCode')?.touched && verificationForm.get('verificationCode')?.invalid"
+        class="text-danger"
+      >
+        Le code doit contenir 6 chiffres.
+      </div>
+    </div>
+
+    <button
+      type="submit"
+      class="btn btn-primary mt-3"
+      [disabled]="verificationForm.invalid || timeLeft <= 0 || isLoading"
+    >
+      Vérifier
+    </button>
+  </form>
+
+  <button
+    class="btn btn-link mt-3"
+    (click)="resendCode()"
+    [disabled]="isLoading || resendAttempts >= maxResendAttempts"
+  >
+    Renvoyer le code
+  </button>
+  <button
+    class="btn btn-danger mt-3"
+    (click)="cancelPayment()"
+    [disabled]="isLoading"
+  >
+    Annuler le paiement
+  </button>
+</div>
+<app-footer></app-footer>

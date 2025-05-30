@@ -1,0 +1,335 @@
+/* Status Badges */
+.status-pending {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-validated {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.status-preparing {
+  @apply bg-orange-100 text-orange-800;
+}
+
+.status-shipped {
+  @apply bg-indigo-100 text-indigo-800;
+}
+
+.status-delivered {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-cancelled {
+  @apply bg-red-100 text-red-800;
+}
+
+/* Animation for loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Transition for details row */
+.details-row {
+  transition: all 0.3s ease;
+}
+
+/* Custom scrollbar for table */
+.commandes-table-container {
+  overflow-x: auto;
+}
+
+.commandes-table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.commandes-table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.commandes-table-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.commandes-table-container::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+/* Hover effect for table rows */
+.commandes-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.commandes-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .filters-section {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .filter-box, .sort-box {
+    width: 100%;
+  }
+  
+  .search-box {
+    width: 100%;
+  }
+}
+
+/* Custom styles for the product details */
+.bassin-item {
+  transition: all 0.2s ease;
+}
+
+.bassin-item:hover {
+  background-color: #f8fafc;
+}
+
+.bassin-image {
+  transition: transform 0.2s ease;
+}
+
+.bassin-image:hover {
+  transform: scale(1.05);
+}
+
+/* Price summary styling */
+.price-summary .summary-row {
+  @apply flex justify-between py-2 border-b border-gray-200 last:border-0;
+}
+
+.price-summary .summary-row.total {
+  @apply font-medium text-lg;
+}
+
+/* Error message styling */
+.error-message {
+  @apply bg-red-50 text-red-800 p-4 rounded-md border border-red-200;
+}
+
+/* Loading message styling */
+.loading-message {
+  @apply bg-blue-50 text-blue-800 p-4 rounded-md border border-blue-200 flex items-center justify-center;
+}
+
+/* No results styling */
+.no-results {
+  @apply bg-gray-50 text-gray-800 p-8 rounded-md border border-gray-200 text-center;
+}
+
+/* Styles pour les icônes avec dégradés */
+.icon-container {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1));
+    border: 2px solid rgba(59, 130, 246, 0.2);
+}
+
+.client-icon {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(22, 163, 74, 0.1));
+    border: 2px solid rgba(34, 197, 94, 0.2);
+}
+
+.delivery-icon {
+    background: linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(234, 88, 12, 0.1));
+    border: 2px solid rgba(249, 115, 22, 0.2);
+}
+
+.order-icon {
+    background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(147, 51, 234, 0.1));
+    border: 2px solid rgba(168, 85, 247, 0.2);
+}
+
+.price-icon {
+    background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(219, 39, 119, 0.1));
+    border: 2px solid rgba(236, 72, 153, 0.2);
+}
+
+/* Animation des cartes */
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour les badges de statut */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-width: 1px;
+}
+
+/* Styles pour les dégradés de fond */
+.bg-gradient-blue-indigo {
+    background: linear-gradient(135deg, #3b82f6, #6366f1);
+}
+
+.bg-gradient-green {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+}
+
+.bg-gradient-orange {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+}
+
+.bg-gradient-purple {
+    background: linear-gradient(135deg, #a855f7, #9333ea);
+}
+
+.bg-gradient-pink {
+    background: linear-gradient(135deg, #ec4899, #db2777);
+}
+
+/* Styles pour les bordures colorées */
+.border-blue-200 {
+    border-color: #bfdbfe;
+}
+
+.border-green-200 {
+    border-color: #bbf7d0;
+}
+
+.border-orange-200 {
+    border-color: #fed7aa;
+}
+
+.border-purple-200 {
+    border-color: #e9d5ff;
+}
+
+.border-pink-200 {
+    border-color: #fbcfe8;
+}
+
+/* Styles pour les cartes */
+.card {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Styles pour les éléments de prix */
+.price-total {
+    background: linear-gradient(to right, #fdf2f8, #f5f3ff);
+    border: 2px solid #fbcfe8;
+}
+
+/* Transition pour les éléments interactifs */
+.transition-all {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* Effet de survol pour les lignes du tableau */
+.hover\:bg-gray-50:hover {
+    background-color: #f9fafb;
+}
+
+/* Styles pour les icônes dans les badges */
+.badge-icon {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 9999px;
+    margin-right: 0.25rem;
+}
+
+/* Styles pour les dégradés de texte */
+.text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+}
+
+/* Animation de rotation pour les icônes de chargement */
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Top Bar */
+.top-bar {
+    background-color: white;
+    border-radius: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.top-bar .card-body {
+    padding: 1rem 1.5rem;
+}
+
+.top-bar h4 {
+    color: #333333;
+    font-weight: 600;
+}
+
+.top-bar .fas {
+    color: #333333;
+}
+
+/* Titre "Gestion des catégories" */
+.text-h4 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+    display: block;
+    color: inherit;
+}
+
+/* Search bar dans la top bar */
+.search-bar {
+    max-width: 300px;
+}
+
+.search-bar .form-control {
+    border-radius: 5px 0 0 5px;
+    border: 1px solid #ced4da;
+    padding: 0.5rem 1rem;
+    height: 40px;
+}
+
+.search-bar .btn-primary {
+    background-color: #333333;
+    border-color: #333333;
+    border-radius: 0 5px 5px 0;
+    height: 40px;
+}
+
+.search-bar .btn-primary:hover {
+    background-color: #1a1a1a;
+    border-color: #1a1a1a;
+}
+
+.search-bar .btn-primary i {
+    color: white !important;
+}

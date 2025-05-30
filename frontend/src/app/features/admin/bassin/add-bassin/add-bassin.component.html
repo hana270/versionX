@@ -1,0 +1,194 @@
+<app-layout>
+  <div class="admin-container">
+    <!-- En-tête avec navigation -->
+    <div class="admin-header">
+      <h2><i class="fas fa-water me-2"></i>Ajouter un Bassin</h2>
+    </div>
+
+    <!-- Formulaire -->
+    <form (ngSubmit)="addBassin()" class="admin-form">
+      <!-- Section Galerie d'images -->
+      <!-- Section Galerie d'images avec le nouveau design -->
+      <div class="form-section">
+        <div class="section-header">
+          <i class="fas fa-images me-2"></i>
+          <h4>Galerie d'images</h4>
+        </div>
+        
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-3" *ngFor="let preview of imagePreviews; let i = index; trackBy: trackByIndex">
+                <div class="imagebassin-container">
+                  <div class="position-relative">
+                    <img [src]="preview" class="imagebassin" />
+                    <span class="overlay-text">
+                      {{ i === 0 ? 'Vue du bassin' : i === 1 ? 'Vue arrière du bassin' : i === 2 ? 'Vue latérale du bassin' : 'Accessoire Bassin' }}
+                    </span>
+                    <div class="plus-icon" (click)="triggerFileInput(i)">+</div>
+                  </div>
+                  <input type="file" class="d-none" #fileInput (change)="onFileSelected($event, i)" accept="image/*" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Informations générales -->
+      <div class="form-section">
+        <div class="section-header">
+          <i class="fas fa-info-circle me-2"></i>
+          <h4>Informations générales</h4>
+        </div>
+        
+        <div class="row g-4">
+          <!-- Nom du bassin -->
+          <div class="col-md-6">
+            <label for="nomBassin" class="form-label fw-bold">Nom du Bassin <span class="text-danger">*</span></label>
+            <input type="text" id="nomBassin" [(ngModel)]="newBassin.nomBassin" name="nomBassin" class="form-control" required />
+          </div>
+          <!-- Description -->
+          <div class="col-md-6">
+            <label for="description" class="form-label fw-bold">Description <span class="text-danger">*</span></label>
+            <textarea id="description" [(ngModel)]="newBassin.description" name="description" class="form-control" rows="4" required></textarea>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section Caractéristiques techniques -->
+      <div class="form-section">
+        <div class="section-header">
+          <i class="fas fa-cogs me-2"></i>
+          <h4>Caractéristiques techniques</h4>
+        </div>
+        <div class="row g-4">
+          <!-- Matériau -->
+          <div class="col-md-4">
+            <label for="materiau" class="form-label fw-bold">Matériau <span class="text-danger">*</span></label>
+            <select id="materiau" [(ngModel)]="newBassin.materiau" name="materiau" class="form-select" required>
+              <option value="" disabled selected>Choisir un matériau</option>
+              <option value="Béton">Béton</option>
+              <option value="Polyéthylène (PE)">Polyéthylène (PE)</option>
+              <option value="Polyester renforcé de fibre de verre (PRFV)">Polyester renforcé de fibre de verre (PRFV)</option>
+              <option value="Acier galvanisé">Acier galvanisé</option>
+              <option value="Acier inoxydable">Acier inoxydable</option>
+              <option value="PVC">PVC</option>
+              <option value="Étanchéité par membrane (EPDM)">Étanchéité par membrane (EPDM)</option>
+              <option value="Géomembrane">Géomembrane</option>
+              <option value="Pierre naturelle">Pierre naturelle</option>
+              <option value="Fibre de verre">Fibre de verre</option>
+              <option value="Bâche étanche">Bâche étanche</option>
+              <option value="Polystère">Polystère</option>
+            </select>
+          </div>
+          <!-- Couleur -->
+          <div class="col-md-4">
+            <label for="couleur" class="form-label fw-bold">Couleur <span class="text-danger">*</span></label>
+            <select id="couleur" [(ngModel)]="newBassin.couleur" name="couleur" class="form-select" required>
+              <option value="" disabled selected>Choisir une couleur</option>
+              <option *ngFor="let couleur of couleurs" [value]="couleur">{{ couleur }}</option>
+            </select>
+          </div>
+          <!-- Dimensions -->
+          <div class="col-md-4">
+            <label for="dimensions" class="form-label fw-bold">Dimensions <span class="text-danger">*</span></label>
+            <select id="dimensions" class="form-control" [(ngModel)]="newBassin.dimensions" name="dimensions" required>
+              <option value="" disabled selected>Choisir une dimension</option>
+              <option value="200x150x100 cm">2m x 1.5m x 1m (≈ 3 000L)</option>
+              <option value="250x150x100 cm">2.5m x 1.5m x 1m (≈ 3 750L)</option>
+              <option value="300x200x100 cm">3m x 2m x 1m (≈ 6 000L)</option>
+              <option value="300x200x150 cm">3m x 2m x 1.5m (≈ 9 000L)</option>
+              <option value="350x250x150 cm">3.5m x 2.5m x 1.5m (≈ 13 125L)</option>
+              <option value="400x250x150 cm">4m x 2.5m x 1.5m (≈ 15 000L)</option>
+              <option value="400x250x200 cm">4m x 2.5m x 2m (≈ 20 000L)</option>
+              <option value="500x300x200 cm">5m x 3m x 2m (≈ 30 000L)</option>
+              <option value="600x350x250 cm">6m x 3.5m x 2.5m (≈ 52 500L)</option>
+              <option value="700x400x250 cm">7m x 4m x 2.5m (≈ 70 000L)</option>
+              <option value="800x500x300 cm">8m x 5m x 3m (≈ 120 000L)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section Prix et disponibilité -->
+      <div class="form-section">
+        <div class="section-header">
+          <i class="fas fa-euro-sign me-2"></i>
+          <h4>Prix et disponibilité</h4>
+        </div>
+        <div class="row g-4">
+          <!-- Prix -->
+          <div class="col-md-4">
+            <label for="prix" class="form-label fw-bold">Prix <span class="text-danger">*</span></label>
+            <input type="number" id="prix" [(ngModel)]="newBassin.prix" name="prix" class="form-control" required />
+          </div>
+          <!-- Stock -->
+          <div class="col-md-4">
+            <label for="stock" class="form-label fw-bold">Stock <span class="text-danger">*</span></label>
+            <input type="number" id="stock" [(ngModel)]="newBassin.stock" name="stock" class="form-control" required
+              (change)="onStockChange()" />
+          </div>
+          <!-- Disponibilité -->
+          <div class="col-md-4">
+            <label class="form-label fw-bold">Disponibilité</label>
+            <div class="availability-indicator">
+              <div class="status-badge" [ngClass]="{'available': newBassin.stock > 0, 'unavailable': newBassin.stock <= 0}">
+                <i [class]="newBassin.stock > 0 ? 'fas fa-check-circle' : 'fas fa-times-circle'"></i>
+                {{ newBassin.stock > 0 ? 'Disponible' : 'Indisponible' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Catégorie -->
+      <div class="form-section">
+        <div class="section-header">
+          <i class="fas fa-folder me-2"></i>
+          <h4>Catégorie</h4>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <label for="categorie" class="form-label fw-bold">Catégorie <span class="text-danger">*</span></label>
+            <select id="categorie" class="form-select" [(ngModel)]="newIdCategorie" name="categorie" required (change)="onCategoryChange($event)">
+              <option *ngFor="let categorie of categories" [value]="categorie.idCategorie">
+                {{ categorie.nomCategorie }}
+              </option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Modèle 3D -->
+      <div class="form-section">
+        <div class="section-header">
+          <i class="fas fa-cube me-2"></i>
+          <h4>Modèle 3D</h4>
+        </div>
+        <div class="row g-4">
+          <div class="col-md-6">
+            <label for="image3DPath" class="form-label fw-bold">
+              <i class="fab fa-github me-2"></i>Image 3D (URL GitHub) <span class="text-danger">*</span>
+            </label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-link"></i></span>
+              <input type="text" id="image3DPath" [(ngModel)]="newBassin.image3DPath" name="image3DPath" class="form-control"
+                    #image3DPath="ngModel" (blur)="checkGithubUrl()" />
+            </div>
+            <div *ngIf="!isValidGithubUrl && image3DPath.dirty" class="text-danger mt-2">
+              <i class="fas fa-exclamation-triangle me-1"></i>L'URL doit être un lien GitHub valide pointant vers un fichier `.glb` ou `.gltf`.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bouton de soumission -->
+      <div class="form-action">
+        <button type="submit" class="btn btn-submit">
+          <i class="fas fa-plus-circle me-2"></i>Ajouter le bassin
+        </button>
+      </div>
+    </form>
+  </div>
+</app-layout>

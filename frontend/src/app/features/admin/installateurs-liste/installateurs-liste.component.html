@@ -1,0 +1,69 @@
+
+<!--<p>installateurs-liste works!</p>
+<div class="container mt-4">
+  <div class="card">
+    <div class="card-header bg-primary text-white">
+      <h3><i class="fas fa-users-cog me-2"></i>Gestion des Installateurs</h3>
+    </div>
+
+    <div class="card-body">-->
+      <!-- Barre de recherche -->
+ <!----    <div class="mb-3">
+        <input type="text" class="form-control" placeholder="Rechercher..." 
+               [(ngModel)]="searchQuery" (input)="onSearchChange()">
+      </div>-->
+
+      <!-- Chargement -->
+  <!----   <div *ngIf="isLoading" class="text-center my-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Chargement...</span>
+        </div>
+        <p class="mt-2">Chargement des installateurs...</p>
+      </div>
+    -->
+      <!-- Tableau des installateurs -->
+     <!--- <div *ngIf="!isLoading">
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead class="table-light">
+              <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Email</th>
+                <th>Spécialité</th>
+                <th>Statut</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let inst of filteredInstallateurs">
+                <td>{{ inst.id }}</td>
+                <td>{{ inst.nom }}</td>
+                <td>{{ inst.email }}</td>
+                <td>{{ inst.specialite }}</td>
+                <td>
+                  <span [class]="getStatusBadgeClass(inst.isAffected)">
+                    {{ getStatusText(inst.isAffected) }}
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-sm" 
+                          [class.btn-warning]="!inst.isAffected" 
+                          [class.btn-success]="inst.isAffected"
+                          (click)="toggleAffectationStatus(inst)">
+                    {{ inst.isAffected ? 'Libérer' : 'Affecter' }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      -->
+        <!-- Aucun résultat -->
+   <!----     <div *ngIf="filteredInstallateurs.length === 0" class="alert alert-info mt-3">
+          Aucun installateur trouvé
+        </div>
+      </div>
+    </div>
+  </div>
+</div>-->

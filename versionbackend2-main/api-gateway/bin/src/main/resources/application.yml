@@ -1,0 +1,153 @@
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: api-gateway
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      default-filters:  # <-- Ajoutez cette section
+        - DedupeResponseHeader=Access-Control-Allow-Origin, RETAIN_UNIQUE
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowed-origins: "http://localhost:4200"
+            allowed-methods: 
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+            allowed-headers: "*"
+            allow-credentials: true
+            exposed-headers: 
+              - Authorization
+              - X-Session-ID
+            max-age: 3600
+      routes:
+        - id: aquatresor-service
+          uri: lb://aquatresor-service
+          predicates:
+            - Path=/api/aquatresor/**
+          filters:
+            # No StripPrefix here - we want to preserve the /api/ path
+
+        # Alternative configuration if you want to keep using /aquatresor/api/**
+        - id: aquatresor-service-with-prefix
+          uri: lb://aquatresor-service
+          predicates:
+            - Path=/aquatresor/api/**
+          filters:
+            # No StripPrefix = keep the full path
+
+        # Other routes remain unchanged
+        - id: notifications-service
+          uri: lb://notifications-microservice
+          predicates:
+            - Path=/notifications/**
+            
+        - id: orders-service
+          uri: lb://orders-microservice
+          predicates:
+            - Path=/api/panier/**
+            
+        - id: users-service
+          uri: lb://users-microservice
+          predicates:
+            - Path=/api/users/**  # Changed to match the controller path pattern
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: users-service
+                fallbackUri: forward:/fallback/users
+                
+        # Alternative direct access to users service without /api prefix      
+        - id: users-service-direct
+          uri: lb://users-microservice
+          predicates:
+            - Path=/users/**   # Keep this route for backward compatibility
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: users-service
+                fallbackUri: forward:/fallback/users
+            - RewritePath=/users/(?<segment>.*), /api/users/$\{segment}  # Rewrite to match controller path
+            
+        # Nouvelle route pour le service d'installations
+        - id: installations-service
+          uri: lb://installations-service
+          predicates:
+            - Path=/api/installations/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: installations-service
+                fallbackUri: forward:/fallback/installations
+            
+        - id: fallback
+          uri: no://op
+          predicates:
+            - Path=/fallback/**
+
+server:
+  port: 8087
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    healthcheck:
+      enabled: true
+    registry-fetch-interval-seconds: 10
+    eureka-server-connect-timeout-seconds: 5
+    eureka-server-read-timeout-seconds: 5
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10
+    lease-expiration-duration-in-seconds: 30
+    instance-id: ${spring.application.name}:${server.port}
+    appname: ${spring.application.name}
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      users-service:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+      installations-service:
+        registerHealthIndicator: true
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.client.discovery: DEBUG
+    com.netflix.eureka: INFO
+    com.netflix.discovery: INFO

@@ -1,0 +1,168 @@
+<app-layout>
+
+  <div class="container-fluid">
+
+      <div class="card">
+        <div class="card-body">
+          <!-- Titre et bouton Retour -->
+          <div class="header">
+            <h2>Mettre à jour les options du bassin</h2>
+            
+          </div>
+
+          <!-- Formulaire -->
+          <form [formGroup]="bassinPersonnaliseForm" (ngSubmit)="mettreAJourBassinPersonnalise()">
+            <!-- Champ pour afficher l'ID du bassin -->
+            <div class="id-section">
+              <label for="bassinId">ID du bassin</label>
+              <div class="id-display">
+                <span id="bassinId">{{ bassinId }}</span>
+              </div>
+            </div>
+
+            <!-- Sections Matériaux et Dimensions -->
+            <div class="form-row">
+              <!-- Matériaux -->
+              <div class="form-section">
+                <h3><i class="fas fa-layer-group"></i> Matériaux</h3>
+                <div class="checkbox-grid">
+                  <div class="checkbox-wrapper" *ngFor="let materiau of listeMateriaux; let i = index">
+                    <input type="checkbox" [id]="'materiau-' + i" [value]="materiau"
+                      (change)="onMateriauChange($event, materiau)" [checked]="selectedMateriaux.includes(materiau)" />
+                    <label [for]="'materiau-' + i">{{ materiau }}</label>
+                  </div>
+                </div>
+                <div *ngIf="!materiauxValides && bassinPersonnaliseForm.get('materiaux')?.touched"
+                  class="error-message">
+                  Veuillez sélectionner au moins un matériau.
+                </div>
+              </div>
+
+              <!-- Dimensions -->
+              <div class="form-section">
+                <h3><i class="fas fa-ruler-combined"></i> Dimensions</h3>
+                <div class="checkbox-grid">
+                  <div class="checkbox-wrapper" *ngFor="let dimension of listeDimensions; let i = index">
+                    <input type="checkbox" [id]="'dimension-' + i" [value]="dimension"
+                      (change)="onDimensionChange($event, dimension)"
+                      [checked]="selectedDimensions.includes(dimension)" />
+                    <label [for]="'dimension-' + i">{{ dimension }}</label>
+                  </div>
+                </div>
+                <div *ngIf="!dimensionsValides && bassinPersonnaliseForm.get('dimensions')?.touched"
+                  class="error-message">
+                  Veuillez sélectionner au moins une dimension.
+                </div>
+              </div>
+            </div>
+
+            <!-- Durée de fabrication -->
+<div class="form-section">
+  <h3><i class="fas fa-clock"></i> Durée de fabrication</h3>
+  <div class="input-group">
+    <label>Durée estimée (jours)</label>
+    <input 
+      type="number" 
+      formControlName="dureeFabrication" 
+      min="1" 
+      max="30" 
+      class="form-control"
+    >
+    <div *ngIf="bassinPersonnaliseForm.get('dureeFabrication')?.invalid && 
+                bassinPersonnaliseForm.get('dureeFabrication')?.touched" 
+         class="error-message">
+      <span *ngIf="bassinPersonnaliseForm.get('dureeFabrication')?.errors?.['required']">
+        Ce champ est obligatoire
+      </span>
+      <span *ngIf="bassinPersonnaliseForm.get('dureeFabrication')?.errors?.['min'] || 
+                   bassinPersonnaliseForm.get('dureeFabrication')?.errors?.['max']">
+        La durée doit être entre 1 et 30 jours
+      </span>
+    </div>
+  </div>
+</div>
+
+            <!-- Section pour les accessoires -->
+            <div class="form-section">
+              <h3><i class="fas fa-swimming-pool"></i> Accessoires</h3>
+              <div id="accessoires-container" formArrayName="accessoires">
+                <!-- Afficher les accessoires -->
+                <div *ngFor="let accessoire of accessoires.controls; let i = index" [formGroupName]="i"
+                  class="accessoire-card">
+                  <div class="accessoire-header">
+                    <h5>Accessoire #{{ i + 1 }}</h5>
+                    <button type="button" class="btn-delete" (click)="removeAccessoire(i)">
+                      <i class="fas fa-trash"></i> Supprimer
+                    </button>
+                  </div>
+                  <div class="accessoire-grid">
+                    <!-- Nom de l'accessoire -->
+                    <div class="input-group">
+                      <label>Nom de l'accessoire</label>
+                      <input [id]="'nomAccessoire-' + i" formControlName="nomAccessoire"
+                        placeholder="Nom de l'accessoire" class="input-nom" />
+                      <div *ngIf="accessoire.get('nomAccessoire')?.invalid && accessoire.get('nomAccessoire')?.touched"
+                        class="error-message">
+                        <span *ngIf="accessoire.get('nomAccessoire')?.errors?.['required']">Ce champ est
+                          obligatoire.</span>
+                        <span *ngIf="accessoire.get('nomAccessoire')?.errors?.['invalidAccessoireName']">
+                          Le nom doit contenir au moins 3 lettres et aucun symbole.
+                        </span>
+                      </div>
+                    </div>
+
+                    <!-- Prix de l'accessoire -->
+                    <div class="input-group">
+                      <label>Prix</label>
+                      <div class="price-wrapper">
+                        <input [id]="'prixAccessoire-' + i" formControlName="prixAccessoire" type="number"
+                          placeholder="Prix (€)" class="input-prix" />
+                        <span class="currency-symbol">€</span>
+                      </div>
+                      <div
+                        *ngIf="accessoire.get('prixAccessoire')?.invalid && accessoire.get('prixAccessoire')?.touched"
+                        class="error-message">
+                        <span *ngIf="accessoire.get('prixAccessoire')?.errors?.['required']">Ce champ est
+                          obligatoire.</span>
+                        <span *ngIf="accessoire.get('prixAccessoire')?.errors?.['min']">Le prix doit être un nombre
+                          positif.</span>
+                      </div>
+                    </div>
+
+                    <!-- Image de l'accessoire -->
+                    <div class="input-group">
+                      <label>Image</label>
+                      <!-- Afficher l'image existante -->
+                      <div *ngIf="accessoire.get('imageUrl')?.value">
+                        <img [src]="accessoire.get('imageUrl')?.value" alt="Image de l'accessoire"
+                          class="img-thumbnail mb-2" style="max-width: 100px;">
+                      </div>
+                      <!-- Champ pour télécharger une nouvelle image -->
+                      <input [id]="'imageAccessoire-' + i" type="file" (change)="onAccessoireImageUpload($event, i)"
+                        class="input-file" />
+                      <div *ngIf="accessoire.get('imagePath')?.invalid && accessoire.get('imagePath')?.touched"
+                        class="error-message">
+                        <span *ngIf="accessoire.get('imagePath')?.errors?.['required']">Ce champ est obligatoire.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Bouton pour ajouter un accessoire -->
+              <button type="button" class="btn btn-secondary" (click)="addAccessoire()">
+                <i class="fas fa-plus" style="margin-right: 5px;"></i> Ajouter un accessoire
+              </button>
+            </div>
+
+            <!-- Boutons Annuler et Enregistrer -->
+            <div class="buttons-row">
+              <button type="button" class="btn btn-secondary" (click)="annuler()">Annuler</button>
+              <button type="submit" class="btn btn-success">Mettre à jour</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+   

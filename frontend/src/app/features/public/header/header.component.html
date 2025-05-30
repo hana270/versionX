@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AquaTresor - Header Professionnel</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- TOP BANNER -->
+    <div class="at-header-top-banner">
+        <div class="at-header-container">
+            <div class="at-header-banner-content">
+                <div class="at-header-contact-info">
+                    <div class="at-header-contact-item">
+                        <i class="material-icons">phone</i>
+                        <span>+216 52 336 412</span>
+                    </div>
+                    <div class="at-header-contact-item">
+                        <i class="material-icons">email</i>
+                        <a href="mailto:support@aquatresor.com" class="at-header-contact-link">support-aquatresor.com</a>
+                    </div>
+                </div>
+                <div class="at-header-professional-links">
+                    <a href="#" class="at-header-professional-link">
+                        <i class="material-icons">business</i>
+                        <span class="at-header-professional-text">Entreprise</span>
+                    </a>
+                    <a href="#" class="at-header-professional-link">
+                        <i class="material-icons">local_shipping</i>
+                        <span class="at-header-professional-text">Livraison</span>
+                    </a>
+                    <a href="#" class="at-header-professional-link">
+                        <i class="material-icons">security</i>
+                        <span class="at-header-professional-text">Sécurisé</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="at-header-main">
+        <div class="at-header-container">
+            <div class="at-header-content">
+                <div class="at-header-logo">
+                    <a href="/" class="at-header-logo-link">
+                        <img src="assets/logo.png" alt="Logo AquaTresor" class="at-header-logo-image">
+                        <h1 class="at-header-logo-text">AquaTresor</h1>
+                    </a>
+                </div>
+
+                <div class="at-header-menu-toggle" (click)="toggleMenu()">
+                    <i class="material-icons">menu</i>
+                </div>
+
+                <nav class="at-header-navigation" [class.at-header-active]="isMenuOpen">
+                    <ul class="at-header-navigation-list">
+                        <li class="at-header-navigation-item">
+                            <a href="/homepage" class="at-header-navigation-link" [class.active]="router.url === '/homepage'">Accueil</a>
+                        </li>
+                        <li class="at-header-navigation-item">
+                            <a href="/shop" class="at-header-navigation-link" [class.active]="router.url === '/shop'">Boutique</a>
+                        </li>
+                        <li class="at-header-navigation-item">
+                            <a href="/cart" class="at-header-navigation-link" [class.active]="router.url === '/cart'">Panier</a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <div class="at-header-user-actions">
+                    <!-- Notifications -->
+                    <div class="at-header-action-item">
+                        <button class="at-header-action-btn at-header-notification-btn" title="Notifications" (click)="openNotifications()">
+                            <i class="material-icons">notifications</i>
+                            <span class="at-header-action-count at-header-notification-count" *ngIf="notificationsCount > 0">{{ notificationsCount }}</span>
+                        </button>
+                    </div>
+
+                    <!-- Chat Support -->
+                    <div class="at-header-action-item">
+                        <button class="at-header-action-btn at-header-chat-btn" title="Chat Support" (click)="openChat()">
+                            <i class="material-icons">chat</i>
+                        </button>
+                    </div>
+
+                    <!-- Favoris -->
+                    <div class="at-header-action-item">
+                        <a href="/favorites" class="at-header-action-btn" title="Favoris">
+                            <i class="material-icons">favorite</i>
+                            <span class="at-header-action-count" *ngIf="favoritesCount > 0">{{ favoritesCount }}</span>
+                        </a>
+                    </div>
+
+                    <!-- Panier -->
+                    <div class="at-header-action-item">
+                        <button class="at-header-action-btn at-header-cart-btn" title="Panier" (click)="toggleCart($event)">
+                            <i class="material-icons">shopping_cart</i>
+                            <span class="at-header-action-count" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+                        </button>
+                    </div>
+
+                    <!-- Menu utilisateur -->
+                    <div class="at-header-action-item" *ngIf="isAuthenticated; else authButtons">
+                        <div class="at-header-action-btn at-header-profile-btn" (click)="toggleDropdown($event)" title="Mon compte">
+                            <i class="material-icons">person</i>
+                            <i class="material-icons at-header-profile-arrow">expand_more</i>
+                        </div>
+                        <ul class="at-header-dropdown-menu" [class.at-header-active]="isDropdownOpen">
+                            <li class="at-header-dropdown-item">
+                                <a href="/client/edit-profile" class="at-header-dropdown-link">
+                                    <i class="material-icons">edit</i>
+                                    <span>Modifier Profil</span>
+                                </a>
+                            </li>
+                            <li class="at-header-dropdown-item">
+                                <a href="/mon-compte/mes-commandes" class="at-header-dropdown-link">
+                                    <i class="material-icons">shopping_bag</i>
+                                    <span>Mes commandes</span>
+                                </a>
+                            </li>
+                            <li class="at-header-dropdown-item">
+                                <a href="/settings" class="at-header-dropdown-link">
+                                    <i class="material-icons">settings</i>
+                                    <span>Paramètres</span>
+                                </a>
+                            </li>
+                            <li class="at-header-dropdown-item">
+                                <a href="#" class="at-header-dropdown-link" (click)="logout()">
+                                    <i class="material-icons">exit_to_app</i>
+                                    <span>Déconnexion</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Boutons de connexion -->
+                    <ng-template #authButtons>
+                        <div class="at-header-auth-buttons">
+                            <a href="/login" class="at-header-login-btn">Connexion</a>
+                            <a href="/register" class="at-header-register-btn">S'inscrire</a>
+                        </div>
+                    </ng-template>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Panier latéral -->
+    <div class="at-header-cart-sidebar" [class.at-header-active]="isCartOpen">
+        <div class="at-header-cart-header">
+            <h2><i class="material-icons">shopping_cart</i> Votre Panier</h2>
+            <button class="at-header-close-btn" (click)="closeCart()" aria-label="Fermer le panier">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+
+        <div class="at-header-cart-content" *ngIf="cartItems.length > 0; else emptyCart">
+            <div class="at-header-cart-items">
+                <div class="at-header-cart-item" *ngFor="let item of cartItems">
+                    <div class="at-header-item-header">
+                        <h3>{{ item.nomBassin || item.bassin?.nomBassin }}</h3>
+                        <div class="at-header-badges">
+                            <span class="at-header-badge" [ngClass]="{
+                                'at-header-badge-stock': getItemStatus(item) === 'DISPONIBLE',
+                                'at-header-badge-custom': item.isCustomized,
+                                'at-header-badge-order': !item.isCustomized && getItemStatus(item) === 'SUR_COMMANDE',
+                                'at-header-badge-out-of-stock': getItemStatus(item) === 'RUPTURE_STOCK'
+                            }">
+                                {{ getStatusDisplay(item) }}
+                                <span *ngIf="(item.isCustomized || getItemStatus(item) === 'SUR_COMMANDE') && item.dureeFabrication">
+                                    ({{ formatDureeFabrication(item.dureeFabrication) }})
+                                </span>
+                            </span>
+                            <span class="at-header-badge at-header-badge-promo" *ngIf="item.promotionActive && item.tauxReduction">
+                                -{{ item.tauxReduction * 100 | number:'1.0-0' }}%
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="at-header-item-content">
+                        <div class="at-header-item-image">
+                            <img [src]="getItemImage(item)" [alt]="item.nomBassin || item.bassin?.nomBassin" (error)="handleImageError($event, item)">
+                        </div>
+                        <div class="at-header-item-details">
+                            <div *ngIf="item.isCustomized" class="at-header-custom-details">
+                                <div class="at-header-detail-row" *ngIf="item.customization?.materiauSelectionne">
+                                    <span class="at-header-detail-label">Matériau:</span>
+                                    <span>{{ item.customization!.materiauSelectionne }}</span>
+                                    <span class="at-header-price-addition" *ngIf="item.customization!.prixMateriau">
+                                        +{{ item.customization!.prixMateriau | number:'1.2-2' }} TND
+                                    </span>
+                                </div>
+                                <div class="at-header-detail-row" *ngIf="item.customization?.dimensionSelectionnee">
+                                    <span class="at-header-detail-label">Dimensions:</span>
+                                    <span>{{ item.customization!.dimensionSelectionnee }}</span>
+                                    <span class="at-header-price-addition" *ngIf="item.customization!.prixDimension">
+                                        +{{ item.customization!.prixDimension | number:'1.2-2' }} TND
+                                    </span>
+                                </div>
+                                <div class="at-header-detail-row" *ngIf="item.customization?.couleurSelectionnee">
+                                    <span class="at-header-detail-label">Couleur:</span>
+                                    <span>{{ item.customization!.couleurSelectionnee }}</span>
+                                    <span class="at-header-color-preview" [style.background-color]="getColorPreview(item.customization!.couleurSelectionnee)"></span>
+                                </div>
+                                <div class="at-header-detail-row" *ngIf="item.accessoires?.length">
+                                    <span class="at-header-detail-label">Accessoires:</span>
+                                    <span>{{ item.accessoires!.length }} accessoire(s)</span>
+                                    <span class="at-header-price-addition">+{{ getTotalAccessoriesPrice(item) | number:'1.2-2' }} TND</span>
+                                </div>
+                                <div *ngIf="item.accessoires?.length" class="at-header-accessories-list">
+                                    <div *ngFor="let acc of item.accessoires" class="at-header-accessory-item">
+                                        <span>{{ acc.nomAccessoire }}</span>
+                                        <span>{{ acc.prixAccessoire | number:'1.2-2' }} TND</span>
+                                    </div>
+                                </div>
+                                <div class="at-header-detail-row at-header-fabrication-time">
+                                    <span class="at-header-detail-label">Délai de fabrication:</span>
+                                    <span>{{ item.customization?.dureeFabrication ? item.customization!.dureeFabrication + ' jours' : 'Non spécifié' }}</span>
+                                </div>
+                            </div>
+                            <div *ngIf="!item.isCustomized" class="at-header-standard-details">
+                                <div class="at-header-detail-row" *ngIf="item.bassin?.dimensions">
+                                    <span class="at-header-detail-label">Dimensions:</span>
+                                    <span>{{ item.bassin!.dimensions }}</span>
+                                </div>
+                                <div class="at-header-detail-row" *ngIf="item.bassin?.materiau">
+                                    <span class="at-header-detail-label">Matériau:</span>
+                                    <span>{{ item.bassin!.materiau }}</span>
+                                </div>
+                                <div class="at-header-detail-row" *ngIf="item.bassin?.couleur">
+                                    <span class="at-header-detail-label">Couleur:</span>
+                                    <span>{{ item.bassin!.couleur }}</span>
+                                    <span class="at-header-color-preview" [style.background-color]="getColorPreview(item.bassin!.couleur)"></span>
+                                </div>
+                                <div class="at-header-detail-row at-header-fabrication-time" *ngIf="item.bassin?.surCommande">
+                                    <span class="at-header-detail-label">Délai de fabrication:</span>
+                                    <span>
+                                        <i class="material-icons">schedule</i>
+                                        {{ item.bassin?.dureeFabricationDisplay || '2-3 semaines' }}
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="at-header-price-summary">
+                                <div class="at-header-price-row">
+                                    <span>Prix de base:</span>
+                                    <span>{{ item.prixOriginal | number:'1.2-2' }} TND</span>
+                                </div>
+                                <div class="at-header-price-row" *ngIf="item.isCustomized">
+                                    <span>Suppléments:</span>
+                                    <span>{{ calculateSupplements(item) | number:'1.2-2' }} TND</span>
+                                </div>
+                                <div class="at-header-price-row at-header-promotion" *ngIf="item.promotionActive">
+                                    <span>Réduction:</span>
+                                    <span>-{{ calculateReduction(item) | number:'1.2-2' }} TND</span>
+                                </div>
+                                <div class="at-header-price-row at-header-grand-total">
+                                    <span>Total ({{ item.quantity }} bassin(s)):</span>
+                                    <span>{{ getItemFinalPrice(item) | number:'1.2-2' }} TND</span>
+                                </div>
+                            </div>
+                            <div class="at-header-quantity-controls">
+                                <button (click)="decrementQuantity(item)" [disabled]="item.quantity <= 1 || isLoading" class="at-header-qty-btn">
+                                    <i class="material-icons">remove</i>
+                                </button>
+                                <span class="at-header-qty-value">{{ item.quantity }}</span>
+                                <button (click)="incrementQuantity(item)" [disabled]="!canIncrementQuantity(item) || isLoading" class="at-header-qty-btn">
+                                    <i class="material-icons">add</i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="at-header-item-actions">
+                        <button (click)="confirmRemoveFromCart(item)" class="at-header-remove-btn">
+                            <i class="material-icons">delete</i> Supprimer
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="at-header-cart-totals">
+                <div class="at-header-total-row">
+                    <span>Sous-total:</span>
+                    <span>{{ calculateSubTotal() | number:'1.2-2' }} TND</span>
+                </div>
+                <div class="at-header-total-row">
+                    <span>Frais de livraison:</span>
+                    <span>{{ calculerFraisLivraison() | number:'1.2-2' }} TND</span>
+                </div>
+                <div class="at-header-total-row at-header-grand-total">
+                    <span>Total:</span>
+                    <span>{{ getCartTotal() | number:'1.2-2' }} TND</span>
+                </div>
+            </div>
+            <div class="at-header-cart-footer">
+                <div class="at-header-cart-actions">
+                    <button class="at-header-continue-shopping" (click)="closeCart()">
+                        <i class="material-icons">arrow_back</i>
+                        Continuer mes achats
+                    </button>
+                    <button class="at-header-checkout-btn" routerLink="/cart">
+                        <i class="material-icons">shopping_bag</i>
+                        Passer commande
+                    </button>
+                </div>
+            </div>
+        </div>
+        <ng-template #emptyCart>
+            <div class="at-header-empty-cart">
+                <i class="material-icons">remove_shopping_cart</i>
+                <h3>Votre panier est vide</h3>
+                <p>Découvrez nos bassins et accessoires de qualité</p>
+                <a routerLink="/shop" (click)="closeCart()" class="at-header-btn-shop">
+                    Commencer vos achats
+                </a>
+            </div>
+        </ng-template>
+    </div>
+    <div class="at-header-overlay" [class.at-header-active]="isCartOpen" (click)="closeCart()"></div>
+</body>
+</html>

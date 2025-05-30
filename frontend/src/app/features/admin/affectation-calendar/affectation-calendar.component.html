@@ -1,0 +1,87 @@
+<!-- affectation-calendar.component.html -->
+<app-layout>
+  <div class="calendar-container">
+    <!-- En-tête du calendrier -->
+    <div class="top-bar card shadow-sm mb-4">
+  <div class="card-body py-3">
+    <div class="d-flex justify-content-between align-items-center">
+      <h4 class="mb-0"><i class="far fa-calendar-check"></i>
+            Calendrier des affectations</h4>
+     
+    </div>
+  </div>
+</div>
+
+    <!-- Barre de statistiques -->
+    <div class="stats-bar">
+  <!-- Total -->
+  <div class="stat-card total">
+    <h3><i class="fas fa-list-alt"></i> Total</h3>
+    <div class="number">{{ stats.total }}</div>
+    <div class="label">Affectations</div>
+  </div>
+
+  <!-- Aujourd'hui -->
+  <div class="stat-card today">
+    <h3><i class="fas fa-calendar-day"></i> Aujourd'hui</h3>
+    <div class="number">{{ stats.today }}</div>
+    <div class="label">Installations</div>
+  </div>
+
+  <!-- En attente -->
+  <div class="stat-card pending">
+    <h3><i class="fas fa-clock"></i> En attente</h3>
+    <div class="number">{{ stats.pending }}</div>
+    <div class="label">À planifier</div>
+  </div>
+
+  <!-- Terminées -->
+  <div class="stat-card completed">
+    <h3><i class="fas fa-check-circle"></i> Terminées</h3>
+    <div class="number">{{ stats.completed }}</div>
+    <div class="label">Ce mois</div>
+  </div>
+</div>
+
+    <!-- Légende -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color past"></div>
+        <span>Affectations passés</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color present"></div>
+        <span>Aujourd'hui</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color future"></div>
+        <span>Affectations futurs</span>
+      </div>
+    </div>
+
+    <!-- Conteneur du calendrier -->
+    <div class="calendar-wrapper">
+      <div *ngIf="loading" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Chargement en cours...</p>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+        <button (click)="loadAffectations()" class="retry-btn">Réessayer</button>
+      </div>
+
+      <full-calendar 
+        #fullCalendar
+        [options]="calendarOptions"
+        class="main-calendar">
+      </full-calendar>
+
+      <div *ngIf="!loading && !errorMessage && events.length === 0" class="no-events">
+        <i class="icon">📅</i>
+        <p>Aucune affectation trouvée</p>
+        <button (click)="loadAffectations()" class="retry-btn">Réessayer</button>
+      </div>
+    </div>
+  </div>
+</app-layout>

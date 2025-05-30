@@ -1,0 +1,630 @@
+/* Base Styles */
+.affectation-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.info-row, .specialty-checkboxes, .installers-list, .step-content, .confirmation-step {
+  width: 100%;
+}
+
+/* Pour les sélecteurs et les éléments qui doivent s'étirer horizontalement */
+.installer-selector, .info-card, .specialty-selection, .selected-installers, .confirmation-card {
+  width: 100%;
+}
+/* Header */
+.affectation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  margin-bottom: 20px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+}
+
+.header-icon {
+  background-color: #e3f2fd;
+  padding: 10px;
+  border-radius: 8px;
+  margin-right: 15px;
+  color: #1976d2;
+}
+
+.affectation-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 500;
+  color: #333;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+}
+
+/* Progress Steps */
+.progress-steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 20px;
+  position: relative;
+}
+
+.step.active .step-circle {
+  background-color: #1976d2;
+  color: white;
+}
+
+.step.active .step-label {
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.step-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  color: #757575;
+}
+
+.step-label {
+  color: #757575;
+  font-size: 14px;
+}
+
+.step-arrow {
+  color: #bdbdbd;
+}
+
+/* Alerts */
+.alert {
+  padding: 12px 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.alert i {
+  margin-right: 10px;
+}
+
+.alert-danger {
+  background-color: #ffebee;
+  color: #d32f2f;
+  border-left: 4px solid #d32f2f;
+}
+
+.alert-success {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border-left: 4px solid #2e7d32;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.loading-container p {
+  margin-top: 15px;
+  color: #616161;
+}
+
+/* Cards */
+.info-card, .confirmation-card {
+  background-color: #fafafa;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border: 1px solid #e0e0e0;
+  width: 100%;
+}
+
+.card-header {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  background-color: #f5f5f5;
+}
+
+.card-header i {
+  margin-right: 10px;
+  color: #1976d2;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.card-body {
+  padding: 16px;
+}
+
+.info-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.info-item {
+  flex: 1;
+  min-width: 200px;
+  margin-bottom: 8px;
+}
+
+.info-item.full-width {
+  flex: 0 0 100%;
+}
+
+.label {
+  font-weight: 500;
+  color: #616161;
+  margin-right: 8px;
+}
+
+.value {
+  color: #212121;
+}
+
+/* Specialty Selection */
+.specialty-selection {
+  margin-bottom: 20px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.section-header i {
+  margin-right: 10px;
+  color: #1976d2;
+}
+
+.section-header h3, .section-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.specialty-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.specialty-checkbox {
+  flex: 1;
+  min-width: 200px;
+}
+
+.specialty-label {
+  display: flex;
+  align-items: center;
+}
+
+.specialty-label i {
+  margin-right: 8px;
+  color: #1976d2;
+}
+
+/* Installers Section */
+.installers-section {
+  margin-bottom: 20px;
+}
+
+.specialty-installers {
+  margin-bottom: 25px;
+}
+
+.specialty-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.specialty-header i {
+  margin-right: 10px;
+  color: #1976d2;
+}
+
+.specialty-header h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  margin-right: 15px;
+}
+
+/* Dans affectation-dialog.component.css */
+.specialty-checkbox ::ng-deep .mat-checkbox-inner-container {
+  margin-right: 8px;
+}
+
+.specialty-checkbox ::ng-deep .mat-checkbox-frame {
+  border-color: #1976d2;
+}
+
+.specialty-checkbox ::ng-deep .mat-checkbox-background {
+  background-color: #1976d2;
+}
+
+/* Specialty Selection */
+.specialty-selection {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.specialty-checkboxes {
+  display: flex;
+  flex-direction: column; /* Empile verticalement */
+  gap: 12px; /* Espace entre les lignes */
+}
+
+.specialty-checkbox {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.specialty-label {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+.specialty-label i {
+  margin-right: 8px;
+  color: #1976d2;
+}
+
+/* Style spécifique pour les checkboxes Material */
+::ng-deep .mat-checkbox-layout {
+  white-space: normal !important;
+}
+
+::ng-deep .mat-checkbox-inner-container {
+  margin-right: 8px;
+}
+
+.installer-count {
+  font-size: 13px;
+  color: #616161;
+}
+
+.installer-selector {
+  width: 100%;
+}
+
+.installer-viewport {
+  height: 250px;
+}
+
+.installer-option {
+  display: flex;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.installer-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+  object-fit: cover;
+  border: 1px solid #e0e0e0;
+}
+
+.installer-info {
+  flex: 1;
+}
+
+.installer-name {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.installer-detail {
+  font-size: 12px;
+  color: #616161;
+}
+
+/* Selected Installers */
+.selected-installers {
+  margin-top: 30px;
+}
+
+.installers-list {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.selected-installer {
+  display: flex;
+  padding: 12px;
+  background-color: #f5faff;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.installer-details {
+  flex: 1;
+  margin-left: 12px;
+}
+
+.installer-name {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.installer-email, .installer-specialty {
+  font-size: 13px;
+  color: #616161;
+  margin-bottom: 4px;
+}
+
+.time-selection {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.time-selection mat-form-field {
+  flex: 1;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #757575;
+}
+
+.remove-btn:hover {
+  color: #d32f2f;
+}
+
+/* Confirmation Step */
+.confirmation-content {
+  padding: 16px;
+  display: grid;
+  gap: 20px;
+}
+
+.order-info, .installers-summary {
+  background-color: #fafafa;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+}
+
+.order-info h4, .installers-summary h4 {
+  display: flex;
+  align-items: center;
+  margin-top: 0;
+  margin-bottom: 15px;
+  font-size: 15px;
+}
+
+.order-info h4 i, .installers-summary h4 i {
+  margin-right: 10px;
+  color: #1976d2;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-item span {
+  font-size: 13px;
+  color: #616161;
+  margin-bottom: 4px;
+}
+
+.info-item.full-width {
+  grid-column: 1 / -1;
+}
+
+.installers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+}
+
+.installer-card {
+  display: flex;
+  padding: 12px;
+  background-color: #f5faff;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+}
+
+.installer-schedule {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #616161;
+}
+
+.installer-schedule div {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.installer-schedule i {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.step-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+app-layout, .affectation-container {
+  min-height: 100vh;
+}
+
+.cancel-btn, .back-btn {
+  color: #616161;
+}
+
+.next-btn {
+  display: flex;
+  align-items: center;
+}
+
+.selected-installer {
+  position: relative;
+  transition: all 0.3s ease;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.selected-installer.has-error {
+  border-color: #f44336;
+  background-color: rgba(244, 67, 54, 0.05);
+}
+
+.installer-error {
+  position: absolute;
+  bottom: 5px;
+  right: 50px;
+  color: #f44336;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.installer-error i {
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+.time-field.mat-form-field {
+  width: 120px;
+  margin-right: 10px;
+}
+
+.date-field.mat-form-field {
+  width: 180px;
+  margin-right: 10px;
+}
+
+.error-message {
+  color: #f44336;
+  font-size: 12px;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+}
+
+.error-message i {
+  font-size: 16px;
+  margin-right: 5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .affectation-container {
+    max-width: 1500px;
+  }
+
+  .progress-steps {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .step {
+    flex-direction: row;
+    margin-bottom: 15px;
+    width: 100%;
+  }
+  
+  .step-circle {
+    margin-bottom: 0;
+    margin-right: 10px;
+  }
+  
+  .step-arrow {
+    display: none;
+  }
+  
+  .info-grid, .installers-grid {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  
+  .time-selection {
+    flex-direction: column;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .step-buttons {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

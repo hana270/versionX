@@ -1,0 +1,285 @@
+<div class="at-shop-container">
+  <header>
+    <app-header></app-header>
+  </header>
+
+<!-- Promotion Banner -->
+<div *ngIf="nextEndingPromotion" class="at-promo-banner">
+  <div class="at-promo-content">
+    <div class="at-promo-image">
+      <img
+        src="assets/images/offre_speciale.png"
+        alt="Offre Spéciale"
+        width="300"
+        height="90"
+        class="at-offre-speciale-img"
+      />
+    </div>
+    <div class="at-countdown">
+      <div class="at-countdown-item">
+        <div class="at-countdown-value">{{ countdownTime.days }}</div>
+        <div class="at-countdown-label">Jours</div>
+      </div>
+      <div class="at-countdown-separator">:</div>
+      <div class="at-countdown-item">
+        <div class="at-countdown-value">{{ countdownTime.hours }}</div>
+        <div class="at-countdown-label">Heures</div>
+      </div>
+      <div class="at-countdown-separator">:</div>
+      <div class="at-countdown-item">
+        <div class="at-countdown-value">{{ countdownTime.minutes }}</div>
+        <div class="at-countdown-label">Minutes</div>
+      </div>
+      <div class="at-countdown-separator">:</div>
+      <div class="at-countdown-item">
+        <div class="at-countdown-value">{{ countdownTime.seconds }}</div>
+        <div class="at-countdown-label">Secondes</div>
+      </div>
+    </div>
+    <div class="at-promo-message">Offre exclusive ! Profitez-en dès maintenant</div>
+  </div>
+</div>
+
+  <!-- Main Content -->
+  <main class="at-shop-main">
+    <div class="at-container">
+      <div class="at-shop-grid">
+        <!-- Filters Sidebar -->
+        <aside class="at-filter-sidebar" [class.at-mobile-visible]="showFiltersMobile">
+          <div class="at-filter-header">
+            <h3 class="at-filter-title">Filtres</h3>
+            <button class="at-reset-btn" (click)="resetFilters()">
+              <i class="fas fa-redo"></i> Réinitialiser
+            </button>
+            <button class="at-close-filters" (click)="toggleFilters()">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+
+          <!-- Price Filter -->
+          <div class="at-filter-group">
+            <h4 class="at-filter-group-title">
+              <i class="fas fa-tag"></i> Fourchette de prix
+            </h4>
+            <div class="at-price-filter-container">
+              <div class="at-price-inputs">
+                <div class="at-price-input-group">
+                  <label>Min (TND)</label>
+                  <input type="number" class="at-price-input" min="0" [max]="selectedPrice" [(ngModel)]="minPrice"
+                    (change)="onPriceInputChange()" />
+                </div>
+                <div class="at-price-input-group">
+                  <label>Max (TND)</label>
+                  <input type="number" class="at-price-input" [min]="minPrice" [max]="maxPrice"
+                    [(ngModel)]="selectedPrice" (change)="onPriceInputChange()" />
+                </div>
+              </div>
+              <div class="at-price-slider-container">
+                <input type="range" class="at-price-slider" [min]="minPriceLimit" [max]="maxPriceLimit"
+                  [(ngModel)]="minPrice" (input)="onSliderChange('min')" />
+                <input type="range" class="at-price-slider" [min]="minPriceLimit" [max]="maxPriceLimit"
+                  [(ngModel)]="selectedPrice" (input)="onSliderChange('max')" />
+                <div class="at-price-slider-track"></div>
+              </div>
+              <div class="at-price-range-display">
+                {{ minPrice | number:'1.0-0' }} TND - {{ selectedPrice | number:'1.0-0' }} TND
+              </div>
+            </div>
+          </div>
+
+          <!-- Categories Filter -->
+          <div class="at-filter-group">
+            <h4 class="at-filter-group-title">
+              <i class="fas fa-layer-group"></i> Catégories
+            </h4>
+            <div class="at-categories-list">
+              <div *ngFor="let categorie of categories" class="at-category-item">
+                <label class="at-checkbox-label">
+                  <input type="checkbox" [(ngModel)]="categorie.selected" (change)="applyFilters()" />
+                  <span class="at-checkbox-custom"></span>
+                  {{ categorie.nomCategorie }}
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Availability Filter -->
+          <div class="at-filter-group">
+            <h4 class="at-filter-group-title">
+              <i class="fas fa-box-open"></i> Disponibilité
+            </h4>
+            <div class="at-availability-options">
+              <label class="at-checkbox-label">
+                <input type="checkbox" [(ngModel)]="showAvailable" (change)="applyFilters()" />
+                <span class="at-checkbox-custom"></span>
+                En stock
+              </label>
+              <label class="at-checkbox-label">
+                <input type="checkbox" [(ngModel)]="showOnOrder" (change)="applyFilters()" />
+                <span class="at-checkbox-custom"></span>
+                Sur commande
+              </label>
+            </div>
+          </div>
+
+          <!-- Promotions Filter -->
+          <div class="at-filter-group">
+            <h4 class="at-filter-group-title">
+              <i class="fas fa-percentage"></i> Promotions
+            </h4>
+            <label class="at-checkbox-label">
+              <input type="checkbox" [(ngModel)]="showOnlyPromotions" (change)="applyFilters()" />
+              <span class="at-checkbox-custom"></span>
+              Afficher seulement les promotions
+            </label>
+          </div>
+        </aside>
+
+        <!-- Products Section -->
+        <section class="at-products-section">
+          <!-- Filters Toggle for Mobile -->
+          <button class="at-filters-toggle" (click)="toggleFilters()">
+            <i class="fas fa-sliders-h"></i> Filtres
+          </button>
+
+        <!-- Results Header -->
+<div class="at-results-header">
+  <div class="at-results-count">
+    <span class="at-results-number">{{ filteredBassins.length }}</span> produits trouvés
+  </div>
+  <!-- Search Input -->
+  <div class="at-search-container">
+    <input
+      type="text"
+      class="at-search-input"
+      placeholder="Rechercher un bassin..."
+      [(ngModel)]="searchKeyword"
+      (ngModelChange)="onSearchChange()"
+    />
+    <i class="fas fa-search at-search-icon"></i>
+  </div>
+  <div class="at-sort-options">
+    <label for="at-sort-select">Trier par :</label>
+    <select id="at-sort-select" class="at-sort-select" [(ngModel)]="sortOrder" (change)="onSortChange($event)">
+      <option value="asc">Prix croissant</option>
+      <option value="desc">Prix décroissant</option>
+      <option value="promo">Promotions d'abord</option>
+    </select>
+  </div>
+</div>
+
+          <!-- Loading State -->
+          <div *ngIf="isLoading" class="at-loading-state">
+            <div class="at-spinner"></div>
+            <p>Chargement des produits...</p>
+          </div>
+
+          <!-- Error State -->
+          <div *ngIf="!isLoading && errorMessage" class="at-error-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>{{ errorMessage }}</p>
+          </div>
+
+          <!-- Empty Results -->
+          <div *ngIf="!isLoading && !errorMessage && filteredBassins.length === 0" class="at-empty-results">
+            <i class="fas fa-search"></i>
+            <h4>Aucun résultat trouvé</h4>
+            <p>Modifiez vos critères de recherche ou réinitialisez les filtres</p>
+            <button class="at-reset-filters-btn" (click)="resetFilters()">
+              Réinitialiser les filtres
+            </button>
+          </div>
+
+          <!-- Products Grid -->
+          <div *ngIf="!isLoading && !errorMessage && filteredBassins.length > 0" class="at-products-grid"
+            [@staggerAnimation]>
+            <div *ngFor="let bassin of pagedBassins" class="at-product-card" [@cardAnimation]
+              (mouseenter)="setHoveredProduct(bassin.idBassin)" (mouseleave)="setHoveredProduct(null)">
+              <!-- Product Image -->
+              <div class="at-product-image-container">
+                <img [src]="getBassinImageUrl(bassin)" [alt]="getBassinName(bassin)" (error)="onImageError($event)"
+                  class="at-product-image" />
+                <!-- Promotion Badge -->
+                <div *ngIf="bassin.promotionActive" class="at-promo-badge">
+                  -{{ getTauxReduction(bassin) }}%
+                </div>
+                <!-- Favorite Button -->
+                <button class="at-favorite-btn" [class.at-favorited]="bassin.isFavorite"
+                  (click)="addToFavorites(bassin, $event)">
+                  <i class="fas fa-heart"></i>
+                </button>
+              </div>
+
+              <!-- Product Info -->
+              <div class="at-product-info">
+                <span class="at-product-category">{{ getCategoryName(bassin.categorie!.idCategorie) }}</span>
+                <h3 class="at-product-title">{{ bassin.nomBassin }}</h3>
+
+                <!-- Availability -->
+                <div class="at-availability">
+                  <span class="at-availability-dot" [class.at-available]="bassin.statut === 'DISPONIBLE'"
+                    [class.at-on-order]="bassin.statut === 'SUR_COMMANDE'"
+                    [class.at-unavailable]="bassin.statut !== 'DISPONIBLE' && bassin.statut !== 'SUR_COMMANDE'"></span>
+                  <span class="at-availability-text">{{ getAvailabilityStatus(bassin) }}</span>
+                </div>
+
+                <!-- Price -->
+                <div class="at-product-price">
+                  <div *ngIf="bassin.promotionActive; else regularPrice">
+                    <span class="at-current-price">{{ getPrixAvecPromotion(bassin) | number:'1.0-0' }} TND</span>
+                    <span class="at-original-price">{{ getPrixOriginal(bassin) | number:'1.0-0' }} TND</span>
+                  </div>
+                  <ng-template #regularPrice>
+                    <span class="at-current-price">{{ bassin.prix | number:'1.0-0' }} TND</span>
+                  </ng-template>
+                </div>
+
+                <!-- Specifications -->
+                <div class="at-product-specs">
+                  <div *ngIf="bassin.dimensions" class="at-spec-item">
+                    <i class="fas fa-ruler-combined"></i> {{ bassin.dimensions }}
+                  </div>
+                  <div *ngIf="bassin.materiau" class="at-spec-item">
+                    <i class="fas fa-cube"></i> {{ bassin.materiau }}
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="at-product-actions">
+                  <button class="at-add-to-cart" (click)="addToCart(bassin, $event)"
+                    [disabled]="bassin.statut !== 'DISPONIBLE' && bassin.statut !== 'SUR_COMMANDE'">
+                    <i class="fas fa-shopping-cart"></i>
+                    Ajouter au panier
+                  </button>
+                  <button class="at-view-details-btn" (click)="showDetails(bassin, $event)" title="Voir les détails">
+                    <i class="fas fa-eye"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pagination -->
+          <div *ngIf="filteredBassins.length > itemsPerPage" class="at-pagination">
+            <button class="at-pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <div class="at-pagination-pages">
+              <button *ngFor="let page of getPages()" class="at-page-btn" [class.at-active]="page === currentPage"
+                (click)="setPage(page)">
+                {{ page }}
+              </button>
+            </div>
+            <button class="at-pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <app-footer></app-footer>
+  </footer>
+</div>

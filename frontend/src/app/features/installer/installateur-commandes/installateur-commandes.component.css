@@ -1,0 +1,365 @@
+/* installateur-commandes.component.css */
+
+/* Styles de base */
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+
+/* En-tête */
+.bg-white {
+  background-color: #ffffff;
+}
+
+.shadow-sm {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.border-b {
+  border-bottom-width: 1px;
+}
+
+/* Onglets de navigation */
+.nav-tabs {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  width: 100%;
+}
+
+.nav-tabs button {
+  padding: 1rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  border-bottom-width: 2px;
+  transition: all 0.2s;
+  width: 50%; 
+}
+
+.nav-tabs button:hover {
+  color: #374151;
+}
+
+/* Suppression de l'espace entre les onglets */
+nav button:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+nav button:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* installateur-commandes.component.css */
+
+/* Styles pour les onglets */
+nav {
+  display: flex;
+  width: 100%;
+}
+
+nav button {
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+  width: 50%; /* Chaque onglet prend 50% de l'espace */
+}
+
+/* Suppression de l'espace entre les onglets */
+nav button:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+nav button:last-child {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Style pour l'onglet actif */
+nav button.border-blue-500 {
+  border-bottom: 2px solid #3b82f6;
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+nav button.border-red-500 {
+  border-bottom: 2px solid #ef4444;
+  color: #dc2626;
+  background-color: #fef2f2;
+}
+
+/* Style pour les onglets inactifs */
+nav button.border-transparent {
+  border-bottom: 2px solid transparent;
+}
+
+/* Top Bar */
+.top-bar {
+    background-color: white;
+    border-radius: 10px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.top-bar .card-body {
+    padding: 1rem 1.5rem;
+}
+
+.top-bar h4 {
+    color: #333333;
+    font-weight: 600;
+}
+
+.top-bar .fas {
+    color: #333333;
+}
+
+/* Titre "Gestion des catégories" */
+.text-h4 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+    display: block;
+    color: inherit;
+}
+
+/* Search bar dans la top bar */
+.search-bar {
+    max-width: 300px;
+}
+
+.search-bar .form-control {
+    border-radius: 5px 0 0 5px;
+    border: 1px solid #ced4da;
+    padding: 0.5rem 1rem;
+    height: 40px;
+}
+
+.search-bar .btn-primary {
+    background-color: #333333;
+    border-color: #333333;
+    border-radius: 0 5px 5px 0;
+    height: 40px;
+}
+
+.search-bar .btn-primary:hover {
+    background-color: #1a1a1a;
+    border-color: #1a1a1a;
+}
+
+.search-bar .btn-primary i {
+    color: white !important;
+}
+/* Style au survol */
+nav button:hover:not(.border-blue-500):not(.border-red-500) {
+  background-color: #f3f4f6;
+}
+/* Onglet actif - bleu */
+.nav-tabs button.border-blue-500 {
+  border-color: #3b82f6;
+  color: #2563eb;
+  background-color: #eff6ff;
+}
+
+/* Onglet actif - rouge */
+.nav-tabs button.border-red-500 {
+  border-color: #ef4444;
+  color: #dc2626;
+  background-color: #fef2f2;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.bg-blue-100 {
+  background-color: #dbeafe;
+}
+
+.text-blue-800 {
+  color: #1e40af;
+}
+
+.bg-red-100 {
+  background-color: #fee2e2;
+}
+
+.text-red-800 {
+  color: #991b1b;
+}
+
+/* Cartes */
+.card {
+  background-color: #ffffff;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* En-tête bleu pour les commandes en cours */
+.bg-blue-50 {
+  background-color: #eff6ff;
+}
+
+.text-blue-800 {
+  color: #1e40af;
+}
+
+/* En-tête rouge pour l'historique */
+.bg-red-50 {
+  background-color: #fef2f2;
+}
+
+.text-red-800 {
+  color: #991b1b;
+}
+
+/* Tableaux */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th {
+  padding: 0.75rem 1.5rem;
+  text-align: left;
+  font-weight: 500;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  background-color: #f9fafb;
+}
+
+.table td {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Boutons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  transition: all 0.2s;
+}
+
+.btn-success {
+  background-color: #10b981;
+  color: #ffffff;
+}
+
+.btn-success:hover {
+  background-color: #059669;
+}
+
+/* Icônes */
+.icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.5rem;
+}
+
+/* Indicateur de chargement */
+.spinner {
+  display: inline-block;
+  width: 2rem;
+  height: 2rem;
+  border: 0.25em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Message d'erreur */
+.alert-error {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #fca5a5;
+  border-radius: 0.375rem;
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Espacement des éléments de filtre */
+.filter-item {
+  margin-right: 1rem;
+  display: flex;
+  align-items: center;
+}
+
+.filter-item:last-child {
+  margin-right: 0;
+}
+
+/* Styles pour les entrées de date */
+.date-input {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.date-input span {
+  color: #6b7280;
+}
+
+/* Couleurs des onglets actifs */
+.nav-tabs button.border-blue-500 {
+  border-color: #3b82f6;
+  color: #2563eb;
+}
+
+.nav-tabs button.border-red-500 {
+  border-color: #ef4444;
+  color: #dc2626;
+}
+
+/* Style des icônes */
+.icon-active {
+  color: #3b82f6; /* Bleu pour "En cours" */
+}
+
+.icon-history {
+  color: #ef4444; /* Rouge pour "Historique" */
+}
+
+/* Style des en-têtes */
+.section-header {
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem 1.5rem;
+}
+
+.active-header {
+  background-color: #f8fafc; /* Fond très léger pour "En cours" */
+}
+
+.history-header {
+  background-color: #fff5f5; /* Fond très léger rouge pour "Historique" */
+}

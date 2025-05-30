@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panier d'achat | Bassins Pro</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+ 
+</head>
+<body>
+  <header>
+    <app-header></app-header>
+  </header>
+
+  <div class="cart-container">
+    <!-- Fil d'Ariane -->
+    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/">Accueil</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Panier</li>
+      </ol>
+    </nav>
+
+    <h1 class="cart-title">Votre Panier</h1>
+
+    <!-- État de chargement -->
+    <div *ngIf="isLoading" class="loading-state text-center py-5">
+      <div class="spinner-grow text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+      <p class="mt-3">Chargement de votre panier...</p>
+    </div>
+
+    <!-- Panier vide -->
+    <div *ngIf="!isLoading && cartItems.length === 0" class="empty-cart text-center py-5">
+      <div class="empty-cart-icon">
+        <i class="fas fa-shopping-cart"></i>
+      </div>
+      <h3 class="mt-4">Votre panier est vide</h3>
+      <p class="text-muted mb-4">Commencez à ajouter des articles pour continuer</p>
+      <button (click)="goToShop()" class="btn btn-primary btn-lg">
+        <i class="fas fa-store me-2"></i>Continuer vos achats
+      </button>
+    </div>
+
+    <!-- Contenu du panier -->
+    <div *ngIf="!isLoading && cartItems.length > 0" class="cart-content">
+      <div class="cart-items">
+        <div class="cart-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Produit</th>
+                <th>Prix</th>
+                <th>Quantité</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of cartItems">
+                <td class="product-cell">
+                  <img [src]="getImageUrl(item)" 
+                       [alt]="getItemName(item)" 
+                       (error)="onImageError($event)"
+                       class="product-image">
+                  
+                  <div class="product-info">
+                    <h3 class="product-name">{{ getItemName(item) }}</h3>
+                    
+                    <div class="product-badges">
+                      <!-- Statut du produit -->
+                      <span class="badge badge-stock">{{ getStatusDisplay(item) }}</span>
+                      
+                      <!-- Badge personnalisé -->
+                      <span *ngIf="item.isCustomized" class="badge badge-custom">
+                        <i class="fas fa-palette me-1"></i>Personnalisé
+                      </span>
+                      
+                      <!-- Badge promotion -->
+                      <span *ngIf="item.promotionActive" class="badge badge-promo">
+                        <i class="fas fa-tags me-1"></i>-{{ getDiscountPercentage(item) }}%
+                      </span>
+                      
+                      <!-- Badge fabrication -->
+                      <span *ngIf="item.bassin?.surCommande || (item.isCustomized && item.customization?.dureeFabrication)" 
+                            class="badge badge-fabrication">
+                        <i class="fas fa-clock me-1"></i>Sur commande
+                      </span>
+                    </div>
+                    
+                    <div class="product-specs">
+                      <!-- Dimensions -->
+                      <span *ngIf="item.isCustomized ? item.customization?.dimensionSelectionnee : item.bassin?.dimensions" class="spec-item">
+                        <i class="fas fa-ruler-combined"></i>
+                        {{ item.isCustomized ? item.customization?.dimensionSelectionnee : formatDimensions(item.bassin!.dimensions) }}
+                      </span>
+                      
+                      <!-- Matériau -->
+                      <span *ngIf="item.isCustomized ? item.customization?.materiauSelectionne : item.bassin?.materiau" class="spec-item">
+                        <i class="fas fa-cube"></i>
+                        {{ item.isCustomized ? item.customization?.materiauSelectionne : formatMateriaux(item.bassin!.materiau) }}
+                      </span>
+                      
+                      <!-- Couleur -->
+                      <span *ngIf="item.isCustomized ? item.customization?.couleurSelectionnee : item.bassin?.couleur" class="spec-item">
+                        <i class="fas fa-fill-drip"></i>
+                        {{ item.isCustomized ? item.customization?.couleurSelectionnee : item.bassin!.couleur }}
+                        <span class="color-preview" 
+                              [style.background-color]="getColorPreview(item.isCustomized ? item.customization!.couleurSelectionnee : item.bassin!.couleur)">
+                        </span>
+                      </span>
+                      
+                      <!-- Délai de fabrication -->
+                      <span *ngIf="item.isCustomized && item.customization?.dureeFabrication" class="spec-item">
+                        <i class="fas fa-business-time"></i>
+                        Délai: {{ item.customization!.dureeFabrication }} jours
+                      </span>
+                      <span *ngIf="!item.isCustomized && item.bassin?.surCommande" class="spec-item">
+                        <i class="fas fa-business-time"></i>
+                        Délai: {{ item.bassin?.dureeFabricationDisplay || '2-3 semaines' }}
+                      </span>
+                    </div>
+                  </div>
+                </td>
+                
+                <td class="price-cell">
+                  <!-- Prix original barré si promotion active -->
+                  <div *ngIf="item.promotionActive" class="price-original">
+                    {{ item.prixOriginal | currency:'TND':'symbol':'1.2-2' }}
+                  </div>
+                  
+                  <!-- Prix actuel -->
+                  <div class="price-current">
+                    {{ getEffectivePrice(item) | currency:'TND':'symbol':'1.2-2' }}
+                  </div>
+                  
+                  <!-- Affichage réduction si promotion -->
+                  <div *ngIf="item.promotionActive" class="price-discount">
+                    Économie: {{ calculateDiscount(item) | currency:'TND':'symbol':'1.2-2' }}
+                  </div>
+                </td>
+                
+                <td class="quantity-cell">
+                  <div class="quantity-controls">
+                    <button (click)="decrementQuantity(item)" 
+                            [disabled]="item.quantity <= 1" 
+                            class="btn-quantity btn-quantity-minus">
+                      <i class="fas fa-minus"></i>
+                    </button>
+                    
+                    <input type="number" 
+                           [(ngModel)]="item.quantity" 
+                           min="1" 
+                           [max]="getMaxQuantity(item)"
+                           (change)="updateQuantity(item, item.quantity)" 
+                           class="quantity-input">
+                    
+                    <button (click)="incrementQuantity(item)" 
+                            [disabled]="!canIncrementQuantity(item)"
+                            class="btn-quantity btn-quantity-plus">
+                      <i class="fas fa-plus"></i>
+                    </button>
+                  </div>
+                </td>
+                
+                <td class="subtotal-cell">
+                  {{ calculateSubtotal(item) | currency:'TND':'symbol':'1.2-2' }}
+                </td>
+                
+                <td class="actions-cell">
+                  <button (click)="removeFromCart(item)" class="btn-remove" title="Supprimer du panier">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Actions du panier -->
+        <div class="cart-actions">
+          <button (click)="goToShop()" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left"></i>Continuer vos achats
+          </button>
+          
+          <button (click)="clearCart()" class="btn btn-outline-danger">
+            <i class="fas fa-trash"></i>Vider le panier
+          </button>
+        </div>
+      </div>
+
+      <!-- Résumé du panier -->
+      <div class="cart-summary">
+        <div class="summary-card">
+          <h3 class="summary-title">
+            <i class="fas fa-receipt"></i>Récapitulatif
+          </h3>
+          
+          <div class="summary-content">
+            <div class="summary-row">
+              <span>Sous-total</span>
+              <span>{{ subtotal | currency:'TND':'symbol':'1.2-2' }}</span>
+            </div>
+            
+            <div class="summary-row" *ngIf="discount > 0">
+              <span>Réduction</span>
+              <span class="text-danger">-{{ discount | currency:'TND':'symbol':'1.2-2' }}</span>
+            </div>
+            
+            <div class="summary-row">
+              <span>TVA ({{ vatRate * 100 }}%)</span>
+              <span>{{ vatAmount | currency:'TND':'symbol':'1.2-2' }}</span>
+            </div>
+
+            <div class="summary-row" *ngIf="hasCustomItems()">
+              <span>Délai estimé</span>
+              <span>{{ getEstimatedDeliveryTime() }}</span>
+            </div>
+            
+            <div class="summary-row total">
+              <span>Total TTC</span>
+              <span>{{ total | currency:'TND':'symbol':'1.2-2' }}</span>
+            </div>
+
+            <!-- Bouton de paiement pour utilisateurs connectés -->
+            <button *ngIf="authService.isLoggedIn" 
+                   (click)="proceedToCheckout()" 
+                   class="btn btn-success btn-checkout">
+              <i class="fas fa-lock"></i>Procéder au paiement
+            </button>
+
+            <!-- Bouton de connexion pour utilisateurs non connectés -->
+            <button *ngIf="!authService.isLoggedIn" 
+                   (click)="redirectToLogin()" 
+                   class="btn btn-primary btn-checkout">
+              <i class="fas fa-sign-in-alt"></i>Connectez-vous pour commander
+            </button>
+
+            <div class="secure-payment">
+              <div class="secure-payment-text">
+                <i class="fas fa-shield-alt"></i>
+                <span>Paiement sécurisé</span>
+              </div>
+              <div class="payment-methods">
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-paypal"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <app-footer></app-footer>
+  </footer>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

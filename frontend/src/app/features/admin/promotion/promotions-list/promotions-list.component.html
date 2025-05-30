@@ -1,0 +1,208 @@
+<app-layout>
+  <div class="admin-container" @fadeIn>
+    <!-- Top Bar -->
+    <div class="top-bar card shadow-sm mb-4">
+      <div class="card-body py-3">
+        <div class="d-flex justify-content-between align-items-center">
+          <label class="mb-0 text-h4">
+<i class="fas fa-percentage me-2"></i>
+Gestion des Promotions
+</label>
+<div class="search-bar">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Rechercher promotion..." [(ngModel)]="searchTerm">
+              <button class="btn btn-search" type="button" (click)="applySearch()">
+                <i class="fas fa-search"></i> 
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Card -->
+    <div class="card shadow-sm main-content-card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div class="promotion-stats">
+            <span class="stat-badge active" (click)="filterByStatus('active')" [class.active-filter]="activeFilter === 'active'">
+              <i class="fas fa-bolt me-1"></i> {{getPromotionsByStatus('active').length}} Actives
+            </span>
+            <span class="stat-badge upcoming" (click)="filterByStatus('upcoming')" [class.active-filter]="activeFilter === 'upcoming'">
+              <i class="fas fa-clock me-1"></i> {{getPromotionsByStatus('upcoming').length}} À venir
+            </span>
+            <span class="stat-badge expired" (click)="filterByStatus('expired')" [class.active-filter]="activeFilter === 'expired'">
+              <i class="fas fa-history me-1"></i> {{getPromotionsByStatus('expired').length}} Expirées
+            </span>
+          </div>
+          <a routerLink="/admin/promotions/add" class="btn btn-add">
+            <i class="fas fa-plus-circle me-2"></i> Nouvelle Promotion
+          </a>
+        </div>
+
+        <!-- Promotions Actives -->
+        <div class="promotion-section" *ngIf="shouldShowSection('active')" @slideIn>
+          <div class="section-header">
+            <h5><i class="fas fa-bolt text-success me-2"></i> Promotions Actives</h5>
+            <span class="badge bg-success">{{getPromotionsByStatus('active').length}}</span>
+          </div>
+          
+          <div class="table-responsive">
+            <table class="promotion-table">
+              <thead>
+                <tr>
+              
+                  <th>Nom</th>
+                  <th>Réduction</th>
+                  <th>Période</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let promotion of getPromotionsByStatus('active')" @fadeIn>
+                  <td>{{ promotion.nomPromotion }}</td>
+                  <td class="text-danger fw-bold">-{{ promotion.tauxReduction * 100 }}%</td>
+                  <td>
+                    <small class="text-muted">
+                      {{ promotion.dateDebut | date:'dd/MM/yyyy' }} - 
+                      {{ promotion.dateFin | date:'dd/MM/yyyy' }}
+                    </small>
+                  </td>
+                  
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-edit me-1" [routerLink]="['/admin/promotions/edit', promotion.idPromotion]">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-delete" (click)="deletePromotion(promotion.idPromotion!)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="getPromotionsByStatus('active').length === 0">
+                  <td colspan="6" class="text-center py-4 text-muted">
+                    Aucune promotion active trouvée
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Promotions à Venir -->
+        <div class="promotion-section mt-4" *ngIf="shouldShowSection('upcoming')" @slideIn>
+          <div class="section-header">
+            <h5><i class="fas fa-clock text-warning me-2"></i> Promotions à Venir</h5>
+            <span class="badge bg-warning text-dark">{{getPromotionsByStatus('upcoming').length}}</span>
+          </div>
+          
+          <div class="table-responsive">
+            <table class="promotion-table">
+              <thead>
+                <tr>
+                  <th>Nom</th>
+                  <th>Réduction</th>
+                  <th>Début</th>
+                  <th>Jours restants</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let promotion of getPromotionsByStatus('upcoming')" @fadeIn>
+                  <td>{{ promotion.nomPromotion }}</td>
+                  <td class="text-danger fw-bold">-{{ promotion.tauxReduction * 100 }}%</td>
+                  <td>
+                    {{ promotion.dateDebut | date:'dd/MM/yyyy' }}
+                    <small class="text-muted d-block">à {{ promotion.dateDebut | date:'HH:mm' }}</small>
+                  </td>
+                  <td>
+                    <span class="badge bg-warning text-dark">
+                      {{ getDaysUntilStart(promotion.dateDebut) }} jours
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <button class="btn btn-sm btn-edit me-1" [routerLink]="['/admin/promotions/edit', promotion.idPromotion]">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-sm btn-delete" (click)="deletePromotion(promotion.idPromotion!)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="getPromotionsByStatus('upcoming').length === 0">
+                  <td colspan="6" class="text-center py-4 text-muted">
+                    Aucune promotion à venir trouvée
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Promotions Expirées -->
+        <div class="promotion-section mt-4" *ngIf="shouldShowSection('expired')" @slideIn>
+          <div class="section-header">
+            <h5><i class="fas fa-history text-danger me-2"></i> Promotions Expirées</h5>
+            <span class="badge bg-danger">{{getPromotionsByStatus('expired').length}}</span>
+            <button class="btn btn-sm btn-toggle" (click)="toggleExpired()">
+              <i class="fas" [ngClass]="{'fa-chevron-down': !showExpired, 'fa-chevron-up': showExpired}" @rotateIcon></i>
+            </button>
+          </div>
+          
+          <div class="table-responsive" *ngIf="showExpired">
+            <table class="promotion-table">
+              <thead>
+                <tr>
+     
+                  <th>Nom</th>
+                  <th>Réduction</th>
+                  <th>Période</th>
+                  <th>Expiré depuis</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let promotion of getPromotionsByStatus('expired')" @fadeIn>
+                  <td>{{ promotion.nomPromotion }}</td>
+                  <td class="text-danger fw-bold">-{{ promotion.tauxReduction * 100 }}%</td>
+                  <td>
+                    <small class="text-muted">
+                      {{ promotion.dateDebut | date:'dd/MM/yyyy' }} - 
+                      {{ promotion.dateFin | date:'dd/MM/yyyy' }}
+                    </small>
+                  </td>
+                  <td>
+                    <span class="badge bg-danger">
+                      {{ getDaysSinceEnd(promotion.dateFin) }} jours
+                    </span>
+                  </td>
+                  <td class="text-center">
+                  
+                    <button class="btn btn-sm btn-delete" (click)="deletePromotion(promotion.idPromotion!)">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="getPromotionsByStatus('expired').length === 0">
+                  <td colspan="6" class="text-center py-4 text-muted">
+                    Aucune promotion expirée trouvée
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination mt-4" *ngIf="totalPages > 1" @fadeIn>
+          <button class="btn btn-pagination" (click)="onPageChange(currentPage - 1)" [disabled]="currentPage === 1">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <span class="page-info">Page {{ currentPage }} sur {{ totalPages }}</span>
+          <button class="btn btn-pagination" (click)="onPageChange(currentPage + 1)" [disabled]="currentPage === totalPages">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-layout>

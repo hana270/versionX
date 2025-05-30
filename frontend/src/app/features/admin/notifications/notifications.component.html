@@ -1,0 +1,62 @@
+<div class="notification-container" [class.active]="showPanel">
+  <div class="notification-trigger" (click)="togglePanel()" matTooltip="Notifications">
+    <i class="material-icons">notifications</i>
+    <span class="notification-badge" *ngIf="unreadCount > 0" @pulse>{{ unreadCount }}</span>
+  </div>
+  
+  <div class="notification-panel" [class.show]="showPanel" @slideInOut>
+    <div class="notification-header">
+      <div class="header-content">
+        <h3>Notifications</h3>
+        <div class="notification-count" *ngIf="unreadCount > 0">
+          {{ unreadCount }} non-lu{{ unreadCount > 1 ? 's' : '' }}
+        </div>
+      </div>
+      
+      <div class="notification-actions">
+        <button class="action-btn" (click)="markAllAsRead()" *ngIf="unreadCount > 0" matTooltip="Marquer tout comme lu">
+          <i class="material-icons">done_all</i>
+        </button>
+        <button class="action-btn" (click)="togglePanel()" matTooltip="Fermer">
+          <i class="material-icons">close</i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="notification-list" *ngIf="notifications.length > 0" @listAnimation>
+      <div class="notification-item" 
+           *ngFor="let notification of notifications; trackBy: trackByNotification"
+           [class.unread]="!notification.read"
+           (click)="handleNotificationClick(notification)"
+           @notificationItem>
+        <div class="notification-icon" [ngClass]="notification.type">
+          <i class="material-icons">{{ getNotificationIcon(notification.type) }}</i>
+        </div>
+        <div class="notification-content">
+          <p class="notification-message">{{ notification.message }}</p>
+          <div class="notification-meta">
+            <span class="notification-date">{{ formatDate(notification.date) }}</span>
+            <button class="delete-btn" (click)="deleteNotification(notification, $event)" matTooltip="Supprimer">
+              <i class="material-icons">delete</i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="notification-empty" *ngIf="notifications.length === 0" @fadeIn>
+      <i class="material-icons">notifications_off</i>
+      <p>Aucune notification</p>
+      <small>Les nouvelles notifications apparaîtront ici</small>
+    </div>
+    
+    <div class="notification-footer" *ngIf="notifications.length > 0">
+      <button class="footer-btn" (click)="clearAllNotifications()">
+        <i class="material-icons">delete_sweep</i>
+        <span>Effacer tout</span>
+      </button>
+    </div>
+  </div>
+  
+  <div class="notification-backdrop" (click)="togglePanel()" [class.show]="showPanel"></div>
+</div>

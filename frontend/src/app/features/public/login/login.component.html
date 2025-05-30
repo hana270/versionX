@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connexion</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --primary-light: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --background-color: #f8fafc;
+      --card-background: #ffffff;
+      --text-color: #1e293b;
+      --text-muted: #64748b;
+      --error-color: #dc2626;
+      --success-color: #10b981;
+      --input-border: #cbd5e1;
+      --input-focus: #3b82f6;
+      --box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Roboto', sans-serif;
+    }
+
+    body {
+      background-color: var(--background-color);
+      background-image: 
+        radial-gradient(circle at 25% 25%, rgba(37, 99, 235, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 75% 75%, rgba(37, 99, 235, 0.08) 0%, transparent 50%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Dynamic Background Animation */
+    .background-gridddd {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      opacity: 0.3;
+      overflow: hidden;
+    }
+
+    .grid-line {
+      position: absolute;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+      height: 1px;
+      width: 100%;
+      animation: moveHorizontal 15s infinite linear;
+    }
+
+    .grid-line:nth-child(1) { top: 10%; animation-delay: 0s; }
+    .grid-line:nth-child(2) { top: 30%; animation-delay: -3s; }
+    .grid-line:nth-child(3) { top: 50%; animation-delay: -6s; }
+    .grid-line:nth-child(4) { top: 70%; animation-delay: -9s; }
+    .grid-line:nth-child(5) { top: 90%; animation-delay: -12s; }
+
+    .grid-vertical {
+      position: absolute;
+      background: linear-gradient(180deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+      width: 1px;
+      height: 100%;
+      animation: moveVertical 15s infinite linear;
+    }
+
+    .grid-vertical:nth-child(6) { left: 20%; animation-delay: -2s; }
+    .grid-vertical:nth-child(7) { left: 40%; animation-delay: -5s; }
+    .grid-vertical:nth-child(8) { left: 60%; animation-delay: -8s; }
+    .grid-vertical:nth-child(9) { left: 80%; animation-delay: -11s; }
+
+    @keyframes moveHorizontal {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    @keyframes moveVertical {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100%); }
+    }
+
+    /* Particle Animation */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: rgba(59, 130, 246, 0.2);
+      border-radius: 50%;
+      animation: float 20s infinite ease-in-out;
+    }
+
+    .particle:nth-child(1) { top: 20%; left: 10%; animation-duration: 25s; width: 4px; height: 4px; }
+    .particle:nth-child(2) { top: 70%; left: 20%; animation-duration: 35s; width: 5px; height: 5px; }
+    .particle:nth-child(3) { top: 40%; left: 30%; animation-duration: 28s; width: 3px; height: 3px; }
+    .particle:nth-child(4) { top: 65%; left: 70%; animation-duration: 22s; width: 6px; height: 6px; }
+    .particle:nth-child(5) { top: 15%; left: 60%; animation-duration: 30s; width: 4px; height: 4px; }
+    .particle:nth-child(6) { top: 30%; left: 80%; animation-duration: 27s; width: 5px; height: 5px; }
+    .particle:nth-child(7) { top: 75%; left: 90%; animation-duration: 33s; width: 3px; height: 3px; }
+    .particle:nth-child(8) { top: 55%; left: 45%; animation-duration: 29s; width: 4px; height: 4px; }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translate(0, 0);
+      }
+      25% {
+        transform: translate(40px, -40px);
+      }
+      50% {
+        transform: translate(60px, 30px);
+      }
+      75% {
+        transform: translate(-40px, 40px);
+      }
+    }
+
+    /* Login Card */
+    .login-container {
+      width: 100%;
+      max-width: 450px;
+      border-radius: 16px;
+      box-shadow: var(--box-shadow);
+      background-color: var(--card-background);
+      backdrop-filter: blur(10px);
+      overflow: hidden;
+      margin: 20px;
+      transform: translateY(0);
+      animation: cardEnter 0.8s cubic-bezier(0.21, 1.11, 0.58, 1);
+    }
+
+    @keyframes cardEnter {
+      0% {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Form Header */
+    .form-header {
+      text-align: center;
+      padding: 35px 40px 20px;
+      border-bottom: 1px solid rgba(203, 213, 225, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .form-header::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-light), var(--primary-dark));
+      border-radius: 3px;
+    }
+
+    .form-title {
+      color: var(--text-color);
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      animation: fadeInDown 0.6s ease-out;
+    }
+
+    .form-subtitle {
+      color: var(--text-muted);
+      font-size: 16px;
+      animation: fadeInDown 0.8s ease-out;
+    }
+
+    @keyframes fadeInDown {
+      0% {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Form Content */
+    .login-form {
+      padding: 30px 40px 40px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+      position: relative;
+      animation: fadeInUp 0.6s ease-out;
+      animation-fill-mode: both;
+    }
+
+    .form-group:nth-child(1) { animation-delay: 0.2s; }
+    .form-group:nth-child(2) { animation-delay: 0.4s; }
+    .form-group:nth-child(3) { animation-delay: 0.6s; }
+
+    @keyframes fadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-color);
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.3s ease;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--input-border);
+      border-radius: 10px;
+      font-size: 15px;
+      transition: all 0.3s ease;
+      background-color: rgba(255, 255, 255, 0.8);
+    }
+
+    .form-control:focus {
+      border-color: var(--input-focus);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+      outline: none;
+    }
+
+    .form-group:focus-within .form-label {
+      color: var(--primary-color);
+    }
+
+    .form-control::placeholder {
+      color: #94a3b8;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+    .form-control:focus::placeholder {
+      opacity: 0.7;
+    }
+
+    /* Password Field */
+    .password-container {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 16px;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      cursor: pointer;
+      z-index: 2;
+      transition: all 0.3s ease;
+      padding: 5px;
+    }
+
+    .toggle-password:hover {
+      color: var(--primary-color);
+    }
+
+    /* Forgot Password */
+    .forgot-password {
+      text-align: right;
+      margin: 8px 0 25px;
+      animation: fadeInUp 0.8s ease-out;
+      animation-fill-mode: both;
+      animation-delay: 0.6s;
+    }
+
+    .forgot-link {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      position: relative;
+      display: inline-block;
+    }
+
+    .forgot-link::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 1px;
+      bottom: -2px;
+      left: 0;
+      background-color: var(--primary-color);
+      transition: width 0.3s ease;
+    }
+
+    .forgot-link:hover::after {
+      width: 100%;
+    }
+
+    .forgot-link:hover {
+      color: var(--primary-dark);
+    }
+
+    /* Login Button */
+    .btn-sumbmitttt {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 1s ease-out;
+      animation-fill-mode: both;
+      animation-delay: 0.8s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-sumbmitttt::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: all 0.4s ease;
+    }
+
+    .btn-sumbmitttt:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4);
+    }
+
+    .btn-sumbmitttt:hover::before {
+      left: 100%;
+    }
+
+    .btn-sumbmitttt:active {
+      transform: translateY(0);
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Signup Prompt */
+    .signup-prompt {
+      text-align: center;
+      margin-top: 30px;
+      color: var(--text-muted);
+      font-size: 14px;
+      animation: fadeInUp 1.2s ease-out;
+      animation-fill-mode: both;
+      animation-delay: 1s;
+    }
+
+    .signup-link {
+      color: var(--primary-color);
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      position: relative;
+      display: inline-block;
+    }
+
+    .signup-link::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 1px;
+      bottom: -2px;
+      left: 0;
+      background-color: var(--primary-color);
+      transition: width 0.3s ease;
+    }
+
+    .signup-link:hover::after {
+      width: 100%;
+    }
+
+    .signup-link:hover {
+      color: var(--primary-dark);
+    }
+
+    /* Error Messages */
+    .error-message {
+      color: var(--error-color);
+      font-size: 12px;
+      font-weight: 500;
+      margin-top: 6px;
+      display: none;
+      animation: shake 0.5s ease-in-out;
+      padding-left: 5px;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-5px); }
+      40%, 80% { transform: translateX(5px); }
+    }
+
+    /* Input Focus Effects */
+    .form-control:focus + .focus-border {
+      transform: scaleX(1);
+    }
+
+    /* Form Input Animations */
+    .input-effect {
+      position: relative;
+    }
+
+    .focus-border {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--primary-color);
+      transform: scaleX(0);
+      transition: transform 0.3s ease;
+    }
+
+    /* Responsive Styles */
+    @media screen and (max-width: 600px) {
+      .login-container {
+        margin: 15px;
+        border-radius: 12px;
+      }
+      
+      .form-header, .login-form {
+        padding-left: 25px;
+        padding-right: 25px;
+      }
+      
+      .form-title {
+        font-size: 24px;
+      }
+      
+      .form-subtitle {
+        font-size: 14px;
+      }
+    }
+
+    @media screen and (max-width: 400px) {
+      .login-container {
+        margin: 10px;
+        border-radius: 10px;
+      }
+      
+      .form-header, .login-form {
+        padding-left: 20px;
+        padding-right: 20px;
+      }
+      
+      .form-title {
+        font-size: 22px;
+      }
+      
+      .form-subtitle {
+        font-size: 13px;
+      }
+      
+      .btn-sumbmitttt {
+        padding: 12px;
+        font-size: 15px;
+      }
+      
+      .forgot-password {
+        margin-bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Animations -->
+  <div class="background-gridddd">
+    <div class="grid-line"></div>
+    <div class="grid-line"></div>
+    <div class="grid-line"></div>
+    <div class="grid-line"></div>
+    <div class="grid-line"></div>
+    <div class="grid-vertical"></div>
+    <div class="grid-vertical"></div>
+    <div class="grid-vertical"></div>
+    <div class="grid-vertical"></div>
+  </div>
+
+  <div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <!-- Login Container -->
+  <div class="login-container">
+    <!-- Form Header -->
+    <div class="form-header">
+      <h1 class="form-title">Connexion</h1>
+      <p class="form-subtitle">Connectez-vous pour accéder à votre espace personnel</p>
+    </div>
+
+    <!-- Form Content -->
+    <form id="loginForm" class="login-form" (ngSubmit)="onLoggedin()" #loginForm="ngForm">
+      <div class="form-group">
+        <label for="username" class="form-label">Identifiant</label>
+        <div class="input-effect">
+          <input
+            type="text"
+            id="username"
+            class="form-control"
+            placeholder="Entrez votre nom d'utilisateur"
+            name="username"
+            [(ngModel)]="user.username"
+            required
+            autocomplete="username"
+          />
+          <span class="focus-border"></span>
+        </div>
+        <div class="error-message" *ngIf="err && !user.username">Veuillez entrer votre identifiant</div>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Mot de passe</label>
+        <div class="password-container">
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            class="form-control"
+            placeholder="Entrez votre mot de passe"
+            name="password"
+            [(ngModel)]="user.password"
+            required
+            autocomplete="current-password"
+          />
+          <span class="toggle-password" (click)="togglePasswordVisibility()">
+            <i class="fas" [ngClass]="showPassword ? 'fa-eye-slash' : 'fa-eye'"></i>
+          </span>
+          <span class="focus-border"></span>
+        </div>
+        <div class="error-message" *ngIf="err && !user.password">Veuillez entrer votre mot de passe</div>
+        <div class="error-message" *ngIf="err && user.password && user.password.length < 6">
+          Le mot de passe doit contenir au moins 6 caractères
+        </div>
+      </div>
+
+      <div class="forgot-password">
+        <a routerLink="/request-reset-password" class="forgot-link">Mot de passe oublié ?</a>
+      </div>
+
+      <button type="submit" class="btn-sumbmitttt" [disabled]="isLoading">
+        <span *ngIf="isLoading"><div class="spinner"></div>Connexion en cours...</span>
+        <span *ngIf="!isLoading">Connexion</span>
+      </button>
+
+      <p class="signup-prompt">
+        Vous n'avez pas de compte ? <a routerLink="/register" class="signup-link">S'inscrire</a>
+      </p>
+    </form>
+  </div>
+
+  <script>
+    // Show error messages when validation fails
+    document.addEventListener('DOMContentLoaded', function() {
+      const loginForm = document.getElementById('loginForm');
+      const usernameInput = document.getElementById('username');
+      const passwordInput = document.getElementById('password');
+      const togglePasswordBtn = document.querySelector('.toggle-password');
+      
+      // Toggle password visibility
+      if (togglePasswordBtn) {
+        togglePasswordBtn.addEventListener('click', function() {
+          const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+          passwordInput.setAttribute('type', type);
+          
+          const icon = this.querySelector('i');
+          if (type === 'text') {
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+          } else {
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+          }
+        });
+      }
+      
+      // Add input focus animations
+      const inputs = document.querySelectorAll('.form-control');
+      inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+          this.parentElement.classList.add('focused');
+        });
+        
+        input.addEventListener('blur', function() {
+          this.parentElement.classList.remove('focused');
+        });
+      });
+      
+      // Form submission handling (for demo purposes)
+      if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+          // Prevent default only in standalone mode (when not in Angular)
+          if (!window.angular) {
+            e.preventDefault();
+            
+            let isValid = true;
+            
+            // Very basic validation
+            if (!usernameInput.value.trim()) {
+              document.querySelector('.error-message').style.display = 'block';
+              isValid = false;
+            }
+            
+            if (!passwordInput.value.trim()) {
+              document.querySelectorAll('.error-message')[1].style.display = 'block';
+              isValid = false;
+            } else if (passwordInput.value.length < 6) {
+              document.querySelectorAll('.error-message')[2].style.display = 'block';
+              isValid = false;
+            }
+            
+            if (isValid) {
+              // Show loading state
+              const loginBtn = document.querySelector('.btn-primary');
+              const originalContent = loginBtn.innerHTML;
+              loginBtn.innerHTML = '<div class="spinner"></div>Connexion en cours...';
+              loginBtn.disabled = true;
+              
+              // Simulate API call
+              setTimeout(function() {
+                loginBtn.innerHTML = originalContent;
+                loginBtn.disabled = false;
+                alert('Connexion réussie! (Simulation)');
+              }, 2000);
+            }
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

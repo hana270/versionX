@@ -1,0 +1,41 @@
+/* styles.css */
+.swal-custom-popup {
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+}
+
+.swal-custom-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.swal-custom-content {
+  font-size: 1rem;
+  color: #666;
+}
+
+.swal-custom-confirm {
+  background-color: #d33 !important;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.swal-custom-confirm:hover {
+  background-color: #b32d2d !important;
+}
+
+.swal-custom-cancel {
+  background-color: #3085d6 !important;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.swal-custom-cancel:hover {
+  background-color: #2874b5 !important;
+}

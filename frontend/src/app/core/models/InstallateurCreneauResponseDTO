@@ -1,0 +1,7 @@
+export interface InstallateurCreneauResponseDTO {
+  installateurId: number;
+  installateurNom: string;
+  dateInstallation: string; // ou Date si vous préférez
+  heureDebut: string;
+  heureFin: string;
+}

@@ -1,0 +1,171 @@
+.conversation-item {
+    padding: 16px;
+    margin-bottom: 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    background: white; /* Changé de #f8fafc à white pour mieux voir */
+}
+
+.conversation-item:hover {
+    background: #e2e8f0;
+    transform: translateX(4px);
+}
+
+.conversation-item.active {
+    background: white !important;
+    color: #1e293b; /* Texte foncé pour contraste sur fond blanc */
+    border: 2px solid #a5b4fc; /* Bordure bleue mate */
+    box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.3); /* Effet "glow" bleu mat */
+}
+
+.conversation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.conversation-item.active .user-avatar {
+    background: linear-gradient(45deg, #3b82f6, #1d4ed8); /* On garde le dégradé original */
+    color: white;
+}
+
+.user-details h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.user-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #94a3b8;
+}
+
+.status-dot.online { background: #10b981; }
+.status-dot.away { background: #f59e0b; }
+.status-dot.offline { background: #6b7280; }
+
+.conversation-meta {
+    text-align: right;
+}
+
+.conversation-time {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-bottom: 6px;
+}
+
+/* Style pour le badge non lu */
+.unread-badge {
+    background: #3b82f6;
+    color: white;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: bold;
+    margin-left: 8px;
+}
+
+.conversation-item.active .unread-badge {
+    background: #3b82f6; /* Bleu vif pour contraster avec fond blanc */
+    color: white;
+}
+
+.priority-badge {
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.priority-badge.priority-high {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.priority-badge.priority-urgent {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.conversation-item.active .priority-badge {
+    background: #e0e7ff; /* Fond bleu très clair */
+    color: #4338ca; /* Texte bleu foncé */
+}
+
+
+.conversation-item.active .conversation-time {
+    color: #64748b; /* Gris-bleu pour les métadonnées */
+}
+
+.last-message {
+    font-size: 13px;
+    opacity: 0.8;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+
+/* Style pour les conversations non lues */
+.conversation-item.unread {
+    background: #f0f9ff !important;
+    border-left: 3px solid #38bdf8 !important;
+}
+
+.conversation-item.unread .participant-name,
+.conversation-item.unread .last-message {
+    font-weight: bold !important;
+}
+
+.conversation-item.unread .conversation-time {
+    font-weight: bold;
+    color: #1e40af;
+}
+
+.conversation-item.unread {
+    background: #f0f9ff !important;
+    border-left: 3px solid #38bdf8 !important;
+    font-weight: bold !important;
+}
+
+.conversation-item.unread .participant-name,
+.conversation-item.unread .last-message {
+    font-weight: bold !important;
+    color: #1e293b !important;
+}

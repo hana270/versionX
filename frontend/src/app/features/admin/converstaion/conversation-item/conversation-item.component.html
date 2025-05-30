@@ -1,0 +1,12 @@
+<div class="conversation-item" [class.active]="isActive" (click)="onSelect()">
+    <div class="conversation-header">
+        <div style="display: flex; align-items: center;">
+           <!--<span class="status-indicator" [class.status-online]="conversation.status === 'online'"
+                                      [class.status-away]="conversation.status === 'away'"
+                                      [class.status-offline]="conversation.status === 'offline'"></span>-->
+            <span class="participant-name">{{ conversation.name }}</span>
+        </div>
+        <span class="conversation-time">{{ conversation.time }}</span>
+    </div>
+    <div class="last-message">{{ conversation.lastMessage }}</div>
+</div>

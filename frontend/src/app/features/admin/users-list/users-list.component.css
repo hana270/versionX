@@ -1,0 +1,784 @@
+/* ==============================================
+   GESTION DES UTILISATEURS - DESIGN PROFESSIONNEL
+   ============================================== */
+
+/* ===== VARIABLES CSS ===== */
+:root {
+  --primary-color: #2c3e50;
+  --secondary-color: #34495e;
+  --accent-color: #3498db;
+  --success-color: #27ae60;
+  --warning-color: #f39c12;
+  --danger-color: #e74c3c;
+  --light-color: #ecf0f1;
+  --dark-color: #2c3e50;
+  --text-color: #333;
+  --text-light: #7f8c8d;
+  --border-color: #dfe6e9;
+  --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+.text-h4 {
+  font-size: 1.5rem;    /* Taille équivalente à h4 */
+  font-weight: 600;     /* Épaisseur de police */
+  line-height: 1.2;     /* Hauteur de ligne */
+  margin-bottom: 0.5rem;/* Marge basse */
+  display: block;       /* Comportement block comme un h4 */
+  color: inherit;       /* Hérite la couleur du parent */
+}
+/* ===== CONTENEUR PRINCIPAL ===== */
+.users-management-container {
+  padding: 1rem;
+  background-color: #ffffff;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin: 1rem auto;
+  max-width: 1400px;
+  transition: var(--transition);
+}
+
+.main-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  height: 100%;
+}
+
+/* ===== SECTION DE CHARGEMENT ===== */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  color: var(--text-color);
+}
+
+.loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { 
+    transform: rotate(0deg); 
+  }
+  100% { 
+    transform: rotate(360deg); 
+  }
+}
+
+.loading-container p {
+  font-size: 1rem;
+  color: var(--text-light);
+}
+/* ===== BARRE SUPÉRIEURE ===== */
+/***************** Topbar ******************/
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.topbar h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #343a40;
+  font-weight: 600;
+}
+
+/* Barre supérieure */
+.top-bar {
+  background-color: white;
+  border-radius: 10px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.top-bar .card-body {
+  padding: 1rem 1.5rem;
+}
+
+.top-bar h4 {
+  color: #333333;
+  font-weight: 600;
+}
+
+.top-bar .fas {
+  color: #333333;
+}
+
+
+  /* Barre de recherche */
+  /* Dans la partie responsive - modifier ou ajouter */
+@media (min-width: 1200px) {
+  .search-bar {
+    min-width: 300px; /* Augmentez cette valeur selon vos besoins */
+    margin-left: 2rem; /* Ajoute un espace à gauche */
+    margin-right: 2rem; /* Ajoute un espace à droite */
+  }
+  
+  .search-bar .form-control {
+    padding: 0.75rem 1.25rem; /* Augmente le padding pour plus d'espace */
+    font-size: 1rem; /* Taille de police légèrement plus grande */
+  }
+}
+
+  
+  .search-bar .form-control {
+    border-radius: 5px 0 0 5px;
+    border: 1px solid #ced4da;
+    padding: 0.5rem 1rem;
+    height: 40px;
+  }
+  
+  .search-bar .btn-primary {
+    background-color: #333333;
+    border-color: #333333;
+    border-radius: 0 5px 5px 0;
+    height: 40px;
+  }
+  
+  .search-bar .btn-primary:hover {
+    background-color: #1a1a1a;
+    border-color: #1a1a1a;
+  }
+
+  /* icône est blanche search */
+.search-bar .btn-primary i {
+  color: white !important;
+}
+
+.clear-search-btn {
+   color: #000000; /* Keep icon black on hover */
+  background-color: rgba(0, 0, 0, 0.05); /* Slight grey background on hover */
+  transform: translateY(-50%) scale(1.1);
+
+  
+  position: absolute;
+  right: 4.5rem; /* Adjust this value to position it correctly relative to the search button */
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent; /* Transparent background for the button */
+  border: none;
+  color: #000000; /* Black icon for the clear button */
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  z-index: 10;
+  display: flex; /* To center the icon */
+  align-items: center; /* Center the icon */
+  justify-content: center; /* Center the icon */
+}
+
+.clear-search-btn i.fas.fa-times {
+    color: #000000; /* Explicitly ensure the times icon is black */
+    font-size: 0.9rem; /* Adjust size if needed */
+}
+
+.clear-search-btn:hover {
+  color: #000000; /* Keep icon black on hover */
+  background-color: rgba(0, 0, 0, 0.05); /* Slight grey background on hover */
+  transform: translateY(-50%) scale(1.1);
+}
+
+.clear-search-btn:hover i.fas.fa-times {
+    color: #000000; /* Ensure black icon on hover */
+}
+/* ===== ANIMATIONS ===== */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.1);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(0, 0, 0, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  }
+}
+
+.search-bar .input-group:focus-within {
+  animation: pulse 2s infinite;
+}
+/* ===== ONGLETS - STYLES AMÉLIORÉS ===== */
+.tab-headers {
+  display: flex;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0;
+  background-color: #ffffff;
+  width: 100%;
+}
+
+.tab-header {
+  flex-grow: 1;
+  text-align: center;
+  padding: 1rem 0.5rem;
+  background: none;
+  border: none;
+  font-weight: 500;
+  color: #666666; /* Couleur grise par défaut */
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  position: relative;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+}
+
+/* État normal (inactif) - Gris */
+.tab-header:not(.active) {
+  color: #666666;
+  background-color: #f8f9fa;
+  border-bottom: 3px solid transparent;
+}
+
+.tab-header:not(.active):hover {
+  color: #495057;
+  background-color: #e9ecef;
+}
+
+/* État actif - Bleu */
+.tab-header.active {
+  color: #3498db; /* Bleu pour le texte */
+  background-color: #ffffff; /* Fond blanc pour l'onglet actif */
+  border-bottom: 3px solid #3498db; /* Bordure bleue en bas */
+  font-weight: 600; /* Texte plus gras */
+}
+
+/* Icônes héritent de la couleur du parent */
+.tab-header i {
+  color: inherit;
+}
+
+/* Animation au survol pour l'onglet actif */
+.tab-header.active:hover {
+  color: #2980b9; /* Bleu légèrement plus foncé au survol */
+  border-bottom-color: #2980b9;
+}
+
+/* Effet de focus pour l'accessibilité */
+.tab-header:focus {
+  outline: 2px solid #3498db;
+  outline-offset: -2px;
+}
+/* ===== CONTENEUR DE TABLEAU ===== */
+.table-container {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ===== TABLEAU PROFESSIONNEL ===== */
+.professional-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  min-width: 800px;
+}
+
+.professional-table thead {
+  background-color: var(--light-color);
+}
+
+.professional-table th {
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--primary-color);
+  position: sticky;
+  top: 0;
+  white-space: nowrap;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.professional-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  vertical-align: middle;
+}
+
+.professional-table tr:last-child td {
+  border-bottom: none;
+}
+
+.professional-table .table-row:hover td {
+  background-color: rgba(52, 152, 219, 0.05);
+}
+
+/* ===== EN-TÊTES TRIABLES ===== */
+.professional-table th {
+  cursor: pointer;
+  user-select: none;
+  transition: var(--transition);
+}
+
+.professional-table th:hover {
+  background-color: rgba(52, 152, 219, 0.1);
+}
+
+.sort-icon {
+  color: var(--text-light);
+  font-size: 0.8rem;
+  margin-left: 0.5rem;
+  transition: var(--transition);
+}
+
+.professional-table th:hover .sort-icon {
+  color: var(--primary-color);
+}
+
+/* ===== COLONNES SPÉCIFIQUES ===== */
+.profile-col {
+  width: 70px;
+  text-align: center;
+}
+
+.name-col {
+  min-width: 200px;
+}
+
+.email-col {
+  min-width: 220px;
+}
+
+.specialty-col {
+  min-width: 180px;
+}
+
+.status-col {
+  width: 120px;
+  text-align: center;
+}
+
+.actions-col {
+  width: 120px;
+  text-align: center;
+}
+
+/* ===== IMAGE DE PROFIL ===== */
+.profile-image-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.profile-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+  background-color: var(--light-color);
+}
+
+/* ===== INFORMATIONS UTILISATEUR ===== */
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.user-name {
+  font-weight: 500;
+  color: var(--primary-color);
+  font-size: 0.95rem;
+}
+
+.user-username {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+/* ===== LIEN EMAIL ===== */
+.email-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: var(--transition);
+  font-size: 0.9rem;
+}
+
+.email-link:hover {
+  color: var(--accent-color);
+  text-decoration: underline;
+}
+
+/* ===== BADGES DE STATUT ===== */
+.status-badge {
+  display: inline-block;
+  padding: 0.4rem 0.75rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-align: center;
+  min-width: 70px;
+  white-space: nowrap;
+}
+
+.status-active {
+  background-color: rgba(39, 174, 96, 0.1);
+  color: var(--success-color);
+  border: 1px solid rgba(39, 174, 96, 0.2);
+}
+
+.status-inactive {
+  background-color: rgba(231, 76, 60, 0.1);
+  color: var(--danger-color);
+  border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
+/* ===== BADGE DE SPÉCIALITÉ ===== */
+.specialty-badge {
+  display: inline-block;
+  padding: 0.4rem 0.75rem;
+  background-color: rgba(52, 152, 219, 0.1);
+  border: 1px solid rgba(52, 152, 219, 0.2);
+  border-radius: 15px;
+  font-size: 0.8rem;
+  color: var(--accent-color);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ===== BOUTONS D'ACTION ===== */
+.action-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  background-color: transparent;
+  color: var(--text-color);
+  font-size: 0.9rem;
+}
+
+.action-btn:hover {
+  transform: scale(1.1);
+}
+
+.specialty-btn {
+  color: var(--warning-color);
+  border-color: rgba(243, 156, 18, 0.3);
+}
+
+.specialty-btn:hover {
+  background-color: rgba(253, 253, 253, 0.1);
+  border-color: var(--warning-color);
+}
+
+.activate-btn {
+  border-color: var(--success-color);
+   background-color: #219653;
+}
+
+.activate-btn:hover {
+  background-color: #065f2d;
+  transform: scale(1.1);
+}
+
+.deactivate-btn {
+  background-color: #c0392b;
+  
+  border-color:  #9b1202;
+  color: white;
+}
+
+.deactivate-btn:hover {
+  background-color: #c0392b;
+  transform: scale(1.1);
+}
+
+/* ===== LIGNE SANS DONNÉES ===== */
+.no-data-row td {
+  padding: 3rem;
+  text-align: center;
+}
+
+.no-data {
+  color: var(--text-light);
+  font-style: italic;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.no-data i {
+  font-size: 2rem;
+  color: var(--border-color);
+  margin-bottom: 0.5rem;
+}
+
+/* ===== LIGNE DÉSACTIVÉE ===== */
+.disabled-row td {
+  opacity: 0.6;
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* ===== PAGINATION ===== */
+.pagination-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  background-color: #fafbfc;
+}
+
+.pagination-info {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  font-weight: 500;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pagination-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--border-color);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-color);
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+  transform: scale(1.05);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: #f8f9fa;
+}
+
+.page-info {
+  margin: 0 1rem;
+  font-size: 0.9rem;
+  color: var(--text-color);
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  background-color: var(--light-color);
+  border-radius: 15px;
+}
+
+/* ===== DESIGN RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .users-management-container {
+    padding-left: 0px;
+  }
+  
+  .top-bar .d-flex {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .search-bar {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 992px) {
+  .tab-headers {
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .tab-header {
+    padding: 0rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+  
+  .professional-table th, 
+  .professional-table td {
+    padding: 0rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile-col {
+    width: 50px;
+  }
+  
+  .profile-image {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .action-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+  
+  .pagination-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .pagination-controls {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 576px) {
+  .users-management-container {
+    padding: 0rem;
+  }
+  
+  .tab-content {
+    padding: 0rem;
+  }
+  
+  .professional-table th, 
+  .professional-table td {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+  
+  .top-bar h4 {
+    font-size: 1.1rem;
+  }
+  
+  .search-bar .form-control {
+    font-size: 0.85rem;
+  }
+}
+
+/* ===== ANIMATIONS SUPPLÉMENTAIRES ===== */
+.table-row {
+  transition: all 0.2s ease;
+}
+
+.professional-table tbody tr {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* ===== ACCESSIBILITÉ ===== */
+.action-btn:focus,
+.pagination-btn:focus,
+.tab-header:focus {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* ===== ÉTATS D'HOVER AMÉLIORÉS ===== */
+.professional-table .table-row:hover .user-name {
+  color: var(--accent-color);
+}
+
+.professional-table .table-row:hover .status-badge {
+  transform: scale(1.05);
+}
+
+.professional-table .table-row:hover .specialty-badge {
+  transform: scale(1.05);
+}
+/* Ajoutez ces règles */
+.professional-table tbody tr:nth-child(odd) {
+  background-color: #f8f9fa; /* Couleur claire pour les lignes impaires */
+}
+
+.professional-table tbody tr:nth-child(even) {
+  background-color: #ffffff; /* Blanc pour les lignes paires */
+}
+
+/* Optionnel: pour améliorer le contraste au survol */
+.professional-table tbody tr:hover {
+  background-color: rgba(52, 152, 219, 0.1) !important; /* Surcharge la couleur de fond au survol */
+}
+/* Clients tab spécifique */
+.clients-tab .professional-table tbody tr:nth-child(odd) {
+  background-color: #f0f8ff; /* Bleu très clair pour les clients impairs */
+}
+
+.clients-tab .professional-table tbody tr:nth-child(even) {
+  background-color: #e6f2ff; /* Bleu un peu plus prononcé pour les clients pairs */
+}
+
+/* Installateurs gardent le style original ou une autre couleur si vous voulez */
+.installers-tab .professional-table tbody tr:nth-child(odd) {
+  background-color: #f8f9fa; /* Gris clair pour les installateurs impairs */
+}
+
+.installers-tab .professional-table tbody tr:nth-child(even) {
+  background-color: #ffffff; /* Blanc pour les installateurs pairs */
+}

@@ -1,0 +1,265 @@
+/* Dashboard Container */
+.dashboard-container {
+  display: flex;
+  background-color: #f8f9fa;
+  min-height: 100%;
+  padding: 20px;
+}
+
+.text-h4 {
+  font-size: 1.5rem;    /* Taille équivalente à h4 */
+  font-weight: 600;     /* Épaisseur de police */
+  line-height: 1.2;     /* Hauteur de ligne */
+  margin-bottom: 0.5rem;/* Marge basse */
+  display: block;       /* Comportement block comme un h4 */
+  color: inherit;       /* Hérite la couleur du parent */
+}
+/* Main Content */
+.main-content {
+  flex: 1;
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Topbar */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.topbar h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #343a40;
+  font-weight: 600;
+}
+
+/* Barre supérieure */
+.top-bar {
+  background-color: white;
+  border-radius: 10px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.top-bar .card-body {
+  padding: 1rem 1.5rem;
+}
+
+.top-bar h4 {
+  color: #333333;
+  font-weight: 600;
+}
+
+.top-bar .fas {
+  color: #333333;
+}
+
+/* Barre de recherche */
+.search-bar {
+  max-width: 300px;
+}
+
+.search-bar .form-control {
+  border-radius: 5px 0 0 5px;
+  border: 1px solid #ced4da;
+  padding: 0.5rem 1rem;
+  height: 40px;
+}
+
+.search-bar .btn-primary {
+  background-color: #333333;
+  border-color: #333333;
+  border-radius: 0 5px 5px 0;
+  height: 40px;
+}
+
+.search-bar .btn-primary:hover {
+  background-color: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+/* Icône de recherche blanche */
+.search-bar .btn-primary i {
+  color: white !important;
+}
+
+/* Bouton Ajouter */
+.btn-dark {
+  background-color: #333333;
+  border-color: #333333;
+}
+
+.btn-dark:hover {
+  background-color: #1a1a1a;
+  border-color: #1a1a1a;
+}
+
+/* Table Styles */
+.bassin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  table-layout: fixed; /* Ajouté pour une largeur cohérente */
+
+}
+
+.bassin-table th,
+.bassin-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.bassin-table th {
+  background-color: #343a40;
+  color: white;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.bassin-table tbody tr:hover {
+  background-color: #f8f9fa;
+}
+
+/* Image Styles */
+.bassin-image {
+ /* width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+  display: block;
+  margin: 0 auto;*/
+  
+  border-radius: 4px;
+
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Badge Styles */
+.badge {
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.bg-success {
+  background-color: #28a745;
+  color: white;
+}
+
+.bg-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Actions Styles - Version corrigée */
+.actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+
+.actions a, 
+.actions button {
+  text-decoration: none !important; /* Supprime le soulignement */
+  outline: none; /* Supprime le contour au focus */
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  text-decoration: none !important;
+}
+
+.btn-icon:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  text-decoration: none !important;
+}
+
+.btn-icon i {
+  font-size: 1.2rem;
+  text-decoration: none !important;
+  display: inline-block;
+}
+
+/* Styles spécifiques pour les icônes */
+.fa-eye {
+  color: #17a2b8;
+  text-decoration: none !important;
+}
+
+.fa-trash {
+  color: #dc3545;
+  text-decoration: none !important;
+}
+
+.fa-edit {
+  color: #28a745;
+  text-decoration: none !important;
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.pagination button {
+  padding: 8px 16px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.pagination button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 0.9rem;
+  color: #343a40;
+}
+
+/* Correction supplémentaire pour les liens */
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}

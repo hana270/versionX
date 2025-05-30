@@ -1,0 +1,88 @@
+<app-layout>
+  <div class="admin-container">
+    <div class="container-fluid mt-4">
+      <div class="card">
+        <div class="card-header bg-dark text-white">
+          <h2 class="card-title mb-0">
+            <i class="bi bi-pencil-square me-2"></i> Modifier une Catégorie
+          </h2>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-8">
+              <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                  <h4 class="mb-0">Modifier la Catégorie de Bassin</h4>
+                </div>
+                <div class="card-body">
+                  <form (ngSubmit)="updateCategorie()">
+                    <div class="row g-3">
+                      <!-- Nom de la catégorie -->
+                      <div class="col-md-6">
+                        <label for="nomCategorie" class="form-label fw-bold">Nom de la Catégorie *</label>
+                        <input
+                          type="text"
+                          id="nomCategorie"
+                          [(ngModel)]="currentCategorie.nomCategorie"
+                          name="nomCategorie"
+                          class="form-control"
+                          placeholder="Ex: Bassin de Jardin"
+                          required
+                        />
+                        <small class="text-muted">Le nom doit être unique et descriptif</small>
+                      </div>
+                     
+                      <!-- Description de la catégorie -->
+                      <div class="col-md-6">
+                        <label for="description" class="form-label fw-bold">Description *</label>
+                        <input
+                          type="text"
+                          id="description"
+                          [(ngModel)]="currentCategorie.description"
+                          name="description"
+                          class="form-control"
+                          placeholder="Ex: Bassins décoratifs pour jardins résidentiels"
+                          required
+                        />
+                        <small class="text-muted">Brève description de la catégorie</small>
+                      </div>
+                    </div>
+                   
+                    <!-- Boutons de soumission -->
+                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                      <a type="button" class="btn btn-outline-secondary" routerLink="/admin/list-categories">
+                        <i class="bi bi-arrow-left me-1"></i> Annuler
+                      </a>
+                      <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle me-1"></i> Enregistrer les modifications
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+           
+            <div class="col-md-4">
+              <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                  <h4 class="mb-0">Aide</h4>
+                </div>
+                <div class="card-body">
+                  <p><strong>Modifier une catégorie de bassin</strong></p>
+                  <p>Vous pouvez mettre à jour le nom et la description de la catégorie sélectionnée.</p>
+                  <hr>
+                  <p><strong>Points importants:</strong></p>
+                  <ul>
+                    <li>Les modifications affecteront tous les bassins associés à cette catégorie</li>
+                    <li>Assurez-vous que le nouveau nom est unique</li>
+                    <li>Utilisez une description concise mais informative</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-layout>
