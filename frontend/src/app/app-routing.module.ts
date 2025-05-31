@@ -43,11 +43,7 @@ import { CartComponent } from './features/public/cart/cart.component';
 import { ShopPageComponent } from './features/public/shop-page/shop-page.component';
 import { BassinDetailComponent } from './features/public/bassin-detail/bassin-detail.component';
 import { CommandeListeComponent } from './features/admin/commande-liste/commande-liste.component';
-import { CheckoutComponent } from './features/public/checkout/checkout.component';
-import { CommandeConfirmationComponent } from './features/public/commande-confirmation/commande-confirmation.component';
-import { CardPaymentComponent } from './features/public/card-payment/card-payment.component';
 import { MesCommandesComponent } from './features/client/mes-commandes/mes-commandes.component';
-import { PaymentVerificationComponent } from './features/public/payment-verification/payment-verification.component';
 import { AffectationDialogComponent } from './features/admin/affectation-dialog/affectation-dialog.component';
 import { InstallateurCommandesComponent } from './features/installer/installateur-commandes/installateur-commandes.component';
 import { PaymentGuard } from './payment.guard';
@@ -56,6 +52,10 @@ import { AffectationCalendarComponent } from './features/admin/affectation-calen
 import { LayoutInstallateurComponent } from './features/installer/layout-installateur/layout-installateur.component';
 import { DetailsCommandeClientComponent } from './features/client/details-commande-client/details-commande-client.component';
 import { MessagingContainerComponent } from './features/admin/converstaion/messaging-container/messaging-container.component';
+import { CheckoutComponent } from './features/client/checkout/checkout.component';
+import { CardPaymentComponent } from './features/client/card-payment/card-payment.component';
+import { PaymentVerificationComponent } from './features/client/payment-verification/payment-verification.component';
+import { CommandeConfirmationComponent } from './features/client/commande-confirmation/commande-confirmation.component';
 
 const routes: Routes = [
   // Admin Routes (Only accessible by users with the 'ADMIN' role)

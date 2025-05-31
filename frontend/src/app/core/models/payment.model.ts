@@ -13,6 +13,7 @@ export interface PaymentResponse {
   transactionId: string;
   commandeId: string;
   message: string;
+    referencePaiement?: string;
 }
 
 export interface CodeVerificationRequest {

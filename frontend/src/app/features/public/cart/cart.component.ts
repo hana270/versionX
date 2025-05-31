@@ -60,25 +60,143 @@ export class CartComponent implements OnInit, OnDestroy {
     'Résine époxy renforcée': 'assets/img/materiaux/resine.jpg',
   };
 
-  colorMap: { [key: string]: string } = {
-    'Bleu clair': '#7EC0EE',
-    'Bleu foncé': '#1E90FF',
-    Blanc: '#FFFFFF',
-    'Gris clair': '#D3D3D3',
-    'Gris foncé': '#A9A9A9',
-    Beige: '#F5F5DC',
-    Sable: '#F4A460',
-    Vert: '#90EE90',
-    Rouge: '#FF6347',
-    Noir: '#000000',
-    Marron: '#A0522D',
-  };
+    // Color palette
+private colorMap: { [key: string]: string } = {
+  // Named colors
+  'bleu clair': '#7EC0EE',
+  'bleu foncé': '#1E90FF',
+  'blanc': '#FFFFFF',
+  'gris clair': '#D3D3D3',
+  'gris foncé': '#A9A9A9',
+  'beige': '#F5F5DC',
+  'sable': '#F4A460',
+  'vert': '#90EE90', // Explicitly included
+  'rouge': '#FF6347',
+  'noir': '#000000',
+  'marron': '#A0522D',
+  // Blues
+  '#1976D2': '#1976D2', // Bleu royal foncé
+  '#1E88E5': '#1E88E5', // Bleu royal
+  '#2196F3': '#2196F3', // Bleu azur
+  '#42A5F5': '#42A5F5', // Bleu azur clair
+  '#64B5F6': '#64B5F6', // Bleu ciel
+  '#90CAF9': '#90CAF9', // Bleu ciel pâle
+  '#BBDEFB': '#BBDEFB', // Bleu pastel
+  '#E3F2FD': '#E3F2FD', // Bleu très pâle
+  // Greens
+  '#2E7D32': '#2E7D32', // Vert émeraude foncé
+  '#388E3C': '#388E3C', // Vert forêt
+  '#43A047': '#43A047', // Vert pomme
+  '#4CAF50': '#4CAF50', // Vert émeraude
+  '#66BB6A': '#66BB6A', // Vert clair
+  '#81C784': '#81C784', // Vert menthe
+  '#A5D6A7': '#A5D6A7', // Vert menthe pâle
+  '#E8F5E9': '#E8F5E9', // Vert très pâle
+  // Reds
+  '#C62828': '#C62828', // Rouge rubis foncé
+  '#D32F2F': '#D32F2F', // Rouge rubis
+  '#E53935': '#E53935', // Rouge vif
+  '#F44336': '#F44336', // Rouge cardinal
+  '#EF5350': '#EF5350', // Rouge corail
+  '#E57373': '#E57373', // Rouge corail clair
+  '#EF9A9A': '#EF9A9A', // Rouge rose
+  '#FFEBEE': '#FFEBEE', // Rouge très pâle
+  // Grays
+  '#212121': '#212121', // Gris anthracite
+  '#424242': '#424242', // Gris charbon
+  '#616161': '#616161', // Gris ardoise
+  '#757575': '#757575', // Gris moyen
+  '#9E9E9E': '#9E9E9E', // Gris argent
+  '#BDBDBD': '#BDBDBD', // Gris clair
+  '#E0E0E0': '#E0E0E0', // Gris perle
+  '#EEEEEE': '#EEEEEE', // Gris très clair
+  // Browns
+  '#5D4037': '#5D4037', // Brun chocolat
+  '#6D4C41': '#6D4C41', // Brun acajou
+  '#795548': '#795548', // Brun café
+  '#8D6E63': '#8D6E63', // Brun terre
+  '#A1887F': '#A1887F', // Brun sable
+  '#BCAAA4': '#BCAAA4', // Brun clair
+  '#D7CCC8': '#D7CCC8', // Brun rosé
+  '#EFEBE9': '#EFEBE9', // Brun très pâle
+  // Purples
+  '#7B1FA2': '#7B1FA2', // Violet prune foncé
+  '#8E24AA': '#8E24AA', // Violet prune
+  '#9C27B0': '#9C27B0', // Violet pourpre
+  '#AB47BC': '#AB47BC', // Violet améthyste
+  '#BA68C8': '#BA68C8', // Violet lavande
+  '#CE93D8': '#CE93D8', // Violet lavande clair
+  '#E1BEE7': '#E1BEE7', // Violet pastel
+  '#F3E5F5': '#F3E5F5', // Violet très pâle
+  // Yellows
+  '#F57F17': '#F57F17', // Jaune ambre foncé
+  '#F9A825': '#F9A825', // Jaune ambre
+  '#FBC02D': '#FBC02D', // Jaune moutarde
+  '#FFEB3B': '#FFEB3B', // Jaune vif
+  '#FFEE58': '#FFEE58', // Jaune citron
+  '#FFF59D': '#FFF59D', // Jaune pâle
+  '#FFF9C4': '#FFF9C4', // Jaune crème
+  '#FFFDE7': '#FFFDE7', // Jaune très pâle
+  // Cyans
+  '#006064': '#006064', // Cyan foncé
+  '#00838F': '#00838F', // Cyan profond
+  '#0097A7': '#0097A7', // Cyan turquoise
+  '#00BCD4': '#00BCD4', // Cyan clair
+  '#26C6DA': '#26C6DA', // Cyan aquatique
+  '#4DD0E1': '#4DD0E1', // Cyan ciel
+  '#80DEEA': '#80DEEA', // Cyan pâle
+  '#E0F7FA': '#E0F7FA', // Cyan très pâle
+  // Oranges
+  '#E65100': '#E65100', // Orange brûlé
+  '#EF6C00': '#EF6C00', // Orange foncé
+  '#F57C00': '#F57C00', // Orange vif
+  '#FB8C00': '#FB8C00', // Orange mandarine
+  '#FFA726': '#FFA726', // Orange clair
+  '#FFB74D': '#FFB74D', // Orange abricot
+  '#FFCC80': '#FFCC80', // Orange pêche
+  '#FFF3E0': '#FFF3E0', // Orange très pâle
+  // Pinks
+  '#AD1457': '#AD1457', // Rose framboise
+  '#C2185B': '#C2185B', // Rose fuchsia
+  '#D81B60': '#D81B60', // Rose magenta
+  '#E91E63': '#E91E63', // Rose vif
+  '#EC407A': '#EC407A', // Rose clair
+  '#F06292': '#F06292', // Rose bonbon
+  '#F8BBD0': '#F8BBD0', // Rose pastel
+  '#FCE4EC': '#FCE4EC', // Rose très pâle
+  // Indigos
+  '#283593': '#283593', // Indigo foncé
+  '#303F9F': '#303F9F', // Indigo profond
+  '#3949AB': '#3949AB', // Indigo classique
+  '#3F51B5': '#3F51B5', // Indigo
+  '#5C6BC0': '#5C6BC0', // Indigo clair
+  '#7986CB': '#7986CB', // Indigo pâle
+  '#C5CAE9': '#C5CAE9', // Indigo pastel
+  '#E8EAF6': '#E8EAF6', // Indigo très pâle
+  // Teals
+  '#004D40': '#004D40', // Turquoise foncé
+  '#00695C': '#00695C', // Turquoise profond
+  '#00796B': '#00796B', // Turquoise vert
+  '#009688': '#009688', // Turquoise
+  '#26A69A': '#26A69A', // Turquoise clair
+  '#4DB6AC': '#4DB6AC', // Turquoise menthe
+  '#80CBC4': '#80CBC4', // Turquoise pâle
+  '#E0F2F1': '#E0F2F1', // Turquoise très pâle
+  // Limes
+  '#827717': '#827717', // Citron vert foncé
+  '#9E9D24': '#9E9D24', // Citron vert olive
+  '#AFB42B': '#AFB42B', // Citron vert vif
+  '#CDDC39': '#CDDC39', // Citron vert
+  '#D4E157': '#D4E157', // Citron vert clair
+  '#DCE775': '#DCE775', // Citron vert pâle
+  '#F0F4C3': '#F0F4C3', // Citron vert pastel
+  '#F9FBE7': '#F9FBE7', // Citron vert très pâle
+};
 
   isAuthenticated: boolean = false;
 
   constructor(
     private cartService: CartService,
-    private toastService: ToastService,
     private router: Router,
     private cdr: ChangeDetectorRef,
     public authStateService: AuthStateService,
@@ -120,7 +238,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   private setupPromotionCheck(): void {
     if (this.isBrowser) {
-      // Check every 5 minutes instead of every minute
+      // Check every 5 minutes
       this.promotionCheckInterval = interval(300000)
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
@@ -161,7 +279,7 @@ export class CartComponent implements OnInit, OnDestroy {
         let needsUpdate = false;
 
         this.cartItems.forEach((item) => {
-          if (item.bassinId) {
+          if (!item.isCustomized && item.bassinId) {
             const updatedBassin = updatedBassins.find(b => b.idBassin === item.bassinId);
             if (updatedBassin) {
               const oldPrice = this.getEffectivePrice(item);
@@ -193,7 +311,6 @@ export class CartComponent implements OnInit, OnDestroy {
         if (needsUpdate) {
           this.calculateTotals();
           this.lastUpdate = new Date();
-          this.toastService.showInfo('Promotions mises à jour', 2000);
           this.cdr.markForCheck();
         }
       },
@@ -244,6 +361,13 @@ export class CartComponent implements OnInit, OnDestroy {
   }
 
   private updatePromotionStatus(item: PanierItem): void {
+    if (item.isCustomized) {
+      item.promotionActive = false;
+      item.tauxReduction = 0;
+      item.prixPromo = item.customProperties?.prixEstime || item.prixOriginal || 0;
+      return;
+    }
+
     if (!item.bassin?.promotion) {
       item.promotionActive = false;
       item.prixPromo = item.bassin?.prix || 0;
@@ -279,7 +403,7 @@ export class CartComponent implements OnInit, OnDestroy {
     );
 
     this.discount = this.cartItems.reduce((total, item) => {
-      if (item.promotionActive && item.prixOriginal) {
+      if (!item.isCustomized && item.promotionActive && item.prixOriginal) {
         const originalPrice = item.prixOriginal * item.quantity;
         const currentPrice = this.getEffectivePrice(item) * item.quantity;
         return total + (originalPrice - currentPrice);
@@ -294,56 +418,68 @@ export class CartComponent implements OnInit, OnDestroy {
 
   getEffectivePrice(item: PanierItem): number {
     if (item.isCustomized && item.customProperties?.prixEstime) {
+      // Customized basins: use estimated price without promotion
       return item.customProperties.prixEstime;
     }
 
-    if (item.promotionActive && item.tauxReduction !== undefined) {
+    if (!item.isCustomized && item.promotionActive && item.tauxReduction !== undefined) {
+      // Standard basins with active promotion
       return item.prixPromo ?? (item.prixOriginal ?? item.bassin?.prix ?? 0) * (1 - item.tauxReduction);
     }
 
+    // Standard basins without promotion
     return item.prixOriginal ?? item.bassin?.prix ?? 0;
   }
 
-  getDisplayDetails(item: PanierItem): string {
-    const details = [];
-
-    if (item.isCustomized && item.customProperties) {
-      if (item.customProperties.dimensionSelectionnee) {
-        details.push(item.customProperties.dimensionSelectionnee);
-      }
-      if (item.customProperties.couleurSelectionnee) {
-        details.push(item.customProperties.couleurSelectionnee);
-      }
-      if (item.customProperties.materiauSelectionne) {
-        details.push(item.customProperties.materiauSelectionne);
-      }
-    } else if (item.bassin) {
-      if (item.bassin.dimensions) {
-        details.push(this.formatDimensions(item.bassin.dimensions));
-      }
-      if (item.bassin.couleur) {
-        details.push(item.bassin.couleur);
-      }
-      if (item.bassin.materiau) {
-        details.push(this.formatMateriaux(item.bassin.materiau));
-      }
+ getFabricationDuration (item: PanierItem): string {
+    if (item.isCustomized && item.customProperties?.dureeFabrication) {
+      // Customized basin: use duration from customProperties
+      return `${item.customProperties.dureeFabrication} jours`;
     }
 
-    return details.join(' • ') || 'Bassin standard';
+    if (!item.isCustomized && item.bassin) {
+      // Standard basin: use duration from Bassin model
+      if (item.bassin.dureeFabricationJours) {
+        return `${item.bassin.dureeFabricationJours} jours`;
+      }
+      if (item.bassin.dureeFabricationJoursMin && item.bassin.dureeFabricationJoursMax) {
+        return `${item.bassin.dureeFabricationJoursMin}-${item.bassin.dureeFabricationJoursMax} jours`;
+      }
+      return item.bassin.dureeFabricationDisplay || '3-15 jours';
+    }
+
+    return '3-15 jours'; // Fallback
+  }
+
+  getItemFullName(item: PanierItem): string {
+    if (item.isCustomized) {
+      const baseName = item.customProperties?.bassinBase?.nom || item.nomBassin || 'Bassin';
+      return `${baseName} Personnalisé`;
+    }
+    return item.bassin?.nomBassin || item.nomBassin || 'Bassin';
   }
 
   calculateSubtotal(item: PanierItem): number {
-    return this.getEffectivePrice(item) * item.quantity;
+    return parseFloat((this.getEffectivePrice(item) * item.quantity).toFixed(2));
+  }
+
+  calculateDiscount(item: PanierItem): number {
+    if (item.isCustomized || !item.promotionActive || !item.tauxReduction || !item.prixOriginal) {
+      return 0;
+    }
+    return parseFloat((item.prixOriginal * item.tauxReduction * item.quantity).toFixed(2));
   }
 
   getDiscountPercentage(item: PanierItem): number {
-    if (!item.promotionActive || item.tauxReduction === undefined) return 0;
+    if (item.isCustomized || !item.promotionActive || item.tauxReduction === undefined) {
+      return 0;
+    }
     return Math.round(item.tauxReduction * 100);
   }
 
   removeFromCart(item: PanierItem): void {
     if (!item.id) {
-      this.toastService.showError('Impossible de supprimer cet article');
+     // this.toastService.showError('Impossible de supprimer cet article');
       return;
     }
 
@@ -360,21 +496,23 @@ export class CartComponent implements OnInit, OnDestroy {
       if (result.isConfirmed) {
         this.cartService.removeFromCart(item.id).subscribe({
           next: () => {
-            this.toastService.showSuccess('Article supprimé du panier');
+        //    this.toastService.showSuccess('Article supprimé du panier');
             this.loadCart();
           },
           error: (error: any) => {
             console.error('Error removing item:', error);
-            this.toastService.showError("Erreur lors de la suppression de l'article");
+       //     this.toastService.showError("Erreur lors de la suppression de l'article");
           },
         });
       }
     });
   }
+
   getLastUpdateTime(): string {
     if (!this.lastUpdate) return '';
     return this.lastUpdate.toLocaleTimeString();
   }
+
   clearCart(): void {
     Swal.fire({
       title: 'Vider le panier',
@@ -420,37 +558,33 @@ export class CartComponent implements OnInit, OnDestroy {
 
   proceedToCheckout(): void {
     if (this.cartItems.length === 0) {
-      this.toastService.showError('Votre panier est vide');
+     // this.toastService.showError('Votre panier est vide');
       return;
     }
 
     if (!this.authService.isLoggedIn) {
-      // Sauvegarder l'URL actuelle pour rediriger après connexion
       this.router.navigate(['/login'], {
         queryParams: { returnUrl: '/checkout' },
       });
-      this.toastService.showInfo(
-        'Veuillez vous connecter ou créer un compte pour finaliser votre commande'
-      );
+    //  this.toastService.showInfo(
+       // 'Veuillez vous connecter ou créer un compte pour finaliser votre commande'
+   //   );
     } else {
       this.router.navigate(['/checkout']);
     }
   }
 
-  // Méthode pour gérer les erreurs d'images
   onImageError(event: any): void {
-    event.target.src = 'assets/default-image.webp'; // Image par défaut
+    event.target.src = 'assets/default-image.webp';
   }
 
   getImageUrl(item: PanierItem): string {
     if (!item) return 'assets/default-image.webp';
 
-    // Image personnalisée
     if (item.isCustomized && item.customProperties?.imageUrl) {
       return item.customProperties.imageUrl;
     }
 
-    // Image du bassin avec vérification complète
     if (
       item.bassin &&
       item.bassin.imagesBassin &&
@@ -464,10 +598,7 @@ export class CartComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Fallback
-    return item.isCustomized
-      ? 'assets/default-image.webp'
-      : 'assets/default-image.webp';
+    return 'assets/default-image.webp';
   }
 
   formatDimensions(dimensions: string | string[]): string {
@@ -482,7 +613,6 @@ export class CartComponent implements OnInit, OnDestroy {
     return materiau;
   }
 
-  // Ajoutez cette méthode pour le temps restant
   getTimeLeft(endDateStr: string): string {
     const endDate = new Date(endDateStr);
     const now = new Date();
@@ -499,13 +629,11 @@ export class CartComponent implements OnInit, OnDestroy {
 
   async incrementQuantity(item: PanierItem): Promise<void> {
     try {
-      // Pour les produits personnalisés, pas de limite de stock
       if (item.isCustomized) {
         await this.updateQuantity(item, item.quantity + 1);
         return;
       }
 
-      // Vérification du stock
       if (!item.bassin || item.bassin.stock === undefined) {
         await Swal.fire({
           icon: 'error',
@@ -578,14 +706,13 @@ export class CartComponent implements OnInit, OnDestroy {
             confirmButtonText: 'OK',
             confirmButtonColor: '#3085d6',
           });
-          this.loadCart(); // Recharger les données
+          this.loadCart();
           reject(err);
         },
       });
     });
   }
 
-  // Modifier decrementQuantity()
   decrementQuantity(item: PanierItem): void {
     const newQuantity = item.quantity - 1;
 
@@ -596,18 +723,16 @@ export class CartComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Simplifier showStockAlert()
   private showStockAlert(availableStock: number): void {
     if (availableStock === 0) {
-      this.toastService.showWarning('Ce produit est en rupture de stock');
+  //    this.toastService.showWarning('Ce produit est en rupture de stock');
     } else {
-      this.toastService.showWarning(
-        `Vous ne pouvez pas commander plus de ${availableStock} unités`
-      );
+    //  this.toastService.showWarning(
+     //   `Vous ne pouvez pas commander plus de ${availableStock} unités`
+     // );
     }
   }
 
-  // Vérifier manuellement les promotions
   refreshPromotions(): void {
     if (this.isBrowser) {
       this.checkPromotionsUpdates();
@@ -622,12 +747,13 @@ export class CartComponent implements OnInit, OnDestroy {
       bassin: item.bassin,
       customProperties: item.customProperties,
       imageUrl: this.getImageUrl(item),
+      fabricationDuration: this.getFabricationDuration(item),
     });
   }
 
   debugPromotions(): void {
     this.cartItems.forEach((item) => {
-      if (item.bassin?.promotion) {
+      if (!item.isCustomized && item.bassin?.promotion) {
         console.log('Détails promotion pour', item.bassin.nomBassin, ':');
         console.log('- Active:', item.promotionActive);
         console.log('- Taux:', item.tauxReduction);
@@ -643,101 +769,6 @@ export class CartComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Dans votre composant CartComponent ou HeaderComponent
-
-  getItemImage(item: PanierItem): string {
-    if (item.isCustomized) {
-      // Priorité 1: Image de personnalisation
-      if (item.customProperties?.imageUrl)
-        return item.customProperties.imageUrl;
-
-      // Priorité 2: Image du matériau sélectionné
-      if (item.customProperties?.materiau) {
-        const materialImage =
-          this.materiauxImages[item.customProperties.materiau];
-        if (materialImage) return materialImage;
-      }
-
-      // Priorité 3: Image du bassin de base
-      if (item.customProperties?.bassinBase?.imageUrl) {
-        return item.customProperties.bassinBase.imageUrl;
-      }
-
-      // Fallback
-      return 'assets/default-image.webp';
-    }
-
-    // Pour les bassins standards
-    if (item.bassin?.imagesBassin?.[0]?.imagePath) {
-      return `${
-        this.bassinService.getApiUrl()
-      }/imagesBassin/getFS/${encodeURIComponent(
-        item.bassin.imagesBassin[0].imagePath
-      )}`;
-    }
-
-    return 'assets/default-image.webp';
-  }
-
-   // Obtient le nom correct de l'item
-   getItemName(item: PanierItem): string {
-     if (item.isCustomized) {
-       return item.customProperties?.bassinBase?.nom
-         ? `${item.customProperties.bassinBase.nom} (Personnalisé)`
-         : 'Bassin personnalisé';
-     }
-     return item.bassin?.nomBassin || item.nomBassin || 'Bassin';
-   }
-
-  getItemDetails(item: PanierItem): string {
-    const details = [];
-
-    if (item.isCustomized) {
-      if (item.customProperties?.dimensions) {
-        details.push(`Dimensions: ${item.customProperties.dimensions}`);
-      }
-      if (item.customProperties?.materiau) {
-        details.push(`Matériau: ${item.customProperties.materiau}`);
-      }
-      if (item.customProperties?.couleur) {
-        details.push(`Couleur: ${item.customProperties.couleur}`);
-      }
-    } else {
-      if (item.bassin?.dimensions) {
-        details.push(
-          `Dimensions: ${this.formatDimensions(item.bassin.dimensions)}`
-        );
-      }
-      if (item.bassin?.materiau) {
-        details.push(`Matériau: ${this.formatMateriaux(item.bassin.materiau)}`);
-      }
-      if (item.bassin?.couleur) {
-        details.push(`Couleur: ${item.bassin.couleur}`);
-      }
-    }
-
-    return details.join(' • ') || 'Détails non spécifiés';
-  }
-
-  getAccessoriesList(item: PanierItem): string {
-    if (!item.isCustomized || !item.customProperties?.accessoires?.length) {
-      return 'Aucun accessoire';
-    }
-
-    return item.customProperties.accessoires
-      .map((acc) => `${acc.nomAccessoire} (${acc.prixAccessoire.toFixed(2)}€)`)
-      .join(', ');
-  }
-
-  // Obtenir le prix total de tous les accessoires
-  getTotalAccessoriesPrice(item: PanierItem): number {
-    if (!item.accessoires || item.accessoires.length === 0) return 0;
-
-    return item.accessoires.reduce(
-      (total, acc) => total + (acc.prixAccessoire || 0),
-      0
-    );
-  }
   getStatusDisplay(item: PanierItem): string {
     if (item.isCustomized) {
       return 'Personnalisé';
@@ -753,132 +784,246 @@ export class CartComponent implements OnInit, OnDestroy {
         return item.bassin?.statut || 'Statut inconnu';
     }
   }
-  // Méthode pour obtenir la description du bassin
-  getItemDescription(item: PanierItem): string {
+
+
+  getMaxQuantity(item: PanierItem): number {
     if (item.isCustomized) {
-      return `Bassin personnalisé avec ${
-        item.customization!.materiauSelectionne || 'matériau standard'
-      },
-       dimensions ${item.customization!.dimensionSelectionnee || 'standard'}`;
-    } else {
-      return item.bassin?.description || item.description || '';
+      return 999;
     }
+    
+    return item.bassin?.stock || 1;
   }
-  getColorPreview(color: string | undefined): string {
-    if (!color) return '#CCCCCC';
 
-    // Vérifie d'abord dans le mapping prédéfini
-    const mappedColor = this.colorMap[color];
-    if (mappedColor) return mappedColor;
-
-    // Accepte directement les codes hexadécimaux valides
-    if (/^#([0-9A-F]{3}){1,2}$/i.test(color)) {
-      return color;
+  canIncrementQuantity(item: PanierItem): boolean {
+    if (item.isCustomized) {
+      return item.quantity < 999; // Reasonable limit for customized items
     }
-
-    // Vérifie les noms de couleur CSS valides
-    const ctx = document.createElement('canvas').getContext('2d');
-    if (ctx) {
-      ctx.fillStyle = color;
-      if (ctx.fillStyle !== color) {
-        // Si le navigateur a reconnu la couleur
-        return ctx.fillStyle;
-      }
+    
+    if (item.bassin && item.bassin.stock !== undefined) {
+      return item.quantity < item.bassin.stock;
     }
-
-    return '#CCCCCC'; // Couleur par défaut
-  }
-  // Calcule les suppléments pour les articles personnalisés
-  calculateSupplements(item: PanierItem): number {
-    if (!item.isCustomized) return 0;
-
-    const materiauPrice = item.customization?.prixMateriau || 0;
-    const dimensionPrice = item.customization?.prixDimension || 0;
-    const accessoiresPrice = item.prixAccessoires || 0;
-
-    return materiauPrice + dimensionPrice + accessoiresPrice;
-  }
-  // Proper price calculation with rounding
-  calculateDiscountedPrice(
-    originalPrice: number,
-    discountPercent?: number
-  ): number {
-    if (!discountPercent) {
-      return this.roundPrice(originalPrice);
-    }
-    const discount = (discountPercent * 100) / 100;
-    return this.roundPrice(originalPrice * (1 - discount));
-  }
-  // Round to 2 decimal places
-  roundPrice(price: number): number {
-    return Math.round(price * 100) / 100;
-  }
-
-  // Calculate discount amount for an item
-calculateDiscount(item: PanierItem): number {
-  if (!item.promotionActive || !item.tauxReduction || !item.prixOriginal) {
-    return 0;
-  }
-  return item.prixOriginal * item.tauxReduction;
-}
-
-// Get maximum quantity allowed for an item
-getMaxQuantity(item: PanierItem): number {
-  // For customized items, no stock limit
-  if (item.isCustomized) {
-    return 999; // Arbitrary high number
-  }
-  
-  // For standard items, use available stock
-  return item.bassin?.stock || 1;
-}
-
-// Check if quantity can be incremented
-canIncrementQuantity(item: PanierItem): boolean {
-  // For customized items, always allow increment
-  if (item.isCustomized) {
+    
     return true;
   }
-  
-  // For standard items, check against stock
-  if (item.bassin && item.bassin.stock !== undefined) {
-    return item.quantity < item.bassin.stock;
-  }
-  
-  // If stock info not available, allow increment
-  return true;
-}
 
-// Check if cart has custom items
-hasCustomItems(): boolean {
-  return this.cartItems.some(item => item.isCustomized);
-}
-
-// Get estimated delivery time for custom items
-getEstimatedDeliveryTime(): string {
-  const customItems = this.cartItems.filter(item => item.isCustomized);
-  
-  if (customItems.length === 0) {
-    return '2-3 jours ouvrables';
+  hasCustomItems(): boolean {
+    return this.cartItems.some(item => item.isCustomized);
   }
 
-  // Find the longest fabrication time
-  const maxDays = customItems.reduce((max, item) => {
-    const days = item.customization?.dureeFabrication 
-      ? parseInt(item.customization.dureeFabrication) 
-      : 15; // Default max
-    return Math.max(max, days);
-  }, 0);
+  getEstimatedDeliveryTime(): string {
+    const customItems = this.cartItems.filter(item => item.isCustomized);
+    
+    if (customItems.length === 0) {
+      return '2-3 jours ouvrables';
+    }
 
-  return maxDays > 0 
-    ? `Jusqu'à ${maxDays} jours ouvrables` 
-    : '2-3 jours ouvrables';
+    const maxDays = customItems.reduce((max, item) => {
+      const days = item.customProperties?.dureeFabrication 
+        ? parseInt(item.customProperties.dureeFabrication.toString()) 
+        : 15;
+      return Math.max(max, days);
+    }, 0);
+
+    return maxDays > 0 
+      ? `Jusqu'à ${maxDays} jours ouvrables` 
+      : '2-3 jours ouvrables';
+  }
+
+  redirectToLogin(): void {
+    this.router.navigate(['/login'], {
+      queryParams: { returnUrl: this.router.url }
+    });
+  }
+
+
+getColorName(color: string | undefined): string {
+  if (!color) return 'Couleur inconnue';
+
+  // Normalize color input (case-insensitive)
+  const normalizedColor = color.toLowerCase();
+
+  const colorNames: { [key: string]: string } = {
+    // Named colors (matching colorMap keys)
+    'bleu clair': 'Bleu clair',
+    'bleu foncé': 'Bleu foncé',
+    'blanc': 'Blanc',
+    'gris clair': 'Gris clair',
+    'gris foncé': 'Gris foncé',
+    'beige': 'Beige',
+    'sable': 'Sable',
+    'vert': 'Vert',
+    'rouge': 'Rouge',
+    'noir': 'Noir',
+    'marron': 'Marron',
+    // Blues
+    '#1976D2': 'Bleu royal foncé',
+    '#1E88E5': 'Bleu royal',
+    '#2196F3': 'Bleu azur',
+    '#42A5F5': 'Bleu azur clair',
+    '#64B5F6': 'Bleu ciel',
+    '#90CAF9': 'Bleu ciel pâle',
+    '#BBDEFB': 'Bleu pastel',
+    '#E3F2FD': 'Bleu très pâle',
+    // Greens
+    '#2E7D32': 'Vert émeraude foncé',
+    '#388E3C': 'Vert forêt',
+    '#43A047': 'Vert pomme',
+    '#4CAF50': 'Vert émeraude',
+    '#66BB6A': 'Vert clair',
+    '#81C784': 'Vert menthe',
+    '#A5D6A7': 'Vert menthe pâle',
+    '#E8F5E9': 'Vert très pâle',
+    '#90EE90': 'Vert', // Explicitly included
+    // Reds
+    '#C62828': 'Rouge rubis foncé',
+    '#D32F2F': 'Rouge rubis',
+    '#E53935': 'Rouge vif',
+    '#F44336': 'Rouge cardinal',
+    '#EF5350': 'Rouge corail',
+    '#E57373': 'Rouge corail clair',
+    '#EF9A9A': 'Rouge rose',
+    '#FFEBEE': 'Rouge très pâle',
+    // Grays
+    '#212121': 'Gris anthracite',
+    '#424242': 'Gris charbon',
+    '#616161': 'Gris ardoise',
+    '#757575': 'Gris moyen',
+    '#9E9E9E': 'Gris argent',
+    '#BDBDBD': 'Gris clair',
+    '#E0E0E0': 'Gris perle',
+    '#EEEEEE': 'Gris très clair',
+    // Browns
+    '#5D4037': 'Brun chocolat',
+    '#6D4C41': 'Brun acajou',
+    '#795548': 'Brun café',
+    '#8D6E63': 'Brun terre',
+    '#A1887F': 'Brun sable',
+    '#BCAAA4': 'Brun clair',
+    '#D7CCC8': 'Brun rosé',
+    '#EFEBE9': 'Brun très pâle',
+    // Purples
+    '#7B1FA2': 'Violet prune foncé',
+    '#8E24AA': 'Violet prune',
+    '#9C27B0': 'Violet pourpre',
+    '#AB47BC': 'Violet améthyste',
+    '#BA68C8': 'Violet lavande',
+    '#CE93D8': 'Violet lavande clair',
+    '#E1BEE7': 'Violet pastel',
+    '#F3E5F5': 'Violet très pâle',
+    // Yellows
+    '#F57F17': 'Jaune ambre foncé',
+    '#F9A825': 'Jaune ambre',
+    '#FBC02D': 'Jaune moutarde',
+    '#FFEB3B': 'Jaune vif',
+    '#FFEE58': 'Jaune citron',
+    '#FFF59D': 'Jaune pâle',
+    '#FFF9C4': 'Jaune crème',
+    '#FFFDE7': 'Jaune très pâle',
+    // Cyans
+    '#006064': 'Cyan foncé',
+    '#00838F': 'Cyan profond',
+    '#0097A7': 'Cyan turquoise',
+    '#00BCD4': 'Cyan clair',
+    '#26C6DA': 'Cyan aquatique',
+    '#4DD0E1': 'Cyan ciel',
+    '#80DEEA': 'Cyan pâle',
+    '#E0F7FA': 'Cyan très pâle',
+    // Oranges
+    '#E65100': 'Orange brûlé',
+    '#EF6C00': 'Orange foncé',
+    '#F57C00': 'Orange vif',
+    '#FB8C00': 'Orange mandarine',
+    '#FFA726': 'Orange clair',
+    '#FFB74D': 'Orange abricot',
+    '#FFCC80': 'Orange pêche',
+    '#FFF3E0': 'Orange très pâle',
+    // Pinks
+    '#AD1457': 'Rose framboise',
+    '#C2185B': 'Rose fuchsia',
+    '#D81B60': 'Rose magenta',
+    '#E91E63': 'Rose vif',
+    '#EC407A': 'Rose clair',
+    '#F06292': 'Rose bonbon',
+    '#F8BBD0': 'Rose pastel',
+    '#FCE4EC': 'Rose très pâle',
+    // Indigos
+    '#283593': 'Indigo foncé',
+    '#303F9F': 'Indigo profond',
+    '#3949AB': 'Indigo classique',
+    '#3F51B5': 'Indigo',
+    '#5C6BC0': 'Indigo clair',
+    '#7986CB': 'Indigo pâle',
+    '#C5CAE9': 'Indigo pastel',
+    '#E8EAF6': 'Indigo très pâle',
+    // Teals
+    '#004D40': 'Turquoise foncé',
+    '#00695C': 'Turquoise profond',
+    '#00796B': 'Turquoise vert',
+    '#009688': 'Turquoise',
+    '#26A69A': 'Turquoise clair',
+    '#4DB6AC': 'Turquoise menthe',
+    '#80CBC4': 'Turquoise pâle',
+    '#E0F2F1': 'Turquoise très pâle',
+    // Limes
+    '#827717': 'Citron vert foncé',
+    '#9E9D24': 'Citron vert olive',
+    '#AFB42B': 'Citron vert vif',
+    '#CDDC39': 'Citron vert',
+    '#D4E157': 'Citron vert clair',
+    '#DCE775': 'Citron vert pâle',
+    '#F0F4C3': 'Citron vert pastel',
+    '#F9FBE7': 'Citron vert très pâle'
+  };
+
+  // If input is a hex code, return its name
+  if (colorNames[normalizedColor]) {
+    return colorNames[normalizedColor];
+  }
+
+  // If input is a color name, find its normalized name
+  const reverseColorName = Object.keys(colorNames).find(
+    key => key.toLowerCase() === normalizedColor
+  );
+  if (reverseColorName) {
+    return colorNames[reverseColorName];
+  }
+
+  // Check if input is a hex code in colorMap
+  const hexMatch = Object.keys(this.colorMap).find(
+    key => this.colorMap[key].toLowerCase() === normalizedColor
+  );
+  if (hexMatch && colorNames[this.colorMap[hexMatch]]) {
+    return colorNames[this.colorMap[hexMatch]];
+  }
+
+  return 'Couleur inconnue';
 }
 
-// Redirect to login page
-redirectToLogin(): void {
-  this.router.navigate(['/login'], {
-    queryParams: { returnUrl: this.router.url }
-  });
+// Replace the existing getColorPreview method
+getColorPreview(color: string | undefined): string {
+  if (!color) return '#CCCCCC';
+
+  // Check if color is a name in colorMap
+  const mappedColor = this.colorMap[color.toLowerCase()];
+  if (mappedColor) {
+    return mappedColor;
+  }
+
+  // Check if color is already a valid hex code
+  if (/^#([0-9A-F]{3}){1,2}$/i.test(color)) {
+    return color;
+  }
+
+  // Try to resolve color name to hex via canvas
+  const ctx = document.createElement('canvas').getContext('2d');
+  if (ctx) {
+    ctx.fillStyle = color;
+    const resolvedColor = ctx.fillStyle;
+    if (resolvedColor !== color && /^#([0-9A-F]{3}){1,2}$/i.test(resolvedColor)) {
+      return resolvedColor;
+    }
+  }
+
+  return '#CCCCCC'; // Fallback
 }
 }

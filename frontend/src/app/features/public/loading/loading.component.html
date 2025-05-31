@@ -1,4 +1,9 @@
-<div *ngIf="isLoading$ | async" class="loading-overlay">
-  <div class="animation"></div>
-  <p class="loading-text">Chargement en cours...</p>
+<div *ngIf="isLoading$ | async" class="bds-loading-overlay" @fadeInOut>
+  <div class="bds-loading-container">
+    <!-- SVG Loader -->
+    <svg class="bds-loading-spinner" viewBox="0 0 50 50">
+      <circle class="bds-loading-path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+    </svg>
+    <p class="bds-loading-text">Chargement en cours...</p>
+  </div>
 </div>

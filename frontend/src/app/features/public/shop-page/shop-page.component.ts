@@ -660,4 +660,20 @@ onSearchChange(): void {
       this.cartSubscription.unsubscribe();
     }
   }
+  formatPrice(value: number | null | undefined, withCurrency: boolean = true): string {
+  if (value == null || isNaN(value)) value = 0;
+  
+  const options: Intl.NumberFormatOptions = {
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 3,
+    useGrouping: true
+  };
+  
+  let formatted = value.toLocaleString('fr-FR', options);
+  
+  // Remplacer la virgule par un point si préféré
+  formatted = formatted.replace(',', '.');
+  
+  return withCurrency ? `${formatted} TND` : formatted;
+}
 }

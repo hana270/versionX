@@ -3,42 +3,37 @@
     <app-header></app-header>
   </header>
 
-<!-- Promotion Banner -->
-<div *ngIf="nextEndingPromotion" class="at-promo-banner">
-  <div class="at-promo-content">
-    <div class="at-promo-image">
-      <img
-        src="assets/images/offre_speciale.png"
-        alt="Offre Spéciale"
-        width="300"
-        height="90"
-        class="at-offre-speciale-img"
-      />
+  <!-- Promotion Banner -->
+  <div *ngIf="nextEndingPromotion" class="at-promo-banner">
+    <div class="at-promo-content">
+      <div class="at-promo-image">
+        <img src="assets/images/offre_speciale.png" alt="Offre Spéciale" width="300" height="90"
+          class="at-offre-speciale-img" />
+      </div>
+      <div class="at-countdown">
+        <div class="at-countdown-item">
+          <div class="at-countdown-value">{{ countdownTime.days }}</div>
+          <div class="at-countdown-label">Jours</div>
+        </div>
+        <div class="at-countdown-separator">:</div>
+        <div class="at-countdown-item">
+          <div class="at-countdown-value">{{ countdownTime.hours }}</div>
+          <div class="at-countdown-label">Heures</div>
+        </div>
+        <div class="at-countdown-separator">:</div>
+        <div class="at-countdown-item">
+          <div class="at-countdown-value">{{ countdownTime.minutes }}</div>
+          <div class="at-countdown-label">Minutes</div>
+        </div>
+        <div class="at-countdown-separator">:</div>
+        <div class="at-countdown-item">
+          <div class="at-countdown-value">{{ countdownTime.seconds }}</div>
+          <div class="at-countdown-label">Secondes</div>
+        </div>
+      </div>
+      <div class="at-promo-message">Offre exclusive ! Profitez-en dès maintenant</div>
     </div>
-    <div class="at-countdown">
-      <div class="at-countdown-item">
-        <div class="at-countdown-value">{{ countdownTime.days }}</div>
-        <div class="at-countdown-label">Jours</div>
-      </div>
-      <div class="at-countdown-separator">:</div>
-      <div class="at-countdown-item">
-        <div class="at-countdown-value">{{ countdownTime.hours }}</div>
-        <div class="at-countdown-label">Heures</div>
-      </div>
-      <div class="at-countdown-separator">:</div>
-      <div class="at-countdown-item">
-        <div class="at-countdown-value">{{ countdownTime.minutes }}</div>
-        <div class="at-countdown-label">Minutes</div>
-      </div>
-      <div class="at-countdown-separator">:</div>
-      <div class="at-countdown-item">
-        <div class="at-countdown-value">{{ countdownTime.seconds }}</div>
-        <div class="at-countdown-label">Secondes</div>
-      </div>
-    </div>
-    <div class="at-promo-message">Offre exclusive ! Profitez-en dès maintenant</div>
   </div>
-</div>
 
   <!-- Main Content -->
   <main class="at-shop-main">
@@ -82,7 +77,7 @@
                 <div class="at-price-slider-track"></div>
               </div>
               <div class="at-price-range-display">
-                {{ minPrice | number:'1.0-0' }} TND - {{ selectedPrice | number:'1.0-0' }} TND
+                {{ formatPrice(minPrice) }} - {{ formatPrice(selectedPrice) }}
               </div>
             </div>
           </div>
@@ -112,7 +107,7 @@
               <label class="at-checkbox-label">
                 <input type="checkbox" [(ngModel)]="showAvailable" (change)="applyFilters()" />
                 <span class="at-checkbox-custom"></span>
-                En stock
+                Disponible
               </label>
               <label class="at-checkbox-label">
                 <input type="checkbox" [(ngModel)]="showOnOrder" (change)="applyFilters()" />
@@ -142,31 +137,27 @@
             <i class="fas fa-sliders-h"></i> Filtres
           </button>
 
-        <!-- Results Header -->
-<div class="at-results-header">
-  <div class="at-results-count">
-    <span class="at-results-number">{{ filteredBassins.length }}</span> produits trouvés
-  </div>
-  <!-- Search Input -->
-  <div class="at-search-container">
-    <input
-      type="text"
-      class="at-search-input"
-      placeholder="Rechercher un bassin..."
-      [(ngModel)]="searchKeyword"
-      (ngModelChange)="onSearchChange()"
-    />
-    <i class="fas fa-search at-search-icon"></i>
-  </div>
-  <div class="at-sort-options">
-    <label for="at-sort-select">Trier par :</label>
-    <select id="at-sort-select" class="at-sort-select" [(ngModel)]="sortOrder" (change)="onSortChange($event)">
-      <option value="asc">Prix croissant</option>
-      <option value="desc">Prix décroissant</option>
-      <option value="promo">Promotions d'abord</option>
-    </select>
-  </div>
-</div>
+          <!-- Results Header -->
+          <div class="at-results-header">
+            <div class="at-results-count">
+              <span class="at-results-number">{{ filteredBassins.length }}</span> produits trouvés
+            </div>
+            <!-- Search Input -->
+            <div class="at-search-container">
+              <input type="text" class="at-search-input" placeholder="Rechercher un bassin..."
+                [(ngModel)]="searchKeyword" (ngModelChange)="onSearchChange()" />
+              <i class="fas fa-search at-search-icon"></i>
+            </div>
+            <div class="at-sort-options">
+              <label for="at-sort-select">Trier par :</label>
+              <select id="at-sort-select" class="at-sort-select" [(ngModel)]="sortOrder"
+                (change)="onSortChange($event)">
+                <option value="asc">Prix croissant</option>
+                <option value="desc">Prix décroissant</option>
+                <option value="promo">Promotions d'abord</option>
+              </select>
+            </div>
+          </div>
 
           <!-- Loading State -->
           <div *ngIf="isLoading" class="at-loading-state">
@@ -226,12 +217,11 @@
                 <!-- Price -->
                 <div class="at-product-price">
                   <div *ngIf="bassin.promotionActive; else regularPrice">
-                    <span class="at-current-price">{{ getPrixAvecPromotion(bassin) | number:'1.0-0' }} TND</span>
-                    <span class="at-original-price">{{ getPrixOriginal(bassin) | number:'1.0-0' }} TND</span>
+                    <span class="at-current-price">{{ formatPrice(getPrixAvecPromotion(bassin)) }}</span>
+                    <span class="at-original-price">{{ formatPrice(getPrixOriginal(bassin)) }}</span>
                   </div>
                   <ng-template #regularPrice>
-                    <span class="at-current-price">{{ bassin.prix | number:'1.0-0' }} TND</span>
-                  </ng-template>
+                    <span class="at-current-price">{{ formatPrice(bassin.prix) }}</span> </ng-template>
                 </div>
 
                 <!-- Specifications -->

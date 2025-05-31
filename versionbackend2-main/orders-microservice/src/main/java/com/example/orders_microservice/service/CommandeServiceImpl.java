@@ -60,239 +60,6 @@ public class CommandeServiceImpl implements CommandeService {
 		}
 		return value;
 	}
-	
-	@Transactional
-	public CommandeDTO creerCommande(CreationCommandeRequest request) {
-		logger.info("Création de commande - client: {}, items: {}", request.getClientId(),
-				request.getItems() != null ? request.getItems().size() : 0);
-
-		// Enhanced validation
-		if (request == null) {
-			logger.error("Requête de création de commande vide");
-			throw new CommandeException("Requête de création de commande vide");
-		}
-
-		// Validate client info
-		if (request.getClientId() == null) {
-			logger.error("L'identifiant du client est requis");
-			throw new CommandeException("L'identifiant du client est requis");
-		}
-
-		// Get authenticated user details
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null) {
-			logger.error("Aucune authentification trouvée dans le contexte de sécurité");
-			throw new CommandeException("Utilisateur non authentifié");
-		}
-
-		if (!(authentication.getPrincipal() instanceof CustomUserDetails)) {
-			logger.error("Principal n'est pas une instance de CustomUserDetails: {}",
-					authentication.getPrincipal() != null ? authentication.getPrincipal().getClass() : "null");
-			throw new CommandeException("Utilisateur non authentifié");
-		}
-
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-		Long authenticatedUserId = userDetails.getUserId();
-		if (authenticatedUserId == null) {
-			logger.error("L'ID utilisateur est null dans CustomUserDetails");
-			throw new CommandeException("ID utilisateur manquant");
-		}
-
-		logger.debug("Utilisateur authentifié: userId={}, username={}, email={}", authenticatedUserId,
-				userDetails.getUsername(), userDetails.getEmail());
-
-		// Validate that the clientId matches the authenticated user's ID
-		if (!request.getClientId().equals(authenticatedUserId)) {
-			logger.warn(
-					"Tentative de création de commande pour un client non autorisé: clientId={}, authenticatedUserId={}",
-					request.getClientId(), authenticatedUserId);
-			throw new CommandeException("Vous n'êtes pas autorisé à créer une commande pour un autre client");
-		}
-
-		// Validate email format
-		if (request.getClientEmail() == null
-				|| !request.getClientEmail().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-			logger.error("Email client invalide: {}", request.getClientEmail());
-			throw new CommandeException("Email client invalide: " + request.getClientEmail());
-		}
-
-		// Validate phone format
-		if (request.getClientTelephone() == null || !request.getClientTelephone().matches("\\d{8}")) {
-			logger.error("Numéro de téléphone invalide: {}", request.getClientTelephone());
-			throw new CommandeException("Numéro de téléphone invalide: " + request.getClientTelephone());
-		}
-
-		// Validate address
-		if (request.getAdresseLivraison() == null || request.getAdresseLivraison().trim().isEmpty()) {
-			logger.error("Adresse de livraison requise");
-			throw new CommandeException("Adresse de livraison requise");
-		}
-
-		// Validate postal code
-		if (request.getCodePostal() == null || !request.getCodePostal().matches("\\d{4}")) {
-			logger.error("Code postal invalide: {}", request.getCodePostal());
-			throw new CommandeException("Code postal invalide: " + request.getCodePostal());
-		}
-
-		// Validate city
-		if (request.getVille() == null || request.getVille().trim().isEmpty()) {
-			logger.error("Ville requise");
-			throw new CommandeException("Ville requise");
-		}
-
-		// Validate region
-		if (request.getRegion() == null || request.getRegion().trim().isEmpty()) {
-			logger.error("Région requise");
-			throw new CommandeException("Région requise");
-		}
-
-		// Validate items
-		if (request.getItems() == null || request.getItems().isEmpty()) {
-			logger.error("La commande doit contenir au moins un article");
-			throw new CommandeException("La commande doit contenir au moins un article");
-		}
-
-		// Verify bassins
-		for (PanierItemDTO item : request.getItems()) {
-			try {
-				if (item.getBassinId() == null) {
-					logger.error("Un article doit avoir un bassinId");
-					throw new CommandeException("Un article doit avoir un bassinId");
-				}
-				if (item.getQuantity() == null || item.getQuantity() <= 0) {
-					logger.error("Quantité invalide pour bassinId: {}", item.getBassinId());
-					throw new CommandeException("La quantité doit être positive pour l'article " + item.getBassinId());
-				}
-				if (item.getPrixUnitaire() == null || item.getPrixUnitaire() <= 0) {
-					logger.error("Prix unitaire invalide pour bassinId: {}", item.getBassinId());
-					throw new CommandeException("Prix unitaire invalide pour l'article " + item.getBassinId());
-				}
-
-				BassinDTO bassin = bassinClient.getBassinDetails(item.getBassinId());
-				if (bassin == null) {
-					logger.error("Bassin non trouvé avec ID: {}", item.getBassinId());
-					throw new CommandeException("Bassin non trouvé avec ID: " + item.getBassinId());
-				}
-				if ("DISPONIBLE".equals(item.getStatus()) && bassin.getStock() < item.getQuantity()) {
-					logger.error("Stock insuffisant pour bassinId: {}", item.getBassinId());
-					throw new CommandeException("Stock insuffisant pour le bassin ID: " + item.getBassinId());
-				}
-			} catch (Exception e) {
-				logger.error("Erreur lors de la vérification du bassin ID: {} - {}", item.getBassinId(),
-						e.getMessage());
-				throw new CommandeException(
-						"Erreur lors de la vérification du bassin ID: " + item.getBassinId() + ": " + e.getMessage());
-			}
-		}
-
-		// Handle panier
-		Panier panier;
-		if (request.getPanierId() != null && request.getPanierId() > 0) {
-			if (!panierRepository.existsById(request.getPanierId())) {
-				logger.error("Panier ID invalide: {}", request.getPanierId());
-				throw new CommandeException("Panier ID invalide: " + request.getPanierId());
-			}
-			panier = panierRepository.findByIdWithItems(request.getPanierId()).orElseThrow(() -> {
-				logger.error("Panier non trouvé: {}", request.getPanierId());
-				return new CommandeException("Panier non trouvé: " + request.getPanierId());
-			});
-		} else {
-			if (request.getItems() == null || request.getItems().isEmpty()) {
-				logger.error("Aucun article fourni pour créer un panier");
-				throw new CommandeException("Aucun article fourni pour créer un panier");
-			}
-			panier = createPanierFromItems(request.getItems(), request.getClientId().toString());
-		}
-
-		if (panier.getItems() == null || panier.getItems().isEmpty()) {
-			logger.error("Le panier est vide");
-			throw new CommandeException("Le panier est vide");
-		}
-
-		// Validate bassin details
-		validateBassinDetails(panier.getItems());
-
-		// Create commande
-		Commande commande = new Commande();
-		commande.setNumeroCommande(genererNumeroCommande());
-		commande.setClientId(request.getClientId());
-		commande.setClientNom(truncateString(request.getClientNom(), "clientNom"));
-		commande.setClientPrenom(truncateString(request.getClientPrenom(), "clientPrenom"));
-		commande.setClientEmail(truncateString(request.getClientEmail(), "clientEmail"));
-		commande.setClientTelephone(truncateString(request.getClientTelephone(), "clientTelephone"));
-		commande.setEmailClient(truncateString(request.getClientEmail(), "emailClient"));
-		commande.setStatut(StatutCommande.EN_ATTENTE);
-		commande.setDateCreation(LocalDateTime.now());
-		commande.setCommentaires(truncateString(request.getCommentaires(), "commentaires"));
-
-		// Convert items to lignes de commande
-		Set<LigneComnd> lignes = panier.getItems().stream().map(this::convertirEnLigneCommande)
-				.collect(Collectors.toSet());
-
-		// Set bidirectional relationship explicitly
-		lignes.forEach(ligne -> {
-			ligne.setCommande(commande);
-			if (ligne.getAccessoires() == null) {
-				ligne.setAccessoires(new ArrayList<>());
-			}
-		});
-		commande.setLignesCommande(lignes);
-
-		// Calculate totals
-		calculerTotauxCommande(commande);
-
-		// Set delivery information
-		commande.setAdresseLivraison(truncateString(request.getAdresseLivraison(), "adresseLivraison"));
-		commande.setCodePostal(truncateString(request.getCodePostal(), "codePostal"));
-		commande.setVille(truncateString(request.getVille(), "ville"));
-		commande.setRegion(truncateString(request.getRegion(), "region"));
-		commande.setFraisLivraison(20.0);
-		commande.setMontantTotalTTC(commande.getMontantTotalTTC() + commande.getFraisLivraison());
-
-		// Save commande and ensure lignes are persisted
-		try {
-			commandeRepository.save(commande); // First save
-
-			// Persist lignes
-			for (LigneComnd ligne : lignes) {
-				ligne.setCommande(commande);
-				entityManager.persist(ligne);
-			}
-
-			Commande savedCommande = commandeRepository.save(commande);
-			logger.info("Commande sauvegardée avec ID: {}, Numero: {}", savedCommande.getId(),
-					savedCommande.getNumeroCommande());
-
-			// Clear panier if necessary
-			if (request.getPanierId() != null) {
-				try {
-					panierService.clearPanierProperly(panier.getId());
-					logger.info("Panier {} vidé avec succès", panier.getId());
-				} catch (Exception e) {
-					logger.error("Échec de la suppression du panier {}: {}", panier.getId(), e.getMessage());
-				}
-			}
-
-			// Send notification
-			try {
-				notificationClient.envoyerNotificationCreationCommande(savedCommande.getClientId(),
-						savedCommande.getNumeroCommande());
-				logger.info("Notification de création de commande envoyée pour commande: {}",
-						savedCommande.getNumeroCommande());
-			} catch (Exception e) {
-				logger.error("Échec de l'envoi de la notification pour commande {}: {}",
-						savedCommande.getNumeroCommande(), e.getMessage());
-			}
-
-			// Convert to DTO and return
-			CommandeDTO dto = convertirEnDTO(savedCommande);
-			dto.setId(savedCommande.getId());
-			return dto;
-		} catch (Exception e) {
-			logger.error("Erreur lors de la sauvegarde de la commande", e);
-			throw new CommandeException("Erreur lors de la création de la commande: " + e.getMessage());
-		}
-	}
 
 
 private Panier createPanierFromItems(List<PanierItemDTO> items, String clientId) {
@@ -551,133 +318,8 @@ private Panier createPanierFromItems(List<PanierItemDTO> items, String clientId)
 			throw new CommandeException("Erreur technique lors de la recherche de commande");
 		}
 	}
-
-@Transactional
-public void updateCommandeAfterPayment(String numeroCommande) {
-    logger.info("Mise à jour de la commande après paiement: {}", numeroCommande);
-
-    // Validation des entrées
-    if (numeroCommande == null || numeroCommande.trim().isEmpty()) {
-        logger.error("Numéro de commande null ou vide");
-        throw new CommandeException("Numéro de commande requis");
-    }
-
-    // Recherche de la commande avec ses lignes
-    Commande commande = commandeRepository.findByNumeroCommande(numeroCommande)
-            .orElseThrow(() -> {
-                logger.error("Commande non trouvée: {}", numeroCommande);
-                return new CommandeException("Commande non trouvée: " + numeroCommande);
-            });
-
-    // Validation du statut de la commande
-    if (commande.getStatut() != StatutCommande.EN_ATTENTE) {
-        logger.warn("La commande {} a un statut invalide pour le paiement: {}", numeroCommande, commande.getStatut());
-        throw new CommandeException(
-                "La commande doit être en attente pour procéder au paiement: " + numeroCommande);
-    }
-
-    // Mise à jour du statut de la commande
-    commande.setPaiementConfirme(true);
-    commande.setDatePaiement(LocalDateTime.now());
-    commande.setStatut(StatutCommande.EN_PREPARATION);
-    commande.setDateModification(LocalDateTime.now());
-
-    // Préparation des transactions de stock
-    List<TransactionDTO> transactions = new ArrayList<>();
-    List<TransactionStock> stockTransactions = new ArrayList<>();
-    
-    for (LigneComnd ligne : commande.getLignesCommande()) {
-        if (ligne == null || ligne.getStatutProduit() == null) {
-            logger.warn("Ligne invalide dans la commande {}: ligne ou statutProduit null", numeroCommande);
-            continue;
-        }
-
-        if ("DISPONIBLE".equals(ligne.getStatutProduit())) {
-            // Création de la transaction pour le microservice
-            TransactionDTO transaction = TransactionDTO.builder()
-                .bassinId(ligne.getProduitId())
-                .quantite(-ligne.getQuantite()) // Négatif pour réduction de stock
-                .raison(truncateString(
-                    "Vente commande " + commande.getNumeroCommande() + 
-                    " - Client: " + commande.getClientNom() + " " + commande.getClientPrenom(),
-                    255))
-                .typeOperation("VENTE_CLIENT")
-                .utilisateur(commande.getClientId().toString())
-                .referenceExterne(commande.getNumeroCommande())
-                .detailsProduit(truncateString(
-                    ligne.getNomProduit() + " - " + ligne.getDescription(),
-                    255))
-                .prixUnitaire(ligne.getPrixUnitaire())
-                .montantTotal(ligne.getPrixTotal())
-                .build();
-            
-            transactions.add(transaction);
-
-            // Création de l'entité TransactionStock pour l'historique
-            TransactionStock stockTransaction = new TransactionStock();
-            stockTransaction.setBassinId(ligne.getProduitId());
-            stockTransaction.setQuantite(-ligne.getQuantite());
-            stockTransaction.setTypeOperation("VENTE_CLIENT");
-            stockTransaction.setRaison(transaction.getRaison());
-            stockTransaction.setDateTransaction(LocalDateTime.now());
-            stockTransaction.setCommande(commande);
-            stockTransaction.setReferenceExterne(transaction.getReferenceExterne());
-            stockTransaction.setDetailsProduit(transaction.getDetailsProduit());
-            stockTransaction.setPrixUnitaire(transaction.getPrixUnitaire());
-            stockTransaction.setMontantTotal(transaction.getMontantTotal());
-            
-            stockTransactions.add(stockTransaction);
-        }
-    }
-
-    // Mise à jour du stock via le microservice
-    if (!transactions.isEmpty()) {
-        try {
-            logger.debug("Mise à jour du stock pour la commande {} avec {} transactions", 
-                    numeroCommande, transactions.size());
-            
-            // Appel au microservice pour traiter les transactions
-            bassinClient.processOrderTransactions(transactions);
-            
-            // Mise à jour de la collection transactionsStock sans la remplacer
-            commande.getTransactionsStock().clear(); // Supprime les anciennes transactions
-            commande.getTransactionsStock().addAll(stockTransactions); // Ajoute les nouvelles
-            
-            logger.info("Stock mis à jour pour la commande: {}", numeroCommande);
-        } catch (Exception e) {
-            logger.error("Échec de la mise à jour du stock pour la commande {}: {}", 
-                    numeroCommande, e.getMessage());
-            
-            // Annulation de la confirmation de paiement en cas d'erreur
-            commande.setPaiementConfirme(false);
-            commande.setStatut(StatutCommande.EN_ATTENTE);
-            commandeRepository.save(commande);
-            
-            throw new CommandeException("Échec de la mise à jour du stock: " + e.getMessage());
-        }
-    }
-    // Clear panier
-    try {
-        Long clientId = commande.getClientId();
-        Panier panier = panierRepository.findByUserId(clientId).orElse(null);
-        if (panier != null) {
-            panierService.clearPanierProperly(panier.getId());
-            logger.info("Panier cleared for client: {}", clientId);
-        } else {
-            logger.warn("No panier found for client: {}", clientId);
-        }
-    } catch (Exception e) {
-        logger.error("Failed to clear panier for commande {}: {}", numeroCommande, e.getMessage());
-    }
-    // Enregistrement de la commande
-    try {
-        commandeRepository.save(commande);
-        logger.info("Commande {} mise à jour vers EN_PREPARATION", numeroCommande);
-    } catch (Exception e) {
-        logger.error("Échec de l'enregistrement de la commande {}: {}", numeroCommande, e.getMessage());
-        throw new CommandeException("Échec de la sauvegarde de la commande: " + e.getMessage());
-    }
-} /**
+ /*
+     * 
      * Tronque une chaîne à la longueur maximale spécifiée pour éviter les erreurs de base de données
      */
     private String truncateString(String input, int maxLength) {
@@ -1019,4 +661,271 @@ public void updateStatut(Long commandeId, StatutCommande statut) {
             throw new IllegalArgumentException("Statut invalide: " + statut);
         }
     }*/
+   
+    @Transactional
+    public CommandeDTO creerCommande(CreationCommandeRequest request) {
+        logger.info("Création de commande - client: {}, items: {}", request.getClientId(),
+                request.getItems() != null ? request.getItems().size() : 0);
+
+        if (request == null) {
+            logger.error("Requête de création de commande vide");
+            throw new CommandeException("Requête de création de commande vide");
+        }
+
+        if (request.getClientId() == null) {
+            logger.error("L'identifiant du client est requis");
+            throw new CommandeException("L'identifiant du client est requis");
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof CustomUserDetails)) {
+            logger.error("Utilisateur non authentifié");
+            throw new CommandeException("Utilisateur non authentifié");
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long authenticatedUserId = userDetails.getUserId();
+        if (!request.getClientId().equals(authenticatedUserId)) {
+            logger.warn("Tentative de création de commande pour un client non autorisé: clientId={}, authenticatedUserId={}",
+                    request.getClientId(), authenticatedUserId);
+            throw new CommandeException("Vous n'êtes pas autorisé à créer une commande pour un autre client");
+        }
+
+        if (request.getClientEmail() == null || !request.getClientEmail().matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+            logger.error("Email client invalide: {}", request.getClientEmail());
+            throw new CommandeException("Email client invalide");
+        }
+
+        if (request.getClientTelephone() == null || !request.getClientTelephone().matches("\\d{8}")) {
+            logger.error("Numéro de téléphone invalide: {}", request.getClientTelephone());
+            throw new CommandeException("Numéro de téléphone invalide");
+        }
+
+        if (request.getAdresseLivraison() == null || request.getAdresseLivraison().trim().isEmpty()) {
+            logger.error("Adresse de livraison requise");
+            throw new CommandeException("Adresse de livraison requise");
+        }
+
+        if (request.getCodePostal() == null || !request.getCodePostal().matches("\\d{4}")) {
+            logger.error("Code postal invalide: {}", request.getCodePostal());
+            throw new CommandeException("Code postal invalide");
+        }
+
+        if (request.getVille() == null || request.getVille().trim().isEmpty()) {
+            logger.error("Ville requise");
+            throw new CommandeException("Ville requise");
+        }
+
+        if (request.getRegion() == null || request.getRegion().trim().isEmpty()) {
+            logger.error("Région requise");
+            throw new CommandeException("Région requise");
+        }
+
+        if (request.getItems() == null || request.getItems().isEmpty()) {
+            logger.error("La commande doit contenir au moins un article");
+            throw new CommandeException("La commande doit contenir au moins un article");
+        }
+
+        for (PanierItemDTO item : request.getItems()) {
+            if (item.getBassinId() == null || item.getQuantity() == null || item.getQuantity() <= 0 ||
+                    item.getPrixUnitaire() == null || item.getPrixUnitaire() <= 0) {
+                logger.error("Article invalide: bassinId={}, quantité={}, prixUnitaire={}",
+                        item.getBassinId(), item.getQuantity(), item.getPrixUnitaire());
+                throw new CommandeException("Article invalide");
+            }
+            BassinDTO bassin = bassinClient.getBassinDetails(item.getBassinId());
+            if (bassin == null || ("DISPONIBLE".equals(item.getStatus()) && bassin.getStock() < item.getQuantity())) {
+                logger.error("Bassin non trouvé ou stock insuffisant: bassinId={}", item.getBassinId());
+                throw new CommandeException("Bassin non trouvé ou stock insuffisant");
+            }
+        }
+
+        Panier panier = request.getPanierId() != null && request.getPanierId() > 0
+                ? panierRepository.findByIdWithItems(request.getPanierId())
+                        .orElseThrow(() -> new CommandeException("Panier non trouvé: " + request.getPanierId()))
+                : createPanierFromItems(request.getItems(), request.getClientId().toString());
+
+        if (panier.getItems() == null || panier.getItems().isEmpty()) {
+            logger.error("Le panier est vide");
+            throw new CommandeException("Le panier est vide");
+        }
+
+        validateBassinDetails(panier.getItems());
+
+        Commande commande = new Commande();
+        commande.setNumeroCommande(genererNumeroCommande());
+        commande.setClientId(request.getClientId());
+        commande.setClientNom(truncateString(request.getClientNom(), "clientNom"));
+        commande.setClientPrenom(truncateString(request.getClientPrenom(), "clientPrenom"));
+        commande.setClientEmail(truncateString(request.getClientEmail(), "clientEmail"));
+        commande.setClientTelephone(truncateString(request.getClientTelephone(), "clientTelephone"));
+        commande.setEmailClient(truncateString(request.getClientEmail(), "emailClient"));
+        commande.setStatut(StatutCommande.EN_ATTENTE);
+        commande.setDateCreation(LocalDateTime.now());
+        commande.setCommentaires(truncateString(request.getCommentaires(), "commentaires"));
+
+        Set<LigneComnd> lignes = panier.getItems().stream().map(this::convertirEnLigneCommande)
+                .collect(Collectors.toSet());
+        lignes.forEach(ligne -> ligne.setCommande(commande));
+        commande.setLignesCommande(lignes);
+
+        calculerTotauxCommande(commande);
+
+        commande.setAdresseLivraison(truncateString(request.getAdresseLivraison(), "adresseLivraison"));
+        commande.setCodePostal(truncateString(request.getCodePostal(), "codePostal"));
+        commande.setVille(truncateString(request.getVille(), "ville"));
+        commande.setRegion(truncateString(request.getRegion(), "region"));
+        commande.setFraisLivraison(20.0);
+        commande.setMontantTotalTTC(commande.getMontantTotalTTC() + commande.getFraisLivraison());
+
+        try {
+            commandeRepository.save(commande);
+            for (LigneComnd ligne : lignes) {
+                ligne.setCommande(commande);
+                entityManager.persist(ligne);
+            }
+            Commande savedCommande = commandeRepository.save(commande);
+            logger.info("Commande sauvegardée: ID={}, Numero={}", savedCommande.getId(), savedCommande.getNumeroCommande());
+
+            if (request.getPanierId() != null) {
+                try {
+                    panierService.clearPanierProperly(panier.getId());
+                    logger.info("Panier {} vidé", panier.getId());
+                } catch (Exception e) {
+                    logger.error("Échec de la suppression du panier {}: {}", panier.getId(), e.getMessage());
+                }
+            }
+
+            // Send client notification
+            try {
+                notificationClient.envoyerNotificationCreationCommande(savedCommande.getClientId(),
+                        savedCommande.getNumeroCommande());
+                logger.info("Notification client de création envoyée: {}", savedCommande.getNumeroCommande());
+            } catch (Exception e) {
+                logger.error("Échec de l'envoi de la notification client: {}", e.getMessage());
+            }
+
+            // Send admin notification
+            try {
+                notificationClient.envoyerNotificationAdminCreationCommande(savedCommande.getNumeroCommande());
+                logger.info("Notification admin de création envoyée: {}", savedCommande.getNumeroCommande());
+            } catch (Exception e) {
+                logger.error("Échec de l'envoi de la notification admin: {}", e.getMessage());
+            }
+
+            CommandeDTO dto = convertirEnDTO(savedCommande);
+            dto.setId(savedCommande.getId());
+            return dto;
+        } catch (Exception e) {
+            logger.error("Erreur lors de la sauvegarde de la commande", e);
+            throw new CommandeException("Erreur lors de la création de la commande: " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public void updateCommandeAfterPayment(String numeroCommande) {
+        logger.info("Mise à jour de la commande après paiement: {}", numeroCommande);
+
+        if (numeroCommande == null || numeroCommande.trim().isEmpty()) {
+            logger.error("Numéro de commande vide");
+            throw new CommandeException("Numéro de commande requis");
+        }
+
+        Commande commande = commandeRepository.findByNumeroCommande(numeroCommande)
+                .orElseThrow(() -> new CommandeException("Commande non trouvée: " + numeroCommande));
+
+        if (commande.getStatut() != StatutCommande.EN_ATTENTE) {
+            logger.warn("Statut invalide pour paiement: {}", commande.getStatut());
+            throw new CommandeException("La commande doit être en attente");
+        }
+
+        commande.setPaiementConfirme(true);
+        commande.setDatePaiement(LocalDateTime.now());
+        commande.setStatut(StatutCommande.EN_PREPARATION);
+        commande.setDateModification(LocalDateTime.now());
+
+        List<TransactionDTO> transactions = new ArrayList<>();
+        List<TransactionStock> stockTransactions = new ArrayList<>();
+
+        for (LigneComnd ligne : commande.getLignesCommande()) {
+            if (ligne != null && "DISPONIBLE".equals(ligne.getStatutProduit())) {
+                TransactionDTO transaction = TransactionDTO.builder()
+                        .bassinId(ligne.getProduitId())
+                        .quantite(-ligne.getQuantite())
+                        .raison(truncateString("Vente commande " + commande.getNumeroCommande() + " - Client: " +
+                                commande.getClientNom() + " " + commande.getClientPrenom(), "raison"))
+                        .typeOperation("VENTE_CLIENT")
+                        .utilisateur(commande.getClientId().toString())
+                        .referenceExterne(commande.getNumeroCommande())
+                        .detailsProduit(truncateString(ligne.getNomProduit() + " - " + ligne.getDescription(), "detailsProduit"))
+                        .prixUnitaire(ligne.getPrixUnitaire())
+                        .montantTotal(ligne.getPrixTotal())
+                        .build();
+                transactions.add(transaction);
+
+                TransactionStock stockTransaction = new TransactionStock();
+                stockTransaction.setBassinId(ligne.getProduitId());
+                stockTransaction.setQuantite(-ligne.getQuantite());
+                stockTransaction.setTypeOperation("VENTE_CLIENT");
+                stockTransaction.setRaison(transaction.getRaison());
+                stockTransaction.setDateTransaction(LocalDateTime.now());
+                stockTransaction.setCommande(commande);
+                stockTransaction.setReferenceExterne(transaction.getReferenceExterne());
+                stockTransaction.setDetailsProduit(transaction.getDetailsProduit());
+                stockTransaction.setPrixUnitaire(transaction.getPrixUnitaire());
+                stockTransaction.setMontantTotal(transaction.getMontantTotal());
+                stockTransactions.add(stockTransaction);
+            }
+        }
+
+        if (!transactions.isEmpty()) {
+            try {
+                bassinClient.processOrderTransactions(transactions);
+                commande.getTransactionsStock().clear();
+                commande.getTransactionsStock().addAll(stockTransactions);
+                logger.info("Stock mis à jour pour commande: {}", numeroCommande);
+            } catch (Exception e) {
+                logger.error("Échec de la mise à jour du stock: {}", e.getMessage());
+                commande.setPaiementConfirme(false);
+                commande.setStatut(StatutCommande.EN_ATTENTE);
+                commandeRepository.save(commande);
+                throw new CommandeException("Échec de la mise à jour du stock: " + e.getMessage());
+            }
+        }
+
+        try {
+            Long clientId = commande.getClientId();
+            Panier panier = panierRepository.findByUserId(clientId).orElse(null);
+            if (panier != null) {
+                panierService.clearPanierProperly(panier.getId());
+                logger.info("Panier vidé pour client: {}", clientId);
+            }
+        } catch (Exception e) {
+            logger.error("Échec de la suppression du panier: {}", e.getMessage());
+        }
+
+        try {
+            commandeRepository.save(commande);
+            logger.info("Commande mise à jour: {}", numeroCommande);
+
+            // Send client notification
+            try {
+                notificationClient.envoyerNotificationPaiementConfirme(commande.getClientId(), numeroCommande);
+                logger.info("Notification client de paiement envoyée: {}", numeroCommande);
+            } catch (Exception e) {
+                logger.error("Échec de l'envoi de la notification client: {}", e.getMessage());
+            }
+
+            // Send admin notification
+            try {
+                notificationClient.envoyerNotificationAdminPaiementConfirme(numeroCommande);
+                logger.info("Notification admin de paiement envoyée: {}", numeroCommande);
+            } catch (Exception e) {
+                logger.error("Échec de l'envoi de la notification admin: {}", e.getMessage());
+            }
+        } catch (Exception e) {
+            logger.error("Échec de la sauvegarde de la commande: {}", e.getMessage());
+            throw new CommandeException("Échec de la sauvegarde de la commande: " + e.getMessage());
+        }
+    }
 }

@@ -1,15 +1,15 @@
 import { createRequire } from 'module';const require = createRequire(import.meta.url);
 import {
-  CheckboxRequiredValidator,
-  NG_VALIDATORS,
-  NG_VALUE_ACCESSOR
-} from "./chunk-7LPGAOVH.js";
-import {
   MatCommonModule,
   MatRipple,
   _MatInternalFormField
 } from "./chunk-IUVKGS4N.js";
 import "./chunk-4FGJ2WAY.js";
+import {
+  CheckboxRequiredValidator,
+  NG_VALIDATORS,
+  NG_VALUE_ACCESSOR
+} from "./chunk-7LPGAOVH.js";
 import "./chunk-M4WMVYCQ.js";
 import {
   ANIMATION_MODULE_TYPE,

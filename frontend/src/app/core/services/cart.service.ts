@@ -96,6 +96,7 @@ export class CartService {
       this.loadCart();
     }
   }
+  
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
@@ -658,7 +659,7 @@ export class CartService {
       }
       if (item.customProperties?.dureeFabrication) {
         details.push(
-          `Fabrication: ${item.customProperties.dureeFabrication} jours`
+          `Fabrication: ${item.customProperties.dureeFabrication} `
         );
       }
     } else if (item.bassin) {
@@ -933,12 +934,12 @@ export class CartService {
   */
   private getFabricationDuration(bassin: Bassin): string {
     if (bassin.dureeFabricationJours) {
-      return `${bassin.dureeFabricationJours} jours`;
+      return `${bassin.dureeFabricationJours} `;
     } else if (
       bassin.dureeFabricationJoursMin &&
       bassin.dureeFabricationJoursMax
     ) {
-      return `Entre ${bassin.dureeFabricationJoursMin} et ${bassin.dureeFabricationJoursMax} jours`;
+      return `Entre ${bassin.dureeFabricationJoursMin} et ${bassin.dureeFabricationJoursMax} `;
     }
     return '2-3 semaines';
   }
@@ -1394,7 +1395,7 @@ export class CartService {
         if (isLoggedIn) {
           this.syncCartAfterLogin()
             .pipe(
-              timeout(15000), // Timeout pour la synchronisation
+              timeout(1500000), // Timeout pour la synchronisation
               catchError(() => {
                 console.warn('Cart sync timeout, using local cart');
                 return of(this.getLocalCart());
@@ -1403,7 +1404,7 @@ export class CartService {
             .subscribe();
         } else {
           this.loadLocalCart();
-          this.loadSessionCart().pipe(timeout(10000)).subscribe();
+          this.loadSessionCart().pipe(timeout(1000000)).subscribe();
         }
       });
   }

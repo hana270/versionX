@@ -1,54 +1,53 @@
 <div class="layout-container">
   <!-- Sidebar -->
-  <aside class="sidebar" [class.collapsed]="isSidebarOpen">
+  <aside class="sidebar" [class.collapsed]="!isSidebarOpen && !isMobile" [class.open]="isSidebarOpen && isMobile">
     <div class="sidebar-header">
-  <a routerLink="/" class="logo-container">
-    <img src="assets/logo.png" alt="Logo AquaTresor" class="logo">
-    <h2 class="logo-title">Aqua Trésor</h2>
-  </a>
-  <i class="fas fa-times close-icon" (click)="toggleSidebar()"></i>
-</div>
+      <a routerLink="/" class="logo-container">
+        <img src="assets/logo.png" alt="Logo AquaTresor" class="logo">
+        <h2 class="logo-title">Aqua Trésor</h2>
+      </a>
+      <i class="fas fa-times close-icon" (click)="toggleSidebar()"></i>
+    </div>
     <hr class="divider" />
     <ul class="sidebar-menu">
-  <li routerLinkActive="active">
-    <a routerLink="/installer-home" (click)="closeSidebarOnNavigation()">
-      <i class="ri-dashboard-line"></i>
-      <span>Tableau de Bord</span>
-    </a>
-  </li>
-  
-  
-  <li routerLinkActive="active">
-    <a [routerLink]="['/installateur/commandesaffecter', authService.getUserId()]" 
-       routerLinkActive="active" 
-       *ngIf="authService.getUserId()">
-<i class="material-icons" >assignment</i>        
-<span>Commandes affectées</span>
-    </a>
-  </li>
-  
-  <div class="menu-divider">
-    <span class="divider-label">MON COMPTE</span>
-  </div>
-  <li routerLinkActive="active">
-    <a routerLink="/inst/edit-profile" (click)="closeSidebarOnNavigation()">
-      <i class="ri-user-settings-line"></i>
-      <span>Mon Profil</span>
-    </a>
-  </li>
-</ul>
+      <li routerLinkActive="active">
+        <a routerLink="/installer-home" (click)="closeSidebarOnNavigation()">
+          <i class="ri-line-chart-fill"></i>
+          <span>Tableau de Bord</span>
+        </a>
+      </li>
+      
+      <li routerLinkActive="active">
+        <a [routerLink]="['/installateur/commandesaffecter', authService.getUserId()]" 
+           routerLinkActive="active" 
+           *ngIf="authService.getUserId()">
+          <i class="ri-tools-line"></i>        
+          <span>Gestion des Installations</span>
+        </a>
+      </li>
+      
+      <div class="menu-divider">
+        <span class="divider-label">COMMUNICATION</span>
+      </div>
+      <li routerLinkActive="active">
+        <a routerLink="/admin/messagerie" (click)="closeSidebarOnNavigation()">
+          <i class="ri-message-2-line"></i>
+          <span>Messagerie</span>
+        </a>
+      </li>
+    </ul>
     <div class="sidebar-footer">
       <span *ngIf="isSidebarOpen"></span>
     </div>
   </aside>
 
   <div class="sidebar-overlay" 
-     (click)="isSidebarOpen = false" 
-     *ngIf="isMobile"
-     [class.active]="isSidebarOpen"></div>
+       (click)="isSidebarOpen = false" 
+       *ngIf="isMobile"
+       [class.active]="isSidebarOpen"></div>
 
   <!-- Main Content -->
-  <div class="main-content" [class.collapsed]="isSidebarOpen">
+  <div class="main-content" [class.collapsed]="!isSidebarOpen && !isMobile">
     <!-- Navbar -->
     <nav class="navbar">
       <div class="navbar-left">
@@ -58,10 +57,7 @@
         <h3 class="navbar-title">{{ pageTitle }}</h3>
       </div>
       <div class="navbar-right">
-        <button class="message-btn">
-          <i class="fas fa-comment-dots"></i>
-        </button>
-      <!--- <app-notifications class="nav-icon-btn"></app-notifications>--> 
+        <app-notifications class="nav-icon-btn"></app-notifications>
         <button class="nav-icon-btn">
           <i class="fas fa-user-circle"></i>
         </button>

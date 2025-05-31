@@ -22,8 +22,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FullCalendarModule } from '@fullcalendar/angular';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
-import { LucideAngularModule, CreditCard, Package2, Users, Wrench, Home, Medal, Calendar, MapPin, CheckCircle, FileText, Hash, Activity, ShoppingCart, Package, ShoppingBag, Tag, BoxSelect, MessageCircle, User, Mail, Send, Smile, Paperclip, UserCog, LoaderCircle } from 'lucide-angular';
-
+import { LucideAngularModule, CreditCard, Package2, Users, Wrench, Home, Medal, Calendar, MapPin, CheckCircle, FileText, Hash, Activity, ShoppingCart, Package, ShoppingBag,Tag, BoxSelect, MessageCircle, User, Mail, Send, Smile, Paperclip, UserCog, LoaderCircle } from 'lucide-angular';
 import { AppComponent } from './app.component';
 import { LoadingComponent } from './features/public/loading/loading.component';
 import { LoadingInterceptor } from './core/interceptors/loading.interceptor';
@@ -71,7 +70,6 @@ import { StocksListComponent } from './features/admin/stocks/stocks-list/stocks-
 import { StockActionDialogComponent } from './features/admin/stocks/stock-action-dialog/stock-action-dialog.component';
 import { HeaderComponent } from './features/public/header/header.component';
 import { FooterComponent } from './features/public/footer/footer.component';
-import { CartComponent } from './features/public/cart/cart.component';
 import { FavoritesPageComponent } from './features/public/favorites-page/favorites-page.component';
 import { AvisComponent } from './features/admin/avis/avis.component';
 import { AddPromotionComponent } from './features/admin/promotion/add-promotion/add-promotion.component';
@@ -87,10 +85,6 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MesCommandesComponent } from './features/client/mes-commandes/mes-commandes.component';
-import { CardPaymentComponent } from './features/public/card-payment/card-payment.component';
-import { CheckoutComponent } from './features/public/checkout/checkout.component';
-import { CommandeConfirmationComponent } from './features/public/commande-confirmation/commande-confirmation.component';
-import { PaymentVerificationComponent } from './features/public/payment-verification/payment-verification.component';
 import { InstallateurCommandesComponent } from './features/installer/installateur-commandes/installateur-commandes.component';
 import { InstallateursListeComponent } from './features/admin/installateurs-liste/installateurs-liste.component';
 import { JwtInterceptor } from './core/interceptors/jwt.interceptor';
@@ -109,11 +103,26 @@ import { MessagingContainerComponent } from './features/admin/converstaion/messa
 import { MessageComponent } from './features/admin/converstaion/message/message.component';
 import { ConversationItemComponent } from './features/admin/converstaion/conversation-item/conversation-item.component';
 import { RouterModule } from '@angular/router';
+import { CheckoutComponent } from './features/client/checkout/checkout.component';
+import { CardPaymentComponent } from './features/client/card-payment/card-payment.component';
+import { CommandeConfirmationComponent } from './features/client/commande-confirmation/commande-confirmation.component';
+import { PaymentVerificationComponent } from './features/client/payment-verification/payment-verification.component';
+import { CartComponent } from './features/public/cart/cart.component';
 
 
 export function tokenGetter() {
   return localStorage.getItem('jwt');
 }
+
+// En haut du fichier (juste après les imports)
+
+const lucideIcons = LucideAngularModule.pick({
+  CreditCard, Package2, Users, Wrench, Home, 
+  Medal, Calendar, MapPin, CheckCircle, FileText, Hash, Activity, 
+  ShoppingCart, Package, BoxSelect, ShoppingBag, Tag, MessageCircle, User, 
+  Mail, Send, Smile, Paperclip, UserCog, LoaderCircle
+});
+
 
 @NgModule({
   declarations: [
@@ -194,10 +203,7 @@ export function tokenGetter() {
     FormsModule,
     ReactiveFormsModule,
     CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
     MatTabsModule,
-
     MatTableModule,
     BrowserAnimationsModule,
     MatSnackBarModule,
@@ -210,19 +216,12 @@ export function tokenGetter() {
     ScrollingModule,
     MatSelectModule,
     MatButtonModule,
-    MatInputModule,
     MatSortModule,
     FullCalendarModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
     MatIconModule,
-LucideAngularModule.pick({ CreditCard, Package2, Users, Wrench, Home, 
-  Medal, Calendar, MapPin,CheckCircle,FileText, Hash, Activity, 
-  ShoppingCart, Package, BoxSelect, ShoppingBag, Tag, MessageCircle, User, 
- Mail, Send, Smile, Paperclip, 
-      UserCog,  
-      LoaderCircle }),
-   
+    lucideIcons,
     JwtModule.forRoot({
       config: {
         tokenGetter: tokenGetter,
@@ -231,6 +230,7 @@ LucideAngularModule.pick({ CreditCard, Package2, Users, Wrench, Home,
       },
     }),
   ],
+
  providers: [
     // Services
     AuthService,

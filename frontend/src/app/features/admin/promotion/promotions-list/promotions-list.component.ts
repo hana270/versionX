@@ -48,7 +48,7 @@ export class PromotionsListComponent implements OnInit {
   itemsPerPage: number = 10;
   totalPages: number = 1;
 
-  constructor(
+   constructor(
     private promotionService: PromotionService,
     private router: Router,
     private datePipe: DatePipe,
@@ -59,6 +59,7 @@ export class PromotionsListComponent implements OnInit {
       this.loadPromotions();
     });
   }
+
 
   ngOnInit(): void {
     this.loadPromotions();

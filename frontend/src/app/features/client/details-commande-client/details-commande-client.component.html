@@ -149,25 +149,25 @@
 
         <!-- Carte du statut actuel -->
         <div class="bg-white rounded-2xl shadow-xl p-8 mb-8 border-t-4"
-             [style.borderTopColor]="statuses[getStatusIndex(commande.statut)]?.color">
+             [style.borderTopColor]="statuses[getStatusIndex(commande.statut)]!.color">
           <div class="flex items-center justify-between">
             <div class="flex items-center">
               <div class="w-16 h-16 rounded-xl flex items-center justify-center mr-6"
-                   [style.backgroundColor]="statuses[getStatusIndex(commande.statut)]?.lightColor">
-                <lucide-icon [name]="statuses[getStatusIndex(commande.statut)]?.icon" 
+                   [style.backgroundColor]="statuses[getStatusIndex(commande.statut)]!.lightColor">
+                <lucide-icon [name]="statuses[getStatusIndex(commande.statut)]!.icon" 
                              size="32"
-                             [style.color]="statuses[getStatusIndex(commande.statut)]?.color"></lucide-icon>
+                             [style.color]="statuses[getStatusIndex(commande.statut)]!.color"></lucide-icon>
               </div>
               <div>
                 <h2 class="text-2xl font-bold text-gray-800 mb-1">
-                  {{ statuses[getStatusIndex(commande.statut)]?.title }}
+                  {{ statuses[getStatusIndex(commande.statut)]!.title }}
                 </h2>
                 <p class="text-gray-600">
-                  {{ statuses[getStatusIndex(commande.statut)]?.description }}
+                  {{ statuses[getStatusIndex(commande.statut)]!.description }}
                 </p>
                 <div class="flex items-center mt-2 text-sm text-gray-500">
                   <div class="w-2 h-2 rounded-full mr-2"
-                       [style.backgroundColor]="statuses[getStatusIndex(commande.statut)]?.color"></div>
+                       [style.backgroundColor]="statuses[getStatusIndex(commande.statut)]!.color"></div>
                   Étape {{ getStatusIndex(commande.statut) + 1 }} sur {{ statuses.length }} • En cours
                 </div>
               </div>
@@ -209,7 +209,7 @@
         <lucide-icon name="activity" class="w-4 h-4 mr-2 text-gray-400"></lucide-icon>
         Statut
       </span>
-      <span class="font-semibold" [style.color]="statuses[getStatusIndex(commande.statut)]?.color">
+      <span class="font-semibold" [style.color]="statuses[getStatusIndex(commande.statut)]!.color">
         {{ getStatusLabel(commande.statut) }}
       </span>
     </div>

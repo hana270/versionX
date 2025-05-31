@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Finaliser votre commande</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="shop-container">
+    <header>
+      <app-header></app-header>
+    </header>
+
+    <div class="payment-container">
+      <div class="payment-card">
+        <div class="payment-body">
+          <p class="intro-text">Saisissez vos informations pour un paiement sécurisé</p>
+          <form class="payment-form" [formGroup]="paymentForm" (ngSubmit)="onSubmit()">
+            <!-- Numéro de carte -->
+            <div class="form-group">
+              <label class="form-label" for="cardNumber">Numéro de carte *</label>
+              <div class="input-wrapper">
+                <input
+                  type="text"
+                  id="cardNumber"
+                  class="form-control"
+                  formControlName="cardNumber"
+                  maxlength="19"
+                  placeholder="Numéro de la carte"
+                  autocomplete="cc-number"
+                  (input)="formatCardNumber($event)"
+                />
+                <i class="fas fa-credit-card form-icon"></i>
+              </div>
+              <div class="error-message" *ngIf="paymentForm.get('cardNumber')?.invalid && (paymentForm.get('cardNumber')?.touched || paymentForm.get('cardNumber')?.dirty)">
+                <i class="fas fa-exclamation-circle"></i>
+                <span *ngIf="paymentForm.get('cardNumber')?.errors?.['required']">Numéro de carte requis</span>
+                <span *ngIf="paymentForm.get('cardNumber')?.errors?.['pattern']">Numéro de carte invalide (16 chiffres requis)</span>
+              </div>
+            </div>
+
+            <!-- Date d'expiration -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="expiryMonth">Mois </label>
+                <div class="input-wrapper">
+                  <select id="expiryMonth" class="form-control" formControlName="expiryMonth" autocomplete="cc-exp-month">
+                    <option value="" disabled selected>MM</option>
+                    <option *ngFor="let month of months" [value]="month.toString().padStart(2, '0')">
+                      {{ month.toString().padStart(2, '0') }}
+                    </option>
+                  </select>
+                  <i class="fas fa-caret-down form-icon select-icon"></i>
+                </div>
+                <div class="error-message" *ngIf="paymentForm.get('expiryMonth')?.invalid && (paymentForm.get('expiryMonth')?.touched || paymentForm.get('expiryMonth')?.dirty)">
+                  <i class="fas fa-exclamation-circle"></i>
+                  Mois requis
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="expiryYear">Année </label>
+                <div class="input-wrapper">
+                  <select id="expiryYear" class="form-control" formControlName="expiryYear" autocomplete="cc-exp-year">
+                    <option value="" disabled selected>AA</option>
+                    <option *ngFor="let year of years" [value]="year">
+                      {{ year.toString().slice(-2) }}
+                    </option>
+                  </select>
+                  <i class="fas fa-caret-down form-icon select-icon"></i>
+                </div>
+                <div class="error-message" *ngIf="paymentForm.get('expiryYear')?.invalid && (paymentForm.get('expiryYear')?.touched || paymentForm.get('expiryYear')?.dirty)">
+                  <i class="fas fa-exclamation-circle"></i>
+                  Année requise
+                </div>
+              </div>
+            </div>
+
+            <!-- CVV et Titulaire -->
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="securityCode">Code de sûreté *</label>
+                <div class="input-wrapper">
+                  <input
+                    type="text"
+                    id="securityCode"
+                    class="form-control"
+                    formControlName="securityCode"
+                    maxlength="3"
+                    placeholder="•••"
+                    autocomplete="cc-csc"
+                  />
+                  <i class="fas fa-lock form-icon"></i>
+                </div>
+                <div class="error-message" *ngIf="paymentForm.get('securityCode')?.invalid && (paymentForm.get('securityCode')?.touched || paymentForm.get('securityCode')?.dirty)">
+                  <i class="fas fa-exclamation-circle"></i>
+                  <span *ngIf="paymentForm.get('securityCode')?.errors?.['required']">CVV requis</span>
+                  <span *ngIf="paymentForm.get('securityCode')?.errors?.['pattern']">CVV invalide (3 chiffres requis)</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="cardholderName">Le nom du détenteur </label>
+                <div class="input-wrapper">
+                  <input
+                    type="text"
+                    id="cardholderName"
+                    class="form-control"
+                    formControlName="cardholderName"
+                    placeholder="Nom sur la carte"
+                    autocomplete="cc-name"
+                  />
+                  <i class="fas fa-user form-icon"></i>
+                </div>
+                <div class="error-message" *ngIf="paymentForm.get('cardholderName')?.invalid && (paymentForm.get('cardholderName')?.touched || paymentForm.get('cardholderName')?.dirty)">
+                  <i class="fas fa-exclamation-circle"></i>
+                  <span *ngIf="paymentForm.get('cardholderName')?.errors?.['required']">Nom requis</span>
+                  <span *ngIf="paymentForm.get('cardholderName')?.errors?.['minlength']">Minimum 2 caractères</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label class="form-label" for="email">Adresse e-mail</label>
+              <div class="input-wrapper">
+                <input
+                  type="email"
+                  id="email"
+                  class="form-control"
+                  formControlName="email"
+                  placeholder="votre@email.com"
+                  autocomplete="email"
+                />
+                <i class="fas fa-envelope form-icon"></i>
+              </div>
+              <div class="error-message" *ngIf="paymentForm.get('email')?.invalid && (paymentForm.get('email')?.touched || paymentForm.get('email')?.dirty)">
+                <i class="fas fa-exclamation-circle"></i>
+                <span *ngIf="paymentForm.get('email')?.errors?.['required']">Email requis</span>
+                <span *ngIf="paymentForm.get('email')?.errors?.['email'] || paymentForm.get('email')?.errors?.['pattern']">Email invalide</span>
+              </div>
+            </div>
+
+            <!-- Badge de sécurité -->
+            <div class="security-badge">
+              <i class="fas fa-shield-alt security-icon"></i>
+              <div class="security-text">Paiement sécurisé - Vos données sont protégées</div>
+            </div>
+
+            <!-- Actions -->
+            <div class="actions">
+              <button type="button" class="btn btn-secondary" (click)="cancelPayment()">
+                Annuler
+              </button>
+              <button type="submit" class="btn btn-primary" [disabled]="paymentForm.invalid || isLoading">
+                <i class="fas fa-credit-card btn-icon"></i>
+                <span *ngIf="!isLoading">Payer maintenant</span>
+                <span *ngIf="isLoading">
+                  <i class="fas fa-spinner fa-spin btn-icon"></i> Traitement...
+                </span>
+              </button>
+            </div>
+          </form>
+
+          <div class="loading-state" *ngIf="isLoading">
+            <div class="loading-spinner"></div>
+            <p>Validation de votre paiement...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <app-footer></app-footer>
+    </footer>
+  </div>
+</body>
+</html>

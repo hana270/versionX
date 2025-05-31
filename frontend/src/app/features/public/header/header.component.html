@@ -6,6 +6,8 @@
     <title>AquaTresor - Header Professionnel</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
     <!-- TOP BANNER -->
@@ -19,8 +21,7 @@
                     </div>
                     <div class="at-header-contact-item">
                         <i class="material-icons">email</i>
-                        <a href="mailto:support@aquatresor.com" class="at-header-contact-link">support-aquatresor.com</a>
-                    </div>
+<a [href]="'mailto:' + email" style="color:white;">{{email}}</a>                    </div>
                 </div>
                 <div class="at-header-professional-links">
                     <a href="#" class="at-header-professional-link">
@@ -70,13 +71,7 @@
                 </nav>
 
                 <div class="at-header-user-actions">
-                    <!-- Notifications -->
-                    <div class="at-header-action-item">
-                        <button class="at-header-action-btn at-header-notification-btn" title="Notifications" (click)="openNotifications()">
-                            <i class="material-icons">notifications</i>
-                            <span class="at-header-action-count at-header-notification-count" *ngIf="notificationsCount > 0">{{ notificationsCount }}</span>
-                        </button>
-                    </div>
+                 
 
                     <!-- Chat Support -->
                     <div class="at-header-action-item">
@@ -87,59 +82,55 @@
 
                     <!-- Favoris -->
                     <div class="at-header-action-item">
-                        <a href="/favorites" class="at-header-action-btn" title="Favoris">
+                        <a href="/favorites" class="at-header-action-btn at-header-favorites-btn" title="Favoris">
                             <i class="material-icons">favorite</i>
                             <span class="at-header-action-count" *ngIf="favoritesCount > 0">{{ favoritesCount }}</span>
                         </a>
                     </div>
 
-                    <!-- Panier -->
-                    <div class="at-header-action-item">
-                        <button class="at-header-action-btn at-header-cart-btn" title="Panier" (click)="toggleCart($event)">
-                            <i class="material-icons">shopping_cart</i>
-                            <span class="at-header-action-count" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
-                        </button>
-                    </div>
+            <!-- Panier -->
+<div class="at-header-action-item">
+  <button class="at-header-action-btn at-header-cart-btn" title="Panier" (click)="toggleCart($event)">
+    <i class="material-icons">shopping_cart</i>
+    <span class="at-header-action-count" *ngIf="uniqueBasinCount > 0">{{ uniqueBasinCount }}</span>
+  </button>
+</div>
 
-                    <!-- Menu utilisateur -->
-                    <div class="at-header-action-item" *ngIf="isAuthenticated; else authButtons">
-                        <div class="at-header-action-btn at-header-profile-btn" (click)="toggleDropdown($event)" title="Mon compte">
-                            <i class="material-icons">person</i>
-                            <i class="material-icons at-header-profile-arrow">expand_more</i>
-                        </div>
-                        <ul class="at-header-dropdown-menu" [class.at-header-active]="isDropdownOpen">
-                            <li class="at-header-dropdown-item">
-                                <a href="/client/edit-profile" class="at-header-dropdown-link">
-                                    <i class="material-icons">edit</i>
-                                    <span>Modifier Profil</span>
-                                </a>
-                            </li>
-                            <li class="at-header-dropdown-item">
-                                <a href="/mon-compte/mes-commandes" class="at-header-dropdown-link">
-                                    <i class="material-icons">shopping_bag</i>
-                                    <span>Mes commandes</span>
-                                </a>
-                            </li>
-                            <li class="at-header-dropdown-item">
-                                <a href="/settings" class="at-header-dropdown-link">
-                                    <i class="material-icons">settings</i>
-                                    <span>Paramètres</span>
-                                </a>
-                            </li>
-                            <li class="at-header-dropdown-item">
-                                <a href="#" class="at-header-dropdown-link" (click)="logout()">
-                                    <i class="material-icons">exit_to_app</i>
-                                    <span>Déconnexion</span>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
+<!-- Profile Dropdown with Image -->
+<div class="profile-dropdown-container">
+    <button class="profile-btn" id="profileButton" aria-expanded="false" aria-controls="profileDropdown">
+        <img [src]="client?.profileImage ? getProfileImageUrl(client!.profileImage) : 'assets/images/default-image-profile.webp'" 
+             [alt]="client?.fullName || 'Profile'" 
+             class="profile-image">
+        <span class="profile-text">{{client?.fullName || ''}}</span>
+        <i class="material-icons dropdown-arrow">expand_more</i>
+    </button>
+    <ul class="dropdown-menu" id="profileDropdown" aria-labelledby="profileButton">
+        <li class="dropdown-item">
+            <a href="/profile/edit" class="dropdown-link">
+                <i class="material-icons">edit</i>
+                <span>Modifier profil</span>
+            </a>
+        </li>
+        <li class="dropdown-item">
+            <a href="/orders" class="dropdown-link">
+                <i class="material-icons">shopping_bag</i>
+                <span>Mes commandes</span>
+            </a>
+        </li>
+        <li class="dropdown-item">
+            <button class="dropdown-link" (click)="logout()">
+                <i class="material-icons">exit_to_app</i>
+                <span>Déconnexion</span>
+            </button>
+        </li>
+    </ul>
+</div>
                     <!-- Boutons de connexion -->
                     <ng-template #authButtons>
                         <div class="at-header-auth-buttons">
-                            <a href="/login" class="at-header-login-btn">Connexion</a>
-                            <a href="/register" class="at-header-register-btn">S'inscrire</a>
+                            <a routerLink="/login" class="at-header-login-btn">Connexion</a>
+                            <a routerLink="/register" class="at-header-register-btn">S'inscrire</a>
                         </div>
                     </ng-template>
                 </div>
@@ -160,7 +151,7 @@
             <div class="at-header-cart-items">
                 <div class="at-header-cart-item" *ngFor="let item of cartItems">
                     <div class="at-header-item-header">
-                        <h3>{{ item.nomBassin || item.bassin?.nomBassin }}</h3>
+                        <h3>{{ getItemFullName(item) }}</h3>
                         <div class="at-header-badges">
                             <span class="at-header-badge" [ngClass]="{
                                 'at-header-badge-stock': getItemStatus(item) === 'DISPONIBLE',
@@ -169,9 +160,8 @@
                                 'at-header-badge-out-of-stock': getItemStatus(item) === 'RUPTURE_STOCK'
                             }">
                                 {{ getStatusDisplay(item) }}
-                                <span *ngIf="(item.isCustomized || getItemStatus(item) === 'SUR_COMMANDE') && item.dureeFabrication">
-                                    ({{ formatDureeFabrication(item.dureeFabrication) }})
-                                </span>
+                                <span *ngIf="(item.isCustomized || getItemStatus(item) === 'SUR_COMMANDE') ">
+                                      </span>
                             </span>
                             <span class="at-header-badge at-header-badge-promo" *ngIf="item.promotionActive && item.tauxReduction">
                                 -{{ item.tauxReduction * 100 | number:'1.0-0' }}%
@@ -217,7 +207,7 @@
                                 </div>
                                 <div class="at-header-detail-row at-header-fabrication-time">
                                     <span class="at-header-detail-label">Délai de fabrication:</span>
-                                    <span>{{ item.customization?.dureeFabrication ? item.customization!.dureeFabrication + ' jours' : 'Non spécifié' }}</span>
+                                    <span>{{ item.customization?.dureeFabrication ? item.customization!.dureeFabrication  : 'Non spécifié' }}</span>
                                 </div>
                             </div>
                             <div *ngIf="!item.isCustomized" class="at-header-standard-details">
@@ -257,7 +247,7 @@
                                 </div>
                                 <div class="at-header-price-row at-header-grand-total">
                                     <span>Total ({{ item.quantity }} bassin(s)):</span>
-                                    <span>{{ getItemFinalPrice(item) | number:'1.2-2' }} TND</span>
+                                    <span style="color: var(--at-header-primary-dark)">{{ getItemFinalPrice(item) }} TND</span>
                                 </div>
                             </div>
                             <div class="at-header-quantity-controls">
@@ -272,7 +262,7 @@
                         </div>
                     </div>
                     <div class="at-header-item-actions">
-                        <button (click)="confirmRemoveFromCart(item)" class="at-header-remove-btn">
+                        <button (click)="removeFromCart(item)" class="at-header-remove-btn">
                             <i class="material-icons">delete</i> Supprimer
                         </button>
                     </div>
@@ -289,7 +279,7 @@
                 </div>
                 <div class="at-header-total-row at-header-grand-total">
                     <span>Total:</span>
-                    <span>{{ getCartTotal() | number:'1.2-2' }} TND</span>
+                    <span>{{ cartTotal }} TND</span>
                 </div>
             </div>
             <div class="at-header-cart-footer">
@@ -317,5 +307,279 @@
         </ng-template>
     </div>
     <div class="at-header-overlay" [class.at-header-active]="isCartOpen" (click)="closeCart()"></div>
+
+    <!-- Toast container (moved to root level) -->
+    <div class="at-toast-container">
+        <div class="at-toast" *ngFor="let toast of toastService.toasts$ | async" [ngClass]="toast.classname">
+            <i class="material-icons at-toast-icon">{{ toast.icon }}</i>
+            <div class="at-toast-content">
+                <h4 class="at-toast-header">{{ toast.header }}</h4>
+                <span class="at-toast-message">{{ toast.message }}</span>
+            </div>
+            <button class="at-toast-close" (click)="toast.id && toastService.remove(toast.id)">
+                <i class="material-icons">close</i>
+            </button>
+        </div>
+    </div>
+        <script>
+        let isMenuOpen = false;
+        let isCartOpen = false;
+        let isDropdownOpen = false;
+        let isAuthenticated = false; // Simulate auth status; replace with actual logic
+
+        function toggleMenu() {
+            isMenuOpen = !isMenuOpen;
+            document.getElementById('mobileNav').classList.toggle('translate-x-0', isMenuOpen);
+            document.getElementById('mobileNav').classList.toggle('-translate-x-full', !isMenuOpen);
+            document.getElementById('overlay').classList.toggle('hidden', !isMenuOpen);
+        }
+
+        function toggleCart() {
+            isCartOpen = !isCartOpen;
+            document.getElementById('cartSidebar').classList.toggle('translate-x-0', isCartOpen);
+            document.getElementById('cartSidebar').classList.toggle('translate-x-full', !isCartOpen);
+            document.getElementById('overlay').classList.toggle('hidden', !isCartOpen);
+            if (isDropdownOpen) toggleDropdown();
+        }
+
+        function closeCart() {
+            isCartOpen = false;
+            document.getElementById('cartSidebar').classList.remove('translate-x-0');
+            document.getElementById('cartSidebar').classList.add('translate-x-full');
+            document.getElementById('overlay').classList.add('hidden');
+        }
+
+        function toggleDropdown() {
+            isDropdownOpen = !isDropdownOpen;
+            const dropdownMenu = document.getElementById('at-header-dropdown-menu');
+            const profileBtn = document.querySelector('.at-header-profile-btn');
+            dropdownMenu.classList.toggle('hidden', !isDropdownOpen);
+            dropdownMenu.classList.toggle('opacity-100', isDropdownOpen);
+            dropdownMenu.classList.toggle('opacity-0', !isDropdownOpen);
+            dropdownMenu.classList.toggle('translate-y-0', isDropdownOpen);
+            dropdownMenu.classList.toggle('translate-y-2', !isDropdownOpen);
+            profileBtn.setAttribute('aria-expanded', isDropdownOpen);
+            document.getElementById('overlay').classList.toggle('hidden', !isDropdownOpen);
+        }
+
+        function closeDropdown() {
+            isDropdownOpen = false;
+            document.getElementById('at-header-dropdown-menu').classList.add('hidden');
+            document.getElementById('at-header-dropdown-menu').classList.remove('opacity-100');
+            document.getElementById('at-header-dropdown-menu').classList.add('opacity-0');
+            document.getElementById('at-header-dropdown-menu').classList.remove('translate-y-0');
+            document.getElementById('at-header-dropdown-menu').classList.add('translate-y-2');
+            document.querySelector('.at-header-profile-btn').setAttribute('aria-expanded', 'false');
+            document.getElementById('overlay').classList.add('hidden');
+        }
+
+        function closeAll() {
+            closeCart();
+            closeDropdown();
+            if (isMenuOpen) toggleMenu();
+        }
+
+        function openNotifications() {
+            showToast('Notifications ouvertes', 'info');
+        }
+
+        function openChat() {
+            showToast('Chat support ouvert', 'info');
+        }
+
+        function logout() {
+            showToast('Déconnexion effectuée', 'success');
+            document.getElementById('profileSection').classList.add('hidden');
+            document.getElementById('authButtons').classList.remove('hidden');
+            isAuthenticated = false;
+        }
+
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            const bgClass = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-teal-600',
+                warning: 'bg-yellow-500'
+            }[type] || 'bg-teal-600';
+            toast.className = `at-header-toast flex items-center p-4 mb-2 rounded-lg shadow-lg text-white ${bgClass} opacity-0 transform translate-x-full`;
+            toast.innerHTML = `
+                <i class="material-icons at-header-toast-icon">info</i>
+                <div class="at-header-toast-content">
+                    <span class="at-header-toast-message">${message}</span>
+                </div>
+                <button class="at-header-toast-close" onclick="this.parentElement.classList.add('fade-out'); setTimeout(() => this.parentElement.remove(), 500)">
+                    <i class="material-icons">close</i>
+                </button>
+            `;
+            toastContainer.appendChild(toast);
+            setTimeout(() => toast.classList.add('at-header-active'), 10);
+            setTimeout(() => {
+                toast.classList.add('fade-out');
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
+        function checkAuthStatus() {
+            // Simulate auth check; replace with actual logic
+            document.getElementById('profileSection').classList.toggle('hidden', !isAuthenticated);
+            document.getElementById('authButtons').classList.toggle('hidden', isAuthenticated);
+        }
+
+        // Sample cart items for demonstration
+        const cartItems = [
+            {
+                id: 1,
+                nomBassin: 'Bassin Personnalisé',
+                quantity: 1,
+                prixOriginal: 150.00,
+                isCustomized: true,
+                customProperties: {
+                    dimensionSelectionnee: '2m x 1m',
+                    materiauSelectionne: 'Béton fibré',
+                    couleurSelectionnee: 'Bleu clair',
+                    accessoires: [
+                        { nomAccessoire: 'Pompe', prixAccessoire: 30.00 },
+                        { nomAccessoire: 'Filtre', prixAccessoire: 20.00 }
+                    ],
+                    dureeFabrication: '7 jours'
+                },
+                imageUrl: 'assets/images/bassin.jpg',
+                promotionActive: true,
+                tauxReduction: 0.1
+            }
+        ];
+
+        function renderCartItems() {
+            const cartItemsContainer = document.getElementById('cartItems');
+            const cartTotals = document.getElementById('cartTotals');
+            const cartFooter = document.getElementById('cartFooter');
+            const emptyCart = document.getElementById('emptyCart');
+
+            if (cartItems.length === 0) {
+                cartItemsContainer.innerHTML = '';
+                cartTotals.classList.add('hidden');
+                cartFooter.classList.add('hidden');
+                emptyCart.classList.remove('hidden');
+                document.getElementById('cartCount').classList.add('hidden');
+                return;
+            }
+
+            emptyCart.classList.add('hidden');
+            cartTotals.classList.remove('hidden');
+            cartFooter.classList.remove('hidden');
+            document.getElementById('cartCount').classList.remove('hidden');
+            document.getElementById('cartCount').textContent = cartItems.reduce((sum, item) => sum + item.quantity, 0).toString();
+
+            let subtotal = 0;
+            cartItemsContainer.innerHTML = cartItems.map(item => {
+                const effectivePrice = item.promotionActive
+                    ? item.prixOriginal * (1 - item.tauxReduction)
+                    : item.prixOriginal;
+                const itemTotal = effectivePrice * item.quantity;
+                subtotal += itemTotal;
+
+                const accessoriesList = item.customProperties?.accessoires?.map(acc => `
+                    <li class="at-header-accessory-item">${acc.nomAccessoire} (+${acc.prixAccessoire.toFixed(2)} TND)</li>
+                `).join('') || '';
+
+                return `
+                    <div class="at-header-cart-item border rounded-lg p-4 bg-gray-50 hover:scale-[1.02] transition">
+                        <div class="at-header-item-header flex justify-between items-start flex-wrap gap-2">
+                            <h3 class="text-sm font-semibold">${item.nomBassin}</h3>
+                            <div class="at-header-badges flex gap-2">
+                                ${item.isCustomized ? '<span class="at-header-badge at-header-badge-custom px-2 py-1 rounded text-xs bg-yellow-500 text-white">Personnalisé</span>' : ''}
+                                ${item.promotionActive ? `<span class="at-header-badge at-header-badge-promo px-2 py-1 rounded text-xs bg-teal-500 text-white">-${item.tauxReduction * 100}%</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="at-header-item-content flex gap-4 flex-col sm:flex-row">
+                            <div class="at-header-item-image w-full sm:w-24 h-24 rounded overflow-hidden">
+                                <img src="${item.imageUrl || 'assets/default-image.webp'}" alt="${item.nomBassin}" class="w-full h-full object-cover">
+                            </div>
+                            <div class="at-header-item-details flex-1 flex flex-col gap-2">
+                                <div class="at-header-detail-row flex gap-2 text-sm">
+                                    <span class="at-header-detail-label font-medium">Dimensions:</span>
+                                    <span>${item.customProperties?.dimensionSelectionnee || 'Standard'}</span>
+                                </div>
+                                <div class="at-header-detail-row flex gap-2 text-sm">
+                                    <span class="at-header-detail-label font-medium">Matériau:</span>
+                                    <span>${item.customProperties?.materiauSelectionne || 'Standard'}</span>
+                                </div>
+                                <div class="at-header-detail-row flex gap-2 text-sm">
+                                    <span class="at-header-detail-label font-medium">Couleur:</span>
+                                    <span class="flex items-center gap-1">
+                                        ${item.customProperties?.couleurSelectionnee || 'Standard'}
+                                        <span class="at-header-color-preview w-3 h-3 rounded-full border" style="background-color: ${item.customProperties?.couleurSelectionnee === 'Bleu clair' ? '#7EC0EE' : '#CCCCCC'}"></span>
+                                    </span>
+                                </div>
+                                <ul class="at-header-accessories-list pl-4 text-sm">${accessoriesList}</ul>
+                                <div class="at-header-price-summary border-t pt-2 mt-2">
+                                    <div class="at-header-price-row flex justify-between text-sm">
+                                        <span>Prix unitaire:</span>
+                                        <span>${item.prixOriginal.toFixed(2)} TND</span>
+                                    </div>
+                                    ${item.promotionActive ? `
+                                        <div class="at-header-price-row at-header-promotion flex justify-between text-sm text-green-600">
+                                            <span>Réduction:</span>
+                                            <span>-${(item.prixOriginal * item.tauxReduction).toFixed(2)} TND</span>
+                                        </div>
+                                    ` : ''}
+                                    <div class="at-header-price-row at-header-grand-total flex justify-between text-sm font-semibold">
+                                        <span>Total:</span>
+                                        <span>${itemTotal.toFixed(2)} TND</span>
+                                    </div>
+                                </div>
+                                <div class="at-header-quantity-controls flex items-center gap-2">
+                                    <button class="at-header-qty-btn bg-white text-gray-800 w-8 h-8 rounded-full hover:bg-teal-50 hover:text-teal-600" onclick="updateQuantity(${item.id}, ${item.quantity - 1})" ${item.quantity <= 1 ? 'disabled' : ''}>
+                                        <i class="material-icons text-sm">remove</i>
+                                    </button>
+                                    <span class="at-header-qty-value text-sm font-medium">${item.quantity}</span>
+                                    <button class="at-header-qty-btn bg-white text-gray-800 w-8 h-8 rounded-full hover:bg-teal-50 hover:text-teal-600" onclick="updateQuantity(${item.id}, ${item.quantity + 1})">
+                                        <i class="material-icons text-sm">add</i>
+                                    </button>
+                                </div>
+                                <div class="at-header-item-actions text-right">
+                                    <button class="at-header-remove-btn text-red-500 text-sm flex items-center gap-1 hover:text-red-700" onclick="removeFromCart(${item.id})">
+                                        <i class="material-icons text-sm">delete</i> Supprimer
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('subtotal').textContent = `${subtotal.toFixed(2)} TND`;
+            document.getElementById('shipping-cost').textContent = cartItems.length > 0 ? '20.00 TND' : '0.00 TND';
+            document.getElementById('total').textContent = `${(subtotal + (cartItems.length > 0 ? 20 : 0)).toFixed(2)} TND`;
+        }
+
+        function updateQuantity(itemId, newQuantity) {
+            const item = cartItems.find(i => i.id === itemId);
+            if (!item || newQuantity < 1) return;
+            item.quantity = newQuantity;
+            if (item.quantity === 0) {
+                removeFromCart(itemId);
+                return;
+            }
+            renderCartItems();
+            showToast('Quantité mise à jour', 'success');
+        }
+
+        function removeFromCart(itemId) {
+            const index = cartItems.findIndex(i => i.id === itemId);
+            if (index !== -1) {
+                cartItems.splice(index, 1);
+                renderCartItems();
+                showToast('Article supprimé', 'success');
+            }
+        }
+
+        window.onload = () => {
+            checkAuthStatus();
+            renderCartItems();
+        };
+    </script>
 </body>
 </html>

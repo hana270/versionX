@@ -1039,3 +1039,18 @@
     height: 200px;
   }
 }
+
+.at-current-price, .at-original-price, .at-price-range-display {
+  font-family: 'Lora', 'Georgia', 'Times New Roman', serif;
+  font-weight: 500;
+  color: #005073;
+    font-feature-settings: 'tnum'; /* Chiffres à chasse fixe */
+  font-variant-numeric: tabular-nums; /* Alignement parfait */
+  line-height: 1.2;
+}
+.at-original-price {
+  text-decoration: line-through;
+  opacity: 0.7;
+  margin-left: 8px;
+  font-size: 0.9em;
+}

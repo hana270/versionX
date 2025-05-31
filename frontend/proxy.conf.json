@@ -1,0 +1,23 @@
+{
+  "/api": {
+    "target": "http://localhost:8087",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug",
+    "pathRewrite": {
+      "^/api": "/api/aquatresor/api"
+    }
+  },
+  "/3d-models": {
+    "target": "https://cdn.jsdelivr.net",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/3d-models": ""
+    },
+    "headers": {
+      "Accept": "*/*",
+      "Origin": "http://localhost:4200"
+    }
+  }
+}

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Finaliser votre commande</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+<div class="confirmation-payment-container ">
+  <header>
+    <app-header></app-header>
+  </header>
+
+  <main class="confirmation-container">
+    <!-- Loading state -->
+    <div *ngIf="loading" class="loading-container flex flex-col items-center justify-center py-10">
+      <div class="spinner border-t-4 border-blue-500 rounded-full w-12 h-12 animate-spin"></div>
+      <p class="loading-text mt-4 text-lg text-gray-600">Chargement des détails de votre commande...</p>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !loading" class="error-container flex flex-col items-center justify-center py-10">
+      <div class="error-icon text-red-500 text-4xl">
+        <i class="fas fa-exclamation-triangle"></i>
+      </div>
+      <h2 class="text-2xl font-bold text-red-600 mt-4">Erreur</h2>
+      <p class="error-message text-gray-600 mt-2">{{ error }}</p>
+      <div class="button-container flex space-x-4 mt-6">
+        <button class="btn retry-button bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" (click)="retryLoading()">Réessayer</button>
+        <button class="btn home-button bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600" (click)="retourAccueil()">Retour à l'accueil</button>
+      </div>
+    </div>
+
+    <!-- Success state -->
+    <div *ngIf="commande && !loading && !error" class="success-container bg-white shadow-md rounded-lg p-6">
+      <div class="success-header text-center">
+        <div class="success-icon text-green-500 text-5xl">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h1 class="text-3xl font-bold text-gray-800 mt-4">Commande confirmée !</h1>
+        <p class="confirmation-subtitle text-gray-600 mt-2">Merci pour votre achat. Votre commande est en cours de traitement.</p>
+      </div>
+
+      <section class="order-details mt-8">
+        <h2 class="section-title text-2xl font-semibold text-gray-800 mb-4">Détails de la commande</h2>
+        <div class="order-info grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="info-row">
+            <span class="label font-medium text-gray-600">Numéro de commande :</span>
+            <span class="value text-gray-800">{{ commande.numeroCommande }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label font-medium text-gray-600">Date :</span>
+            <span class="value text-gray-800">{{ commande.dateCreation | date:'dd/MM/yyyy HH:mm' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="label font-medium text-gray-600">Statut :</span>
+            <span class="value status" [ngClass]="{
+              'text-green-500': commande.statut === 'EN_PREPARATION',
+              'text-yellow-500': commande.statut === 'EN_ATTENTE'
+            }">
+              {{ formatStatut(commande.statut) }}
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="label font-medium text-gray-600">Adresse de livraison :</span>
+            <span class="value text-gray-800">
+              {{ commande.adresseLivraison }}<br>
+              {{ commande.codePostal }} {{ commande.ville }}<br>
+              {{ commande.pays }}
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="label font-medium text-gray-600">Client :</span>
+            <span class="value text-gray-800">
+              {{ commande.clientPrenom }} {{ commande.clientNom }}<br>
+              {{ commande.clientEmail }}<br>
+              {{ commande.clientTelephone }}
+            </span>
+          </div>
+        </div>
+
+        <h3 class="text-xl font-semibold text-gray-800 mt-8 mb-4">Articles commandés</h3>
+        <div class="order-items space-y-6">
+          <div *ngFor="let ligne of commande.lignesCommande" class="order-item flex flex-col md:flex-row items-start border-b py-4">
+            <div class="item-image w-full md:w-32 h-32 flex-shrink-0">
+              <img [src]="getItemImageUrl(ligne)" [alt]="ligne.nomProduit" class="w-full h-full object-cover rounded" (error)="onImageError($event)">
+            </div>
+            <div class="item-details flex-1 md:ml-6 mt-4 md:mt-0">
+              <h4 class="text-lg font-medium text-gray-800">{{ getItemFullName(ligne) }}</h4>
+              <!--         
+           <p class="item-description text-gray-600">{{ ligne.description }}</p>
+             --> 
+              <div class="item-customizations mt-2 text-sm text-gray-600" *ngIf="ligne.materiauSelectionne || ligne.dimensionSelectionnee || ligne.couleurSelectionnee">
+                <span *ngIf="ligne.materiauSelectionne" class="customization block">
+                  Matériau: {{ ligne.materiauSelectionne }}
+                </span>
+                <span *ngIf="ligne.dimensionSelectionnee" class="customization block">
+                  Dimension: {{ ligne.dimensionSelectionnee }}
+                </span>
+                <span *ngIf="ligne.couleurSelectionnee" class="customization block">
+                  Couleur: <span class="inline-block w-4 h-4 rounded-full" [style.backgroundColor]="ligne.couleurSelectionnee"></span>
+                </span>
+              </div>
+              <div class="accessoires mt-2" *ngIf="ligne.accessoires && ligne.accessoires.length > 0">
+                <h5 class="text-sm font-medium text-gray-700">Accessoires:</h5>
+                <ul class="list-disc pl-5 text-sm text-gray-600">
+                  <li *ngFor="let acc of ligne.accessoires">
+                    {{ acc.nomAccessoire }} - {{ formatPrice(acc.prixAccessoire) }}
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="item-price mt-4 md:mt-0 md:ml-6 text-right">
+              <div class="quantity text-gray-600">{{ ligne.quantite }} x {{ formatPrice(ligne.prixUnitaire) }}</div>
+              <div class="total font-semibold text-gray-800">{{ formatPrice(ligne.prixTotal) }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-summary mt-8 border-t pt-4">
+          <div class="summary-row flex justify-between text-gray-600">
+            <span>Sous-total:</span>
+            <span>{{ formatPrice(commande.montantTotal) }}</span>
+          </div>
+          <div class="summary-row flex justify-between text-gray-600">
+            <span>Frais de livraison:</span>
+            <span>{{ formatPrice(20) }}</span>
+          </div>
+          <div class="summary-row flex justify-between text-gray-600">
+            <span>TVA (19%):</span>
+            <span>{{ formatPrice(commande.montantTVA) }}</span>
+          </div>
+          <div class="summary-row total flex justify-between font-semibold text-gray-800">
+            <span>Total:</span>
+            <span>{{ formatPrice(commande.montantTotalTTC) }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="next-steps mt-8 text-center">
+        <p class="text-gray-600">Un email de confirmation a été envoyé à <strong>{{ commande.clientEmail }}</strong>.</p>
+        <p class="text-gray-600">Suivez l'état de votre commande dans <a routerLink="/mon-compte/mes-commandes" class="text-blue-500 hover:underline">Mes commandes</a>.</p>
+      </section>
+
+      <div class="button-container flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-4 mt-8">
+        <button class="btn download-button bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 flex items-center" (click)="downloadPDF()">
+          <i class="fas fa-download mr-2"></i> Télécharger le PDF
+        </button>
+        <button class="btn orders-button bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 flex items-center" (click)="viewOrders()">
+          <i class="fas fa-list mr-2"></i> Mes commandes
+        </button>
+        <button class="btn home-button bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 flex items-center" (click)="retourAccueil()">
+          <i class="fas fa-home mr-2"></i> Continuer les achats
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="mt-12">
+    <app-footer></app-footer>
+  </footer>
+</div>
+</body>
+</html>

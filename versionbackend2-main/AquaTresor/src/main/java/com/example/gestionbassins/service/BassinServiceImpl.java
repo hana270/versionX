@@ -98,144 +98,141 @@ public class BassinServiceImpl implements BassinService {
 	private static final DeviceRgb HEADER_BG_COLOR = new DeviceRgb(245, 249, 252); // Fond d'en-tête
 	private static final DeviceRgb BORDER_COLOR = new DeviceRgb(220, 230, 240); // Couleur de bordure
 	private static final DeviceRgb WHITE_COLOR = new DeviceRgb(255, 255, 255);
-@Transactional
-@Override
-public Bassin mettreAJourQuantite(Long bassinId, int quantite, String raison) {
-    logger.info("Mise à jour de la quantité pour le bassin ID: {}, quantité: {}, raison: {}", 
-               bassinId, quantite, raison);
 
-    // Validation des paramètres
-    if (bassinId == null) {
-        throw new IllegalArgumentException("L'ID du bassin ne peut pas être null");
-    }
-    
-    if (raison == null || raison.trim().isEmpty()) {
-        throw new IllegalArgumentException("La raison de l'ajustement est obligatoire");
-    }
+	@Transactional
+	@Override
+	public Bassin mettreAJourQuantite(Long bassinId, int quantite, String raison) {
+		logger.info("Mise à jour de la quantité pour le bassin ID: {}, quantité: {}, raison: {}", bassinId, quantite,
+				raison);
 
-    // Récupération du bassin
-    Bassin bassin = bassinRepository.findById(bassinId)
-            .orElseThrow(() -> new EntityNotFoundException("Bassin non trouvé avec l'ID: " + bassinId));
+		// Validation des paramètres
+		if (bassinId == null) {
+			throw new IllegalArgumentException("L'ID du bassin ne peut pas être null");
+		}
 
-    int stockActuel = bassin.getStock();
-    int nouvelleQuantite = stockActuel + quantite;
+		if (raison == null || raison.trim().isEmpty()) {
+			throw new IllegalArgumentException("La raison de l'ajustement est obligatoire");
+		}
 
-    logger.info("Stock actuel: {}, Ajustement: {}, Nouveau stock calculé: {}", 
-               stockActuel, quantite, nouvelleQuantite);
+		// Récupération du bassin
+		Bassin bassin = bassinRepository.findById(bassinId)
+				.orElseThrow(() -> new EntityNotFoundException("Bassin non trouvé avec l'ID: " + bassinId));
 
-    // Vérification des droits utilisateur
-    String username = getCurrentUsername();
-    boolean isAdmin = isAdminUser(username);
-    
-    logger.debug("Utilisateur: {}, Est admin: {}", username, isAdmin);
+		int stockActuel = bassin.getStock();
+		int nouvelleQuantite = stockActuel + quantite;
 
-    // Validation du stock négatif pour les non-admins
-    if (!isAdmin && nouvelleQuantite < 0) {
-        logger.error("Tentative de rendre le stock négatif pour le bassin ID: {}. " +
-                    "Stock actuel: {}, Ajustement: {}", bassinId, stockActuel, quantite);
-        throw new IllegalArgumentException(
-            String.format("La quantité ne peut pas rendre le stock négatif. " +
-                         "Stock actuel: %d, Tentative de retrait: %d", 
-                         stockActuel, Math.abs(quantite)));
-    }
+		logger.info("Stock actuel: {}, Ajustement: {}, Nouveau stock calculé: {}", stockActuel, quantite,
+				nouvelleQuantite);
 
-    // Mise à jour du stock
-    bassin.setStock(nouvelleQuantite);
+		// Vérification des droits utilisateur
+		String username = getCurrentUsername();
+		boolean isAdmin = isAdminUser(username);
 
-    try {
-        // Création de l'enregistrement de transaction
-        Transaction transaction = new Transaction();
-        transaction.setBassin(bassin);
-        transaction.setQuantite(quantite);
-        transaction.setRaison(raison);
-        transaction.setTypeOperation(determinerTypeOperation(quantite));
-        transaction.setDateTransaction(new Date());
-        
-        // Gestion sécurisée de l'ID utilisateur
-        Long userId = getUserIdFromUsername(username);
-        transaction.setUserId(userId);
+		logger.debug("Utilisateur: {}, Est admin: {}", username, isAdmin);
 
-        // Sauvegarde en base de données
-        transactionRepository.save(transaction);
-        Bassin updatedBassin = bassinRepository.save(bassin);
+		// Validation du stock négatif pour les non-admins
+		if (!isAdmin && nouvelleQuantite < 0) {
+			logger.error(
+					"Tentative de rendre le stock négatif pour le bassin ID: {}. " + "Stock actuel: {}, Ajustement: {}",
+					bassinId, stockActuel, quantite);
+			throw new IllegalArgumentException(String.format(
+					"La quantité ne peut pas rendre le stock négatif. " + "Stock actuel: %d, Tentative de retrait: %d",
+					stockActuel, Math.abs(quantite)));
+		}
 
-        // Mise à jour du statut et notifications
-        updateBassinStatus(updatedBassin);
+		// Mise à jour du stock
+		bassin.setStock(nouvelleQuantite);
 
-        logger.info("Stock mis à jour avec succès pour le bassin ID: {}. Nouveau stock: {}", 
-                   bassinId, updatedBassin.getStock());
-        
-        return updatedBassin;
-        
-    } catch (Exception e) {
-        logger.error("Erreur lors de la sauvegarde pour le bassin ID: {}", bassinId, e);
-        throw new RuntimeException("Erreur lors de la mise à jour du stock: " + e.getMessage(), e);
-    }
-}
+		try {
+			// Création de l'enregistrement de transaction
+			Transaction transaction = new Transaction();
+			transaction.setBassin(bassin);
+			transaction.setQuantite(quantite);
+			transaction.setRaison(raison);
+			transaction.setTypeOperation(determinerTypeOperation(quantite));
+			transaction.setDateTransaction(new Date());
+
+			// Gestion sécurisée de l'ID utilisateur
+			Long userId = getUserIdFromUsername(username);
+			transaction.setUserId(userId);
+
+			// Sauvegarde en base de données
+			transactionRepository.save(transaction);
+			Bassin updatedBassin = bassinRepository.save(bassin);
+
+			// Mise à jour du statut et notifications
+			updateBassinStatus(updatedBassin);
+
+			logger.info("Stock mis à jour avec succès pour le bassin ID: {}. Nouveau stock: {}", bassinId,
+					updatedBassin.getStock());
+
+			return updatedBassin;
+
+		} catch (Exception e) {
+			logger.error("Erreur lors de la sauvegarde pour le bassin ID: {}", bassinId, e);
+			throw new RuntimeException("Erreur lors de la mise à jour du stock: " + e.getMessage(), e);
+		}
+	}
 
 // Méthodes utilitaires améliorées
-private String determinerTypeOperation(int quantite) {
-    if (quantite > 0) {
-        return "AJOUT";
-    } else if (quantite < 0) {
-        return "RETRAIT";
-    } else {
-        return "AJUSTEMENT";
-    }
-}
+	private String determinerTypeOperation(int quantite) {
+		if (quantite > 0) {
+			return "AJOUT";
+		} else if (quantite < 0) {
+			return "RETRAIT";
+		} else {
+			return "AJUSTEMENT";
+		}
+	}
 
- public String getCurrentUsername() {
-    try {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            String username = authentication.getName();
-            // Eviter les utilisateurs anonymes
-            if (!"anonymousUser".equals(username)) {
-                return username;
-            }
-        }
-        logger.debug("Aucun utilisateur authentifié trouvé, utilisation de 'system'");
-        return "system";
-    } catch (Exception e) {
-        logger.warn("Impossible de récupérer le nom d'utilisateur actuel", e);
-        return "system";
-    }
-}
+	public String getCurrentUsername() {
+		try {
+			Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+			if (authentication != null && authentication.isAuthenticated()) {
+				String username = authentication.getName();
+				// Eviter les utilisateurs anonymes
+				if (!"anonymousUser".equals(username)) {
+					return username;
+				}
+			}
+			logger.debug("Aucun utilisateur authentifié trouvé, utilisation de 'system'");
+			return "system";
+		} catch (Exception e) {
+			logger.warn("Impossible de récupérer le nom d'utilisateur actuel", e);
+			return "system";
+		}
+	}
 
-private boolean isAdminUser(String username) {
-    if (username == null || "system".equals(username)) {
-        logger.debug("Utilisateur système ou null, considéré comme admin");
-        return true; // L'utilisateur système a tous les droits
-    }
-    
-    try {
-        UserDTO user = userServiceClient.getUserByUsername(username);
-        boolean isAdmin = user != null && user.getRoles() != null && 
-                         user.getRoles().contains("ADMIN");
-        logger.debug("Vérification rôle admin pour {}: {}", username, isAdmin);
-        return isAdmin;
-    } catch (Exception e) {
-        logger.warn("Impossible de vérifier le rôle de l'utilisateur: {}, considéré comme non-admin", 
-                   username, e);
-        return false; // En cas d'erreur, pas de privilèges admin
-    }
-}
+	private boolean isAdminUser(String username) {
+		if (username == null || "system".equals(username)) {
+			logger.debug("Utilisateur système ou null, considéré comme admin");
+			return true; // L'utilisateur système a tous les droits
+		}
 
-private Long getUserIdFromUsername(String username) {
-    if (username == null || "system".equals(username)) {
-        return null; // Pas d'ID pour l'utilisateur système
-    }
-    
-    try {
-        UserDTO user = userServiceClient.getUserByUsername(username);
-        return user != null ? user.getUserId() : null;
-    } catch (Exception e) {
-        logger.warn("Impossible de récupérer l'ID de l'utilisateur: {}", username, e);
-        return null;
-    }
-}
+		try {
+			UserDTO user = userServiceClient.getUserByUsername(username);
+			boolean isAdmin = user != null && user.getRoles() != null && user.getRoles().contains("ADMIN");
+			logger.debug("Vérification rôle admin pour {}: {}", username, isAdmin);
+			return isAdmin;
+		} catch (Exception e) {
+			logger.warn("Impossible de vérifier le rôle de l'utilisateur: {}, considéré comme non-admin", username, e);
+			return false; // En cas d'erreur, pas de privilèges admin
+		}
+	}
 
+	private Long getUserIdFromUsername(String username) {
+		if (username == null || "system".equals(username)) {
+			return null; // Pas d'ID pour l'utilisateur système
+		}
 
+		try {
+			UserDTO user = userServiceClient.getUserByUsername(username);
+			return user != null ? user.getUserId() : null;
+		} catch (Exception e) {
+			logger.warn("Impossible de récupérer l'ID de l'utilisateur: {}", username, e);
+			return null;
+		}
+	}
 
 	@Override
 	public Bassin saveBassin(Bassin b) {
@@ -401,6 +398,56 @@ private Long getUserIdFromUsername(String username) {
 		return bassinRepository.save(bassin);
 	}
 
+	@Override
+	@Transactional
+	public Bassin archiverBassin(Long id) {
+		Bassin bassin = bassinRepository.findById(id).orElseThrow(() -> new RuntimeException("Bassin non trouvé"));
+
+		if (bassin.getStock() != 0) {
+			throw new IllegalStateException("Impossible d'archiver un bassin dont le stock n'est pas à 0");
+		}
+
+		bassin.setStatut("ARCHIVE");
+		bassin.setArchive(true);
+
+		Notification notification = new Notification();
+		notification.setTitle("Bassin Archivé");
+		notification.setMessage("✅ Bassin " + bassin.getNomBassin() + " a été archivé (Rupture définitive)");
+		notification.setType("STOCK"); // Use valid enum value
+		notification.setDate(LocalDateTime.now()); // Use LocalDateTime
+		notification.setRead(false);
+		notification.setUsername("admin"); // Required field
+
+		notificationServiceClient.createNotification(notification);
+
+		return bassinRepository.save(bassin);
+	}
+
+	@Override
+	@Transactional
+	public Bassin mettreSurCommande(Long id) {
+		Bassin bassin = bassinRepository.findById(id).orElseThrow(() -> new RuntimeException("Bassin non trouvé"));
+
+		if (bassin.getStock() != 0) {
+			throw new IllegalStateException("Le bassin doit avoir un stock à 0 pour être mis sur commande");
+		}
+
+		bassin.setStatut("SUR_COMMANDE");
+		bassin.setArchive(false);
+
+		Notification notification = new Notification();
+		notification.setTitle("Bassin Mis Sur Commande");
+		notification.setMessage("ℹ️ Bassin " + bassin.getNomBassin() + " est maintenant sur commande");
+		notification.setType("STOCK"); // Use valid enum value
+		notification.setDate(LocalDateTime.now()); // Use LocalDateTime
+		notification.setRead(false);
+		notification.setUsername("admin"); // Required field
+
+		notificationServiceClient.createNotification(notification);
+
+		return bassinRepository.save(bassin);
+	}
+
 	@Transactional
 	public Bassin updateDureeFabrication(Long id, int dureeMin, int dureeMax) {
 		if (dureeMin <= 0 || dureeMax <= 0 || dureeMin > dureeMax) {
@@ -423,59 +470,48 @@ private Long getUserIdFromUsername(String username) {
 		bassin.setDureeFabricationJoursMax(dureeMax);
 
 		Notification notification = new Notification();
-		notification.setMessage("ℹ️ Durée de fabrication mise à jour pour " + bassin.getNomBassin() + ": "
-				+ bassin.getDureeFabricationDisplay());
-		notification.setType("info");
-		notification.setDate(new Date());
+		notification.setTitle("Mise à jour de la durée de fabrication");
+		notification
+				.setMessage(String.format("La durée de fabrication du bassin '%s' a été mise à jour : %d à %d jours.",
+						bassin.getNomBassin(), dureeMin, dureeMax));
+		notification.setType("STOCK"); // Use valid enum value
+		notification.setDate(LocalDateTime.now()); // Use LocalDateTime
 		notification.setRead(false);
+		notification.setUsername("admin"); // Required field
+
 		notificationServiceClient.createNotification(notification);
 
 		return bassinRepository.save(bassin);
 	}
 
-	@Override
-	public Bassin archiverBassin(Long id) {
+	@Transactional
+	public Bassin mettreSurCommande(Long id, Integer dureeFabrication) {
 		Bassin bassin = bassinRepository.findById(id).orElseThrow(() -> new RuntimeException("Bassin non trouvé"));
 
-		if (bassin.getStock() != 0) {
-			throw new IllegalStateException("Impossible d'archiver un bassin dont le stock n'est pas à 0");
-		}
-
-		bassin.setStatut("ARCHIVE");
-		bassin.setArchive(true);
-
-		Notification notification = new Notification();
-		notification.setMessage("✅ Bassin " + bassin.getNomBassin() + " a été archivé (Rupture définitive)");
-		notification.setType("success");
-		notification.setDate(new Date());
-		notification.setRead(false);
-		notificationServiceClient.createNotification(notification);
-
-		return bassinRepository.save(bassin);
-	}
-
-	@Override
-	public Bassin mettreSurCommande(Long id) {
-		Bassin bassin = bassinRepository.findById(id).orElseThrow(() -> new RuntimeException("Bassin non trouvé"));
-
-		if (bassin.getStock() != 0) {
-			throw new IllegalStateException("Le bassin doit avoir un stock à 0 pour être mis sur commande");
+		if ("SUR_COMMANDE".equals(bassin.getStatut())) {
+			throw new IllegalStateException("Le bassin est déjà sur commande");
 		}
 
 		bassin.setStatut("SUR_COMMANDE");
-		bassin.setArchive(false);
+		bassin.setSurCommande(true);
+		bassin.setDureeFabricationJoursMin(dureeFabrication);
+		bassin.setDureeFabricationJoursMax(dureeFabrication);
 
 		Notification notification = new Notification();
-		notification.setMessage("ℹ️ Bassin " + bassin.getNomBassin() + " est maintenant sur commande");
-		notification.setType("info");
-		notification.setDate(new Date());
+		notification.setTitle("Bassin mis sur commande");
+		notification.setMessage(
+				String.format("Le bassin '%s' est maintenant sur commande avec une durée de fabrication de %d jours.",
+						bassin.getNomBassin(), dureeFabrication));
+		notification.setType("STOCK"); // Use valid enum
+		notification.setDate(LocalDateTime.now()); // Use LocalDateTime
 		notification.setRead(false);
+		notification.setUsername("admin"); // Required field
+
 		notificationServiceClient.createNotification(notification);
 
 		return bassinRepository.save(bassin);
 	}
 
-	@Override
 	public List<Bassin> getBassinsNonArchives() {
 		return bassinRepository.findByArchiveFalse();
 	}
@@ -497,52 +533,12 @@ private Long getUserIdFromUsername(String username) {
 	}
 
 	@Override
-	@Transactional
-	public Bassin mettreSurCommande(Long id, Integer dureeFabricationJours) {
-		Bassin bassin = bassinRepository.findById(id).orElseThrow(() -> new RuntimeException("Bassin non trouvé"));
-
-		if (bassin.getStock() != 0) {
-			throw new IllegalStateException("Le bassin doit avoir un stock à 0 pour être mis sur commande");
-		}
-
-		if (dureeFabricationJours == null || dureeFabricationJours <= 0) {
-			bassin.setDureeFabricationJours(null);
-			bassin.setDureeFabricationJoursMin(3);
-			bassin.setDureeFabricationJoursMax(15);
-		} else {
-			bassin.setDureeFabricationJours(dureeFabricationJours);
-			bassin.setDureeFabricationJoursMin(dureeFabricationJours);
-			bassin.setDureeFabricationJoursMax(dureeFabricationJours);
-		}
-
-		bassin.setStatut("SUR_COMMANDE");
-		bassin.setArchive(false);
-		bassin.setSurCommande(true);
-
-		Calendar calendar = Calendar.getInstance();
-		int joursDelai = dureeFabricationJours != null ? dureeFabricationJours
-				: (bassin.getDureeFabricationJoursMin() + bassin.getDureeFabricationJoursMax()) / 2;
-		calendar.add(Calendar.DAY_OF_YEAR, joursDelai);
-
-		Notification notification = new Notification();
-		String delaiMsg = dureeFabricationJours != null ? dureeFabricationJours + " jours"
-				: "Entre " + bassin.getDureeFabricationJoursMin() + " et " + bassin.getDureeFabricationJoursMax()
-						+ " jours";
-		notification.setMessage(
-				"ℹ️ Bassin " + bassin.getNomBassin() + " est maintenant sur commande (Délai: " + delaiMsg + ")");
-		notification.setType("info");
-		notification.setDate(new Date());
-		notification.setRead(false);
-		notificationServiceClient.createNotification(notification);
-		return bassinRepository.save(bassin);
-	}
-
-	@Override
 	public Bassin updateDureeFabrication(Long id, Integer duree) {
 		return updateDureeFabrication(id, duree, duree);
 	}
 
 	@Override
+	@Transactional
 	public Bassin updateDureeFabrication(Long id, Integer dureeMin, Integer dureeMax) {
 		if (dureeMin == null || dureeMax == null || dureeMin <= 0 || dureeMax <= 0 || dureeMin > dureeMax) {
 			throw new IllegalArgumentException("La durée doit être une fourchette valide (min ≤ max)");
@@ -571,30 +567,34 @@ private Long getUserIdFromUsername(String username) {
 		}
 
 		Notification notification = new Notification();
-		notification.setMessage("ℹ️ Durée de fabrication mise à jour pour " + bassin.getNomBassin() + ": "
+		notification.setTitle("Mise à jour de la durée de fabrication");
+		notification.setMessage("ℹ️ Durée de fabrication mise à jour pour '" + bassin.getNomBassin() + "': "
 				+ bassin.getDureeFabricationDisplay());
-		notification.setType("info");
-		notification.setDate(new Date());
+		notification.setType("STOCK"); // Use valid enum value
+		notification.setDate(LocalDateTime.now()); // Use LocalDateTime
 		notification.setRead(false);
+		notification.setUsername("admin"); // Required field
+
 		notificationServiceClient.createNotification(notification);
 
 		return bassinRepository.save(bassin);
 	}
 
-	/*****************/
-
 	@Override
+	@Transactional
 	public void notifierStockFaible() {
 		List<Bassin> bassins = bassinRepository.findByArchiveFalse();
 		for (Bassin bassin : bassins) {
 			if (bassin.getStock() < 5 && bassin.getStock() > 0) {
 				Notification notification = new Notification();
 				notification.setTitle("Stock faible");
-				notification.setMessage("⚠️ ALERTE : Stock faible pour le bassin " + bassin.getNomBassin()
-						+ " (Quantité : " + bassin.getStock() + ")");
-				notification.setType("warning");
-				notification.setDate(new Date());
+				notification.setMessage("⚠️ ALERTE : Stock faible pour le bassin '" + bassin.getNomBassin()
+						+ "' (Quantité : " + bassin.getStock() + ")");
+				notification.setType("STOCK"); // Use valid enum value
+				notification.setDate(LocalDateTime.now()); // Use LocalDateTime
 				notification.setRead(false);
+				notification.setUsername("admin"); // Required field
+
 				notificationServiceClient.createNotification(notification);
 			}
 		}
@@ -668,10 +668,11 @@ private Long getUserIdFromUsername(String username) {
 
 			Notification notification = new Notification();
 			notification.setTitle("Rupture de stock");
-			notification
-					.setMessage("Le bassin \"" + bassin.getNomBassin() + "\" est actuellement en rupture de stock.");
-			notification.setType("warning");
-			notification.setDate(new Date());
+			notification.setMessage("Le bassin '" + bassin.getNomBassin() + "' est actuellement en rupture de stock.");
+			notification.setType("STOCK"); // Use valid enum value
+			notification.setDate(LocalDateTime.now()); // Use LocalDateTime
+			notification.setRead(false);
+			notification.setUsername("admin"); // Required field
 
 			notificationServiceClient.createNotification(notification);
 		}
@@ -685,10 +686,12 @@ private Long getUserIdFromUsername(String username) {
 		if (bassin.getStock() > 0 && bassin.getStock() < 5) {
 			Notification notification = new Notification();
 			notification.setTitle("Stock faible");
-			notification.setMessage("Le stock du bassin \"" + bassin.getNomBassin() + "\" est faible : "
+			notification.setMessage("Le stock du bassin '" + bassin.getNomBassin() + "' est faible : "
 					+ bassin.getStock() + " unité(s) restante(s).");
-			notification.setType("warning");
-			notification.setDate(new Date());
+			notification.setType("STOCK"); // Use valid enum value
+			notification.setDate(LocalDateTime.now()); // Use LocalDateTime
+			notification.setRead(false);
+			notification.setUsername("admin"); // Required field
 
 			notificationServiceClient.createNotification(notification);
 		}

@@ -1,23 +1,18 @@
 package com.example.gestionbassins.entities;
 
 import jakarta.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
-@Entity
 public class Notification {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    private String title; // Ajout du champ title
+    private String title;
     private String message;
-    private Date date;
+    private LocalDateTime date;
     private boolean read;
     private String type;
-    private String username; // Ajout du champ username
+    private String username;
 
-    // Getters et Setters
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -42,11 +37,11 @@ public class Notification {
         this.message = message;
     }
 
-    public Date getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

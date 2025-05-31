@@ -29,4 +29,8 @@ export class User {
       this.phone = '';
       this.defaultAddress = '';
     }
+
+    get fullName(): string {
+    return `${this.firstName} ${this.lastName}`.trim() || 'Utilisateur';
+  }
   }

@@ -22,7 +22,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/panier/payments")
@@ -43,17 +43,32 @@ public class PaymentController {
 	@PostMapping("/initiate")
 	public ResponseEntity<?> initiatePayment(@RequestBody PaymentRequestDTO requestDTO) {
 		try {
-			logger.info("Initiating payment: {}", requestDTO);
+			logger.info("Initiating payment for commandeId: {}", requestDTO.getCommandeId());
 
+			// Vérification de l'authentification
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			if (auth == null || auth.getDetails() == null) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+						.body(new ErrorResponse("UNAUTHORIZED", "Authentification requise"));
+			}
+
 			Long authenticatedClientId = (Long) auth.getDetails();
-			Commande commande = commandeRepository.findByNumeroCommande(requestDTO.getCommandeId()).orElseThrow(
-					() -> new IllegalArgumentException("Commande non trouvée: " + requestDTO.getCommandeId()));
+
+			// Recherche de la commande par numeroCommande (string)
+			Commande commande = commandeRepository.findByNumeroCommande(requestDTO.getCommandeId())
+					.orElseThrow(() -> new IllegalArgumentException(
+							"Commande non trouvée pour numeroCommande: " + requestDTO.getCommandeId()));
+
 			if (!commande.getClientId().equals(authenticatedClientId)) {
 				logger.warn("ClientId mismatch: commande={}, authenticated={}", commande.getClientId(),
 						authenticatedClientId);
 				return ResponseEntity.status(HttpStatus.FORBIDDEN)
 						.body(new ErrorResponse("UNAUTHORIZED", "Vous n'êtes pas autorisé à payer cette commande"));
+			}
+
+			// Validation des données de paiement
+			if (requestDTO.getCardNumber() == null || !requestDTO.getCardNumber().matches("\\d{16}")) {
+				return ResponseEntity.badRequest().body(new ErrorResponse("INVALID_CARD", "Numéro de carte invalide"));
 			}
 
 			PaymentResponseDTO response = paymentService.initiatePayment(requestDTO);
@@ -64,9 +79,10 @@ public class PaymentController {
 		} catch (Exception e) {
 			logger.error("Payment initiation failed: {}", e.getMessage(), e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(new ErrorResponse("PAYMENT_ERROR", "Détail de l'erreur: " + e.getMessage()));
+					.body(new ErrorResponse("PAYMENT_ERROR", "Erreur lors du traitement du paiement"));
 		}
 	}
+// PaymentController.java
 
 	@PostMapping("/verify")
 	public ResponseEntity<?> verifyCode(@RequestBody CodeVerificationRequestDTO requestDTO) {
@@ -96,7 +112,16 @@ public class PaymentController {
 			}
 
 			PaymentValidationResponseDTO response = paymentService.verifyCode(requestDTO);
-			return ResponseEntity.ok(response);
+
+			// Ajouter l'ID numérique de la commande à la réponse
+			Map<String, Object> responseWithId = new HashMap<>();
+			responseWithId.put("success", response.isSuccess());
+			responseWithId.put("commandeId", commande.getId()); // ID numérique
+			responseWithId.put("commandeNumero", commande.getNumeroCommande());
+			responseWithId.put("referencePaiement", response.getReferencePaiement());
+			responseWithId.put("message", response.getMessage());
+
+			return ResponseEntity.ok(responseWithId);
 		} catch (IllegalArgumentException e) {
 			logger.error("Code verification failed: Invalid input", e);
 			return ResponseEntity.badRequest().body(new ErrorResponse("INVALID_CODE", e.getMessage()));
@@ -207,32 +232,30 @@ public class PaymentController {
 					.body(new ErrorResponse("CANCEL_ERROR", e.getMessage()));
 		}
 	}
+
 	@GetMapping("/code-expiry/{transactionId}")
 	public ResponseEntity<?> getCodeExpiry(@PathVariable String transactionId) {
-	    try {
-	        Long id = Long.valueOf(transactionId);
-	        Paiement paiement = paiementRepository.findById(id)
-	                .orElseThrow(() -> new IllegalArgumentException("Paiement non trouvé: " + transactionId));
+		try {
+			Long id = Long.valueOf(transactionId);
+			Paiement paiement = paiementRepository.findById(id)
+					.orElseThrow(() -> new IllegalArgumentException("Paiement non trouvé: " + transactionId));
 
-	        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-	        Long authenticatedClientId = (Long) auth.getDetails();
-	        Commande commande = commandeRepository.findById(paiement.getCommandeId())
-	                .orElseThrow(() -> new IllegalArgumentException("Commande non trouvée pour paiement: " + transactionId));
-	        
-	        if (!commande.getClientId().equals(authenticatedClientId)) {
-	            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-	                    .body(new ErrorResponse("UNAUTHORIZED", "Non autorisé"));
-	        }
+			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+			Long authenticatedClientId = (Long) auth.getDetails();
+			Commande commande = commandeRepository.findById(paiement.getCommandeId()).orElseThrow(
+					() -> new IllegalArgumentException("Commande non trouvée pour paiement: " + transactionId));
 
-	        return ResponseEntity.ok(Map.of(
-	            "expiryDate", paiement.getCodeExpiryDate().toString(),
-	            "success", true
-	        ));
-	    } catch (IllegalArgumentException e) {
-	        return ResponseEntity.badRequest().body(new ErrorResponse("INVALID_REQUEST", e.getMessage()));
-	    } catch (Exception e) {
-	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-	                .body(new ErrorResponse("SERVER_ERROR", e.getMessage()));
-	    }
+			if (!commande.getClientId().equals(authenticatedClientId)) {
+				return ResponseEntity.status(HttpStatus.FORBIDDEN)
+						.body(new ErrorResponse("UNAUTHORIZED", "Non autorisé"));
+			}
+
+			return ResponseEntity.ok(Map.of("expiryDate", paiement.getCodeExpiryDate().toString(), "success", true));
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.badRequest().body(new ErrorResponse("INVALID_REQUEST", e.getMessage()));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new ErrorResponse("SERVER_ERROR", e.getMessage()));
+		}
 	}
 }

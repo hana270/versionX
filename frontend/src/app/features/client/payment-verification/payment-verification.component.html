@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vérification de paiement</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .verif-payment-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background-color: #f8fafc;
+    }
+
+    .verif-payment-content {
+      max-width: 600px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 95, 122, 0.08);
+      border: 1px solid #e2e8f0;
+    }
+
+    .verif-payment-title {
+      color: #005f7a;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .verif-payment-text {
+      color: #4b5563;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .verif-payment-timer {
+      font-weight: 600;
+      color: #dc3545;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.1rem;
+    }
+
+    .verif-payment-attempts {
+      color: #64748b;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 0.9rem;
+    }
+
+    .verif-payment-form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .verif-payment-label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #334155;
+      font-weight: 500;
+    }
+
+    .verif-payment-input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      background-color: #f8fafc;
+      transition: all 0.3s ease;
+    }
+
+    .verif-payment-input:focus {
+      outline: none;
+      border-color: #007fa3;
+      box-shadow: 0 0 0 3px rgba(0, 127, 163, 0.1);
+      background-color: white;
+    }
+
+    .verif-payment-error {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .verif-payment-btn {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .verif-payment-btn-primary {
+      background-color: #005f7a;
+      color: white;
+      border: none;
+    }
+
+    .verif-payment-btn-primary:hover {
+      background-color: #007fa3;
+    }
+
+    .verif-payment-btn-primary:disabled {
+      background-color: #cbd5e1;
+      cursor: not-allowed;
+    }
+
+    .verif-payment-btn-secondary {
+      background-color: white;
+      color: #005f7a;
+      border: 1px solid #cbd5e1;
+    }
+
+    .verif-payment-btn-secondary:hover {
+      background-color: #f1f5f9;
+    }
+
+    .verif-payment-btn-danger {
+      background-color: #dc3545;
+      color: white;
+      border: none;
+    }
+
+    .verif-payment-btn-danger:hover {
+      background-color: #bb2d3b;
+    }
+
+    .verif-payment-btn-link {
+      color: #005f7a;
+      text-decoration: none;
+      background: none;
+      border: none;
+      padding: 0;
+    }
+
+    .verif-payment-btn-link:hover {
+      text-decoration: underline;
+    }
+
+    .verif-payment-loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 0;
+    }
+
+    .verif-payment-spinner {
+      width: 2.5rem;
+      height: 2.5rem;
+      border: 3px solid rgba(0, 95, 122, 0.1);
+      border-radius: 50%;
+      border-top-color: #005f7a;
+      animation: verif-payment-spin 1s linear infinite;
+      margin-bottom: 1rem;
+    }
+
+    @keyframes verif-payment-spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 640px) {
+      .verif-payment-content {
+        padding: 1.5rem;
+        margin: 1rem;
+      }
+      
+      .verif-payment-title {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="verif-payment-container">
+    <header>
+      <app-header></app-header>
+    </header>
+
+    <div class="verif-payment-content">
+      <h2 class="verif-payment-title">Vérification du paiement</h2>
+      <p class="verif-payment-text">Un code de vérification a été envoyé à {{ transactionData?.email }}.</p>
+      <p class="verif-payment-timer">Temps restant: <span>{{ timerDisplay }}</span></p>
+      <p class="verif-payment-attempts">Tentatives de renvoi restantes: {{ maxResendAttempts - resendAttempts }}</p>
+
+      <form [formGroup]="verificationForm" (ngSubmit)="onSubmit()" *ngIf="!isLoading">
+        <div class="verif-payment-form-group">
+          <label for="verificationCode" class="verif-payment-label">Code de vérification</label>
+          <input
+            type="text"
+            id="verificationCode"
+            formControlName="verificationCode"
+            class="verif-payment-input"
+            maxlength="6"
+            placeholder="123456"
+            [disabled]="timeLeft <= 0"
+          />
+          <div
+            *ngIf="verificationForm.get('verificationCode')?.touched && verificationForm.get('verificationCode')?.invalid"
+            class="verif-payment-error"
+          >
+            <i class="fas fa-exclamation-circle"></i>
+            <span>Le code doit contenir 6 chiffres</span>
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="verif-payment-btn verif-payment-btn-primary"
+          [disabled]="verificationForm.invalid || timeLeft <= 0 || isLoading"
+        >
+          Vérifier
+        </button>
+      </form>
+
+      <div class="mt-4 flex flex-col gap-3">
+        <button
+          class="verif-payment-btn verif-payment-btn-link"
+          (click)="resendCode()"
+          [disabled]="isLoading || resendAttempts >= maxResendAttempts"
+        >
+          Renvoyer le code
+        </button>
+        <button
+          class="verif-payment-btn verif-payment-btn-danger"
+          (click)="cancelPayment()"
+          [disabled]="isLoading"
+        >
+          Annuler le paiement
+        </button>
+      </div>
+
+      <div class="verif-payment-loading" *ngIf="isLoading">
+        <div class="verif-payment-spinner"></div>
+        <p>Traitement en cours...</p>
+      </div>
+    </div>
+
+    <footer>
+      <app-footer></app-footer>
+    </footer>
+  </div>
+</body>
+</html>

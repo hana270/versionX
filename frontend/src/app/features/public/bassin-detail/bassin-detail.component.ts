@@ -42,7 +42,8 @@ import { PLATFORM_ID } from '@angular/core';
 import { PanierItemRequest } from '../../../core/models/panier-item.model';
 import { LoadingService } from '../../../core/services/loading.service';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { ModelUrlService } from '../../../core/services/model-url.service';
 
 @Component({
   selector: 'app-bassin-detail',
@@ -330,11 +331,11 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     private avisService: AvisService,
     private jwtHelper: JwtHelperService,
     private authState: AuthStateService,
-    private toastService: ToastService,
-    private bassinService: BassinService,
+   private bassinService: BassinService,
     private loadingService: LoadingService,
     private http: HttpClient,
     private sanitizer: DomSanitizer,
+    private modelUrlService: ModelUrlService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -407,9 +408,9 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
           );
         }),
         catchError((err) => {
-          this.toastService.showError(
-            'Impossible de charger les détails du bassin'
-          );
+        //  this.toastService.showError(
+        //    'Impossible de charger les détails du bassin'
+        //  );
           return throwError(() => err);
         }),
         finalize(() => {
@@ -434,49 +435,42 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
-  // Modifiez les méthodes viewIn3D et viewInAR :
-  viewIn3D(): void {
-    if (!this.bassin?.image3DPath) {
-      this.toastService.showError('Aucun modèle 3D disponible pour ce produit');
-      return;
-    }
+// In BassinDetailComponent
 
-    // Vérification explicite que bassin n'est pas undefined
-    if (!this.bassin) {
-      this.toastService.showError('Produit non disponible');
-      return;
-    }
 
-    this.showViewerModal = true;
-    this.isARMode = false;
-    this.isLoading = true;
-    this.modelError = false;
-    this.errorMessage = '';
+toggleViewerMode(): void {
+  this.isARMode = !this.isARMode;
 
-    this.load3DModel(this.bassin);
+  if (this.isARMode && this.modelUrl) {
+    this.generateQRCode(this.modelUrl); // Pass modelUrl
   }
 
-  viewInAR(): void {
-    if (!this.bassin?.image3DPath) {
-      this.toastService.showError('Aucun modèle 3D disponible pour ce produit');
-      return;
-    }
+  this.cdr.detectChanges();
+}
 
-    // Vérification explicite que bassin n'est pas undefined
-    if (!this.bassin) {
-      this.toastService.showError('Produit non disponible');
-      return;
-    }
+generateQRCode(modelUrl: string): void {
+  this.isGeneratingQR = true;
+  console.log('Génération du QR Code pour:', modelUrl);
+  const sceneViewerUrl = `https://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only`;
 
-    this.showViewerModal = true;
-    this.isARMode = true;
-    this.isLoading = true;
-    this.modelError = false;
-    this.errorMessage = '';
-
-    this.load3DModel(this.bassin);
-    this.generateQRCode();
-  }
+  QRCode.toDataURL(sceneViewerUrl, {
+    errorCorrectionLevel: 'H',
+    margin: 2,
+    width: 256,
+  }, (err, url) => {
+    this.ngZone.run(() => {
+      this.isGeneratingQR = false;
+      if (err) {
+        console.error('Error generating QR code:', err);
+      //  this.toastService.showError('Impossible de générer le QR Code.');
+        return;
+      }
+      console.log('QR Code généré:', url);
+      this.qrCodeImageUrl = url;
+      this.cdr.detectChanges();
+    });
+  });
+}
 
   async addToCart(): Promise<void> {
     if (!this.bassin) return;
@@ -484,9 +478,9 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       this.bassin.statut === 'DISPONIBLE' &&
       this.quantity > this.bassin.stock
     ) {
-      this.toastService.showError(
-        `Stock insuffisant (${this.bassin.stock} disponible(s))`
-      );
+     // this.toastService.showError(
+      //  `Stock insuffisant (${this.bassin.stock} disponible(s))`
+      //);
       return;
     }
     this.loadingService.show();
@@ -512,7 +506,7 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       });
       if (result.isConfirmed) this.router.navigate(['/cart']);
     } catch (error) {
-      this.toastService.showError("Erreur lors de l'ajout au panier");
+    //  this.toastService.showError("Erreur lors de l'ajout au panier");
     } finally {
       this.loadingService.hide();
       this.cdr.detectChanges();
@@ -553,7 +547,7 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       prixDimension: prixDimension,
       prixAccessoires: prixAccessoires,
       prixEstime: prixTotal,
-      dureeFabrication: `${this.customizationSummary.dureeFabrication} jours`,
+      dureeFabrication: `${this.customizationSummary.dureeFabrication} `,
       // Explicitement désactiver la promotion pour les items personnalisés
       promotionActive: false,
       tauxReduction: 0
@@ -595,9 +589,9 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       this.router.navigate(['/checkout']);
     }
   } catch (error) {
-    this.toastService.showError(
-      "Erreur lors de l'ajout de la personnalisation"
-    );
+  //  this.toastService.showError(
+   //   "Erreur lors de l'ajout de la personnalisation"
+  //  );
   } finally {
     this.loadingService.hide();
     this.isCustomizationComplete = false;
@@ -920,7 +914,7 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
         this.cdr.detectChanges();
       },
       error: (err) => {
-        this.toastService.showError('Impossible de charger les avis');
+     //   this.toastService.showError('Impossible de charger les avis');
       },
     });
   }
@@ -934,14 +928,12 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (newAvis) => {
         this.avisList.push(newAvis);
         this.avisForm.reset({ nom: this.username, note: 1 });
-        this.toastService.showSuccess('Votre avis a été ajouté avec succès');
+      //  this.toastService.showSuccess('Votre avis a été ajouté avec succès');
         this.cdr.detectChanges();
       },
       error: () =>
-        this.toastService.showError(
-          "Une erreur est survenue lors de l'ajout de l'avis"
-        ),
-    });
+         Swal.fire('Erreur','Erreur','warning')
+ });
   }
 
   editAvis(avis: Avis): void {
@@ -982,7 +974,7 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
           if (index !== -1) this.avisList[index] = updated;
           this.editingAvis = null;
           this.avisForm.reset({ nom: this.username, note: 1 });
-          this.toastService.showSuccess('Votre avis a été mis à jour');
+        //  this.toastService.showSuccess('Votre avis a été mis à jour');
           this.cdr.detectChanges();
         },
         error: (err) => {
@@ -990,7 +982,7 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
           if (err.status === 403)
             errorMessage = "Vous n'êtes pas autorisé à modifier cet avis";
           if (err.status === 404) errorMessage = 'Avis non trouvé';
-          this.toastService.showError(errorMessage);
+      //    this.toastService.showError(errorMessage);
         },
       });
   }
@@ -1009,7 +1001,7 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
         this.avisService.deleteAvis(idAvis).subscribe({
           next: () => {
             this.avisList = this.avisList.filter((a) => a.idAvis !== idAvis);
-            this.toastService.showSuccess('Avis supprimé avec succès');
+        //    this.toastService.showSuccess('Avis supprimé avec succès');
             this.cdr.detectChanges();
           },
           error: (err) => {
@@ -1017,7 +1009,7 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
             if (err.status === 403)
               errorMessage = "Vous n'êtes pas autorisé à supprimer cet avis";
             if (err.status === 404) errorMessage = 'Avis non trouvé';
-            this.toastService.showError(errorMessage);
+         //   this.toastService.showError(errorMessage);
           },
         });
       }
@@ -1118,7 +1110,7 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       this.listeMateriaux.length &&
       !this.customizationForm.get('materiau')?.value
     ) {
-      this.toastService.showError('Veuillez sélectionner un matériau');
+    //  this.toastService.showError('Veuillez sélectionner un matériau');
       return;
     }
     if (
@@ -1126,7 +1118,7 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       this.listeDimensions.length &&
       !this.customizationForm.get('dimension')?.value
     ) {
-      this.toastService.showError('Veuillez sélectionner une dimension');
+   //   this.toastService.showError('Veuillez sélectionner une dimension');
       return;
     }
     if (this.customizationStep < this.totalSteps) {
@@ -1286,107 +1278,21 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /********************** */
 
-  // Méthode corrigée pour charger le modèle 3D
-  private load3DModel(bassin: Bassin): void {
-    if (!bassin.image3DPath) {
-      this.handleModelError('Aucun modèle 3D disponible pour ce produit');
-      return;
-    }
+onModelError(event: ErrorEvent): void {
+  console.error('Erreur de chargement du modèle 3D:', event);
+  const errorMessage = (event as any).detail?.message || 'Erreur lors du chargement du modèle 3D';
+  this.handleModelError(errorMessage);
+}
 
-    try {
-      // Construire les URLs des modèles
-      let modelPath = bassin.image3DPath;
+/**** */
 
-      // Vérifier si c'est une URL GitHub et la convertir
-      if (modelPath.includes('github.com')) {
-        modelPath = this.convertGithubUrl(modelPath);
-      } else if (!modelPath.startsWith('http')) {
-        // Si ce n'est pas une URL complète, construire l'URL avec l'API
-        modelPath = `${this.bassinService.getApiUrl()}/models3D/getFS/${modelPath}`;
-      }
-
-      this.modelUrl = modelPath;
-
-      // Générer l'URL USDZ pour iOS
-      this.usdzUrl = this.generateUsdzUrl(modelPath);
-
-      console.log('Model URL:', this.modelUrl);
-      console.log('USDZ URL:', this.usdzUrl);
-
-      // Vérifier la disponibilité du modèle
-      this.checkModelAvailability(this.modelUrl).subscribe({
-        next: (isAvailable) => {
-          if (isAvailable) {
-            this.isLoading = false;
-            this.modelError = false;
-            this.cdr.detectChanges();
-          } else {
-            this.handleModelError("Le modèle 3D n'est pas accessible");
-          }
-        },
-        error: (err) => {
-          console.error('Erreur lors de la vérification du modèle:', err);
-          this.handleModelError(
-            'Impossible de vérifier la disponibilité du modèle 3D'
-          );
-        },
-      });
-    } catch (error) {
-      console.error('Erreur lors du chargement du modèle 3D:', error);
-      this.handleModelError("Erreur lors de l'initialisation du modèle 3D");
-    }
-  }
-
-  // Méthode pour convertir les URLs GitHub
-  private convertGithubUrl(url: string): string {
-    if (!url) return '';
-
-    if (url.includes('github.com')) {
-      return url
-        .replace('github.com', 'raw.githubusercontent.com')
-        .replace('/blob/', '/');
-    }
-    return url;
-  }
-
-  // Générer l'URL USDZ pour iOS
-  private generateUsdzUrl(modelUrl: string): string {
-    if (!modelUrl) return '';
-
-    // Remplacer l'extension par .usdz
-    return modelUrl.replace(/\.(glb|gltf)$/i, '.usdz');
-  }
-
-  // Vérifier la disponibilité du modèle
-  private checkModelAvailability(modelUrl: string): Observable<boolean> {
-    return this.http
-      .head(modelUrl, {
-        observe: 'response',
-        // Ajouter des headers si nécessaire
-        headers: {
-          Accept: '*/*',
-        },
-      })
-      .pipe(
-        map((response) => {
-          console.log('Model check response:', response.status);
-          return response.status === 200;
-        }),
-        catchError((error) => {
-          console.error('Erreur lors de la vérification du modèle:', error);
-          return of(false);
-        }),
-        timeout(10000), // Timeout de 10 secondes
-        catchError(() => of(false))
-      );
-  }
 
   // Gérer les erreurs du modèle
   private handleModelError(message: string): void {
     this.isLoading = false;
     this.modelError = true;
     this.errorMessage = message;
-    this.toastService.showError(message);
+ //   this.toastService.showError(message);
     this.cdr.detectChanges();
   }
 
@@ -1396,32 +1302,6 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isLoading = false;
     this.modelError = false;
     this.cdr.detectChanges();
-  }
-
-  // Callback quand il y a une erreur de chargement
-  onModelError(event?: any): void {
-    console.error('Erreur lors du chargement du modèle 3D:', event);
-    this.handleModelError('Erreur lors du chargement du modèle 3D');
-  }
-
-  // Réessayer le chargement du modèle
-  retryLoadModel(): void {
-    if (!this.bassin) {
-      this.toastService.showError('Produit non disponible');
-      return;
-    }
-
-    this.isLoading = true;
-    this.modelError = false;
-    this.errorMessage = '';
-    this.cdr.detectChanges();
-
-    setTimeout(() => {
-      if (this.bassin) {
-        // Vérification supplémentaire
-        this.load3DModel(this.bassin);
-      }
-    }, 500);
   }
 
   // Fermer la modal
@@ -1437,16 +1317,7 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  // Basculer entre 3D et AR
-  toggleViewerMode(): void {
-    this.isARMode = !this.isARMode;
 
-    if (this.isARMode) {
-      this.generateQRCode();
-    }
-
-    this.cdr.detectChanges();
-  }
 
 
   // Télécharger le QR Code
@@ -1465,49 +1336,7 @@ export class BassinDetailComponent implements OnInit, AfterViewInit, OnDestroy {
       navigator.userAgent
     );
   }
-private async generateQRCode(): Promise<void> {
-    if (!this.modelUrl) {
-        this.toastService.showError('Aucun modèle 3D disponible pour générer le QR Code');
-        return;
-    }
 
-    this.isGeneratingQR = true;
-    this.cdr.detectChanges();
-
-    try {
-        // Créer une URL spéciale pour l'AR qui fonctionne avec iOS et Android
-        const arUrl = this.createARUrl(this.modelUrl);
-        
-        // Générer le QR Code avec une taille plus grande et une meilleure marge
-        const qrCodeDataUrl = await QRCode.toDataURL(arUrl, {
-            width: 400,  // Augmenter la taille pour une meilleure lisibilité
-            margin: 4,   // Marge plus grande
-            color: {
-                dark: '#000000',  // Couleur noire pour les modules
-                light: '#ffffff00' // Fond transparent
-            },
-            errorCorrectionLevel: 'H'  // Correction d'erreur haute pour plus de fiabilité
-        });
-
-        this.qrCodeImageUrl = qrCodeDataUrl;
-    } catch (error) {
-        console.error('Erreur lors de la génération du QR Code:', error);
-        this.toastService.showError('Erreur lors de la génération du QR Code');
-    } finally {
-        this.isGeneratingQR = false;
-        this.cdr.detectChanges();
-    }
-}
-
-private createARUrl(modelUrl: string): string {
-    // Pour iOS (Quick Look)
-    if (this.isIOSDevice()) {
-        return `https://usdz.webxr.run?url=${encodeURIComponent(modelUrl)}`;
-    }
-    
-    // Pour Android et autres appareils
-    return `https://arvr.google.com/scene-viewer/1.0?file=${encodeURIComponent(modelUrl)}&mode=ar_only`;
-}
 
 private isIOSDevice(): boolean {
     return /iPad|iPhone|iPod/.test(navigator.userAgent) || 
@@ -1680,4 +1509,168 @@ validateCustomQuantity(): void {
 
     return colorNames[color] || 'Couleur inconnue';
   }
+  /************Pour Resoudre probleme de affichage 3d et ORCode */
+// Méthode pour afficher en 3D
+viewIn3D(): void {
+  if (!this.bassin?.image3DPath) {
+    Swal.fire('Erreur', 'Aucun modèle 3D disponible pour ce produit', 'error');
+    return;
+  }
+
+  this.showViewerModal = true;
+  this.isARMode = false;
+  this.isLoading = true;
+  
+  // Réinitialiser les états
+  this.modelError = false;
+  this.errorMessage = '';
+  this.qrCodeImageUrl = null;
+
+  // Charger le modèle
+  this.load3DModel(this.bassin);
+}
+
+// Méthode pour afficher en AR
+viewInAR(): void {
+  if (!this.bassin?.image3DPath) {
+    Swal.fire('Erreur', 'Aucun modèle 3D disponible pour ce produit', 'error');
+    return;
+  }
+
+  this.showViewerModal = true;
+  this.isARMode = true;
+  this.isLoading = true;
+  
+  // Réinitialiser les états
+  this.modelError = false;
+  this.errorMessage = '';
+
+  // Charger le modèle et générer le QR Code
+  this.load3DModel(this.bassin);
+  
+  // Générer le QR Code après un léger délai pour permettre le chargement
+  setTimeout(() => {
+    if (this.modelUrl) {
+      this.generateQRCodeForAR();
+    }
+  }, 500);
+}
+
+// Méthode optimisée pour charger le modèle 3D
+load3DModel(bassin: Bassin): void {
+  if (!bassin?.image3DPath) {
+    this.handleModelError('Aucun modèle 3D disponible pour ce produit');
+    return;
+  }
+
+  this.isLoading = true;
+  this.modelError = false;
+  this.errorMessage = '';
+
+  try {
+    // Convertir l'URL GitHub si nécessaire
+    this.modelUrl = this.modelUrlService.convertGithubUrl(bassin.image3DPath);
+    this.usdzUrl = this.modelUrlService.generateUsdzUrl(this.modelUrl);
+    
+    // Marquer le chargement comme terminé
+    this.isLoading = false;
+    
+    // Si en mode AR, générer le QR Code
+    if (this.isARMode) {
+      this.generateQRCodeForAR();
+    }
+  } catch (error) {
+    this.handleModelError(this.getUserFriendlyError(error));
+  } finally {
+    this.cdr.detectChanges();
+  }
+}
+private getUserFriendlyError(error: any): string {
+  if (!error) return 'Erreur inconnue';
+  
+  if (error.message?.includes('CORS')) {
+    return 'Problème de sécurité lors du chargement du modèle. Veuillez réessayer.';
+  }
+  
+  if (error.status === 0) {
+    return 'Impossible de se connecter au serveur. Vérifiez votre connexion internet.';
+  }
+  
+  if (error.status === 404) {
+    return 'Modèle 3D introuvable.';
+  }
+  
+  return error.message || 'Impossible de charger le modèle 3D. Veuillez réessayer plus tard.';
+}
+// Méthode pour générer le QR Code
+private generateQRCodeForAR(): void {
+  if (!this.modelUrl) {
+    return;
+  }
+
+  this.isGeneratingQR = true;
+  this.cdr.detectChanges();
+
+  const arUrl = this.modelUrlService.createARUrl(this.modelUrl);
+  
+  // Utiliser l'API QRCode.js pour générer le QR Code
+  QRCode.toDataURL(arUrl, { 
+    width: 256,
+    margin: 2,
+    errorCorrectionLevel: 'H'
+  }, (err, url) => {
+    this.ngZone.run(() => {
+      this.isGeneratingQR = false;
+      if (err) {
+        console.error('Erreur génération QR Code:', err);
+        this.handleModelError('Impossible de générer le QR Code');
+        return;
+      }
+      this.qrCodeImageUrl = url;
+      this.cdr.detectChanges();
+    });
+  });
+}
+retryLoadModel(): void {
+  if (!this.bassin) {
+    this.handleModelError('Produit non disponible');
+    return;
+  }
+
+  this.isLoading = true;
+  this.modelError = false;
+  this.errorMessage = '';
+  this.cdr.detectChanges();
+
+  setTimeout(() => {
+    if (this.bassin) {
+      this.load3DModel(this.bassin);
+    }
+  }, 1000);
+}
+
+// Remplacer votre méthode convertGithubUrl existante
+convertGithubUrl(url: string): string {
+  return this.modelUrlService.convertGithubUrl(url);
+}
+
+// Remplacer votre méthode generateUsdzUrl existante
+private generateUsdzUrl(modelUrl: string): string {
+  return this.modelUrlService.generateUsdzUrl(modelUrl);
+}
+
+// Remplacer votre méthode createARUrl existante
+private createARUrl(modelUrl: string): string {
+  return this.modelUrlService.createARUrl(modelUrl);
+}
+
+// Remplacer votre méthode checkModelAvailability existante
+private checkModelAvailability(modelUrl: string): Observable<boolean> {
+  return this.modelUrlService.checkModelAvailability(modelUrl).pipe(
+    map(() => true),
+    catchError(() => of(false))
+  );
+}
+
+
 }

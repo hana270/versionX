@@ -82,7 +82,7 @@
           <button 
             class="send-button"
             (click)="sendMessage(messageInputRef.value); messageInputRef.value = ''"
-            [disabled]="!messageInputRef.value?.trim()">
+            [disabled]="!messageInputRef.value!.trim()">
            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
   <path d="M22 2L11 13"></path>
   <path d="M22 2l-7 20-4-9-9-4 20-7z"></path>

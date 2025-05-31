@@ -1,12 +1,12 @@
 import { createRequire } from 'module';const require = createRequire(import.meta.url);
 import {
-  SharedResizeObserver
-} from "./chunk-BOPYQHV6.js";
-import {
   CdkPortal,
   CdkPortalOutlet,
   TemplatePortal
 } from "./chunk-7ORG2P4Y.js";
+import {
+  SharedResizeObserver
+} from "./chunk-BOPYQHV6.js";
 import {
   animate,
   state,

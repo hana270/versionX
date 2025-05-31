@@ -1,11 +1,11 @@
 import {
-  SharedResizeObserver
-} from "./chunk-L2VXTSK6.js";
-import {
   CdkPortal,
   CdkPortalOutlet,
   TemplatePortal
 } from "./chunk-ZR4WRTBW.js";
+import {
+  SharedResizeObserver
+} from "./chunk-L2VXTSK6.js";
 import {
   animate,
   state,
@@ -110,11 +110,11 @@ import {
   ɵɵtextInterpolate,
   ɵɵviewQuery
 } from "./chunk-6TMQU2K7.js";
+import "./chunk-PEBH6BBU.js";
 import {
   fromEvent,
   merge
 } from "./chunk-WPM5VTLQ.js";
-import "./chunk-PEBH6BBU.js";
 import {
   BehaviorSubject,
   EMPTY,

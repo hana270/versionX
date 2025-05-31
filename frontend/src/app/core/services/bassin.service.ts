@@ -621,4 +621,15 @@ getBassinTransactions(bassinId: number): Observable<Transaction[]> {
   return this.http.get<Transaction[]>(`${this.apiURL}/transactions/${bassinId}`);
 }
 
+getBassinStatus(bassinId: number): Observable<'DISPONIBLE' | 'SUR_COMMANDE' | 'RUPTURE_STOCK'> {
+    return this.getBassinDetails(bassinId).pipe(
+        map(bassin => {
+            if (bassin.surCommande) {
+                return 'SUR_COMMANDE';
+            }
+            return bassin.stock > 0 ? 'DISPONIBLE' : 'RUPTURE_STOCK';
+        }),
+        catchError(() => of('RUPTURE_STOCK' as const)) // Use 'as const' to maintain the literal type
+    );
+}
 }

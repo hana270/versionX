@@ -1,14 +1,17 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <app-layout>
   <div class="container-fluid stock-management">
     <div class="stocks-container fade-in" @fadeIn>
       <!-- Top Bar with Title and Search -->
       <div class="top-bar card shadow-sm mb-4">
         <div class="card-body py-3">
-          <div class="d-flex justify-content-between align-items-center">
-<label class="mb-0 text-h4">
-  <i class="bi bi-box-seam me-2"></i> 
-  Gestion des Stocks
-</label><div class="search-bar">
+          <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <label class="mb-0 text-h4">
+              <i class="fas fa-boxes me-2"></i> 
+              Gestion des Stocks
+            </label>
+            <div class="search-bar">
               <div class="input-group">
                 <input type="text" [(ngModel)]="searchQuery" (keyup)="applyGlobalFilter()" class="form-control"
                        placeholder="Rechercher un bassin...">
@@ -24,10 +27,10 @@
         </div>
       </div>
 
-       <!-- Filters and Action Buttons -->
-      <div class="filters-actions-section d-flex justify-content-between align-items-center mb-4">
-        <div class="filter-group d-flex gap-3">
-          <div>
+      <!-- Filters and Action Buttons -->
+      <div class="filters-actions-section d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div class="filter-group d-flex gap-3 flex-wrap">
+          <div class="filter-item">
             <label class="form-label">Statut</label>
             <select class="form-select" [(ngModel)]="statusFilter" (change)="applyFilters()">
               <option value="all">Tous</option>
@@ -36,7 +39,7 @@
               <option value="out">Sur commande</option>
             </select>
           </div>
-          <div>
+          <div class="filter-item">
             <label class="form-label">Catégorie</label>
             <select class="form-select" [(ngModel)]="categoryFilter" (change)="applyFilters()">
               <option [ngValue]="null">Toutes catégories</option>
@@ -46,7 +49,7 @@
             </select>
           </div>
         </div>
-        <div class="action-buttons d-flex gap-2">
+        <div class="action-buttons d-flex gap-2 flex-wrap">
           <button class="btn btn-outline-secondary" (click)="exportStockReport()" matTooltip="Exporter le rapport">
             <i class="fas fa-file-export me-1"></i> Exporter
           </button>
@@ -81,8 +84,7 @@
               </td>
               <td class="stock-col">
                 <span class="stock-value">{{ bassin.stock }}</span>
-                <div class="stock-bar-container">
-                </div>
+               
               </td>
               <td class="status-col">
                 <span class="status-badge" [ngClass]="getStatusClass(bassin)">
@@ -95,28 +97,27 @@
               </td>
               <td class="actions-col">
                 <div class="action-buttons d-flex gap-2">
-                  <button class="btn btn-outline-primary btn-sm" (click)="viewDetails(bassin.idBassin)" matTooltip="Détails">
+                  <button class="btn btn-view" (click)="viewDetails(bassin.idBassin)" matTooltip="Détails">
                     <i class="fas fa-eye"></i>
                   </button>
-                  <button style="color:#067a16;  border-color: #067a16;" class="btn btn-outline-primary btn-sm" (click)="openStockAdjustDialog(bassin)" matTooltip="Ajuster stock">
+                  <button class="btn btn-edit" (click)="openStockAdjustDialog(bassin)" matTooltip="Ajuster stock">
                     <i class="fas fa-edit"></i>
                   </button>
                   <button *ngIf="bassin.statut === 'SUR_COMMANDE' && !bassin.archive" 
-                          class="btn btn-outline-primary btn-sm" 
-                 style="color:#7a5b06;  border-color: #7a5b06;" 
+                          class="btn btn-duration" 
                           (click)="updateFabricationDuration(bassin)"
                           matTooltip="Modifier durée">
                     <i class="fas fa-calendar-alt"></i>
                   </button>
                   <button *ngIf="!bassin.archive" 
-                          class="btn btn-outline-warning btn-sm" 
+                          class="btn btn-archive" 
                           (click)="handleArchiveAction(bassin)"
                           [disabled]="bassin.stock > 0"
                           matTooltip="Archiver le bassin">
                     <i class="fas fa-archive"></i>
                   </button>
                   <button *ngIf="bassin.archive" 
-                          class="btn btn-outline-success btn-sm" 
+                          class="btn btn-unarchive" 
                           (click)="openStockActionDialog(bassin, 'desarchiver')"
                           matTooltip="Désarchiver">
                     <i class="fas fa-box-open"></i>

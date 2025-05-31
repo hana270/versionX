@@ -25,11 +25,8 @@ export class LayoutComponent implements OnInit, AfterViewInit {
 
   ngOnInit() {
     const savedState = localStorage.getItem('sidebarState');
-    if (savedState !== null) {
-      this.isSidebarOpen = savedState === 'open';
-    }
+    this.isSidebarOpen = savedState !== null ? savedState === 'open' : !this.isMobile;
     
-    // Fermer automatiquement sur mobile au démarrage
     if (this.isMobile) {
       this.isSidebarOpen = false;
     }
@@ -64,47 +61,42 @@ export class LayoutComponent implements OnInit, AfterViewInit {
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.checkIfMobile();
-   // this.setNavbarHeight();
-    //this.adjustLayout();
-      this.setInitialStyles(); // Ou this.adjustLayout() selon votre code
-
-  }
-
-  @HostListener('window:load', ['$event'])
-  onWindowLoad(event: any) {
-    setTimeout(() => {
-      this.setNavbarHeight();
-      this.adjustLayout();
-    }, 300);
+    this.setInitialStyles();
   }
 
   checkIfMobile() {
-  const wasMobile = this.isMobile;
-  this.isMobile = window.innerWidth <= 992;
-  
-  // Si on passe de desktop à mobile, fermer le sidebar
-  if (!wasMobile && this.isMobile) {
-    this.isSidebarOpen = false;
-    localStorage.setItem('sidebarState', 'closed');
+    const wasMobile = this.isMobile;
+    this.isMobile = window.innerWidth <= 992;
+    
+    if (!wasMobile && this.isMobile) {
+      this.isSidebarOpen = false;
+      localStorage.setItem('sidebarState', 'closed');
+    }
+    else if (wasMobile && !this.isMobile) {
+      this.isSidebarOpen = true;
+      localStorage.setItem('sidebarState', 'open');
+    }
   }
-  // Si on passe de mobile à desktop, ouvrir le sidebar
-  else if (wasMobile && !this.isMobile) {
-    this.isSidebarOpen = true;
-    localStorage.setItem('sidebarState', 'open');
-  }
-}
 
   toggleSidebar(): void {
-  this.isSidebarOpen = !this.isSidebarOpen;
-  localStorage.setItem('sidebarState', this.isSidebarOpen ? 'open' : 'closed');
-  
-  // Supprimez le setTimeout qui fermait automatiquement le sidebar
-  // if (this.isMobile && this.isSidebarOpen) {
-  //   setTimeout(() => {
-  //     this.isSidebarOpen = false;
-  //   }, 300);
-  // }
-}
+    this.isSidebarOpen = !this.isSidebarOpen;
+    localStorage.setItem('sidebarState', this.isSidebarOpen ? 'open' : 'closed');
+    
+    setTimeout(() => {
+      const sidebar = document.querySelector('.sidebar');
+      if (sidebar) {
+        if (this.isSidebarOpen) {
+          sidebar.classList.add('open');
+          sidebar.classList.remove('collapsed');
+        } else {
+          sidebar.classList.remove('open');
+          if (!this.isMobile) {
+            sidebar.classList.add('collapsed');
+          }
+        }
+      }
+    }, 10);
+  }
 
   closeSidebarOnNavigation() {
     if (this.isMobile) {
@@ -114,19 +106,19 @@ export class LayoutComponent implements OnInit, AfterViewInit {
   }
 
   adjustLayout() {
-  setTimeout(() => {
-    const navbarHeight = this.isMobile ? 56 : 64;
-    document.documentElement.style.setProperty('--navbar-height', `${navbarHeight}px`);
-    
-    if (this.scrollContainerRef?.nativeElement) {
-      const scrollContainer = this.scrollContainerRef.nativeElement;
-      scrollContainer.style.height = `calc(100vh - ${navbarHeight}px)`;
-    }
-    
-    // Force un recalcul du layout
-    window.dispatchEvent(new Event('resize'));
-  }, 100);
-}
+    setTimeout(() => {
+      const navbarHeight = this.isMobile ? 56 : 64;
+      document.documentElement.style.setProperty('--navbar-height', `${navbarHeight}px`);
+      
+      if (this.scrollContainerRef?.nativeElement) {
+        const scrollContainer = this.scrollContainerRef.nativeElement;
+        scrollContainer.style.height = `calc(100vh - ${navbarHeight}px)`;
+      }
+      
+      window.dispatchEvent(new Event('resize'));
+    }, 100);
+  }
+
   toggleSearch(): void {
     this.isSearchActive = !this.isSearchActive;
     if (!this.isSearchActive) {
@@ -149,11 +141,8 @@ export class LayoutComponent implements OnInit, AfterViewInit {
     document.documentElement.style.setProperty('--navbar-height', `${navbarHeight}px`);
     document.documentElement.style.setProperty('--navbar-height-mobile', '56px');
     
-    // Force le recalcul du layout
     setTimeout(() => {
       window.dispatchEvent(new Event('resize'));
     }, 300);
   }
-
-  
 }

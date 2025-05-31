@@ -1,21 +1,27 @@
-import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Component, OnInit } from '@angular/core';
 import { LoadingService } from '../../../core/services/loading.service';
+import { Observable } from 'rxjs';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-loading',
   templateUrl: './loading.component.html',
-  styleUrls: ['./loading.component.css'],
+  styleUrls: ['./loading.component.scss'],
+  animations: [
+    trigger('fadeInOut', [
+      state('void', style({ opacity: 0 })),
+      state('*', style({ opacity: 1 })),
+      transition(':enter', [animate('300ms ease-in')]),
+      transition(':leave', [animate('200ms ease-out')]),
+    ]),
+  ],
 })
 export class LoadingComponent implements OnInit {
-  isLoading$!: Observable<boolean>; // Déclaration correcte de l'Observable
+  isLoading$!: Observable<boolean>;
 
-  constructor(
-    private loadingService: LoadingService,
-    @Inject(PLATFORM_ID) private platformId: Object
-  ) {}
+  constructor(private loadingService: LoadingService) {}
 
   ngOnInit(): void {
-    this.isLoading$ = this.loadingService.isLoading$; // Initialisation dans ngOnInit()
+    this.isLoading$ = this.loadingService.isLoading$;
   }
 }

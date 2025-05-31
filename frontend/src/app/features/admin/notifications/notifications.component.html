@@ -1,62 +1,426 @@
-<div class="notification-container" [class.active]="showPanel">
-  <div class="notification-trigger" (click)="togglePanel()" matTooltip="Notifications">
-    <i class="material-icons">notifications</i>
-    <span class="notification-badge" *ngIf="unreadCount > 0" @pulse>{{ unreadCount }}</span>
+<div class="at-notification-container">
+  <!-- Notification Bell Icon -->
+  <div class="at-notification-bell" (click)="togglePanel()" aria-label="Notifications">
+    <i class="fas fa-bell"></i>
+    <span class="at-notification-badge" *ngIf="unreadCount > 0" aria-hidden="true" style="color:red">{{ unreadCount }}</span>
   </div>
-  
-  <div class="notification-panel" [class.show]="showPanel" @slideInOut>
-    <div class="notification-header">
-      <div class="header-content">
-        <h3>Notifications</h3>
-        <div class="notification-count" *ngIf="unreadCount > 0">
-          {{ unreadCount }} non-lu{{ unreadCount > 1 ? 's' : '' }}
-        </div>
-      </div>
-      
-      <div class="notification-actions">
-        <button class="action-btn" (click)="markAllAsRead()" *ngIf="unreadCount > 0" matTooltip="Marquer tout comme lu">
-          <i class="material-icons">done_all</i>
-        </button>
-        <button class="action-btn" (click)="togglePanel()" matTooltip="Fermer">
-          <i class="material-icons">close</i>
+
+  <!-- Notification Panel -->
+  <div class="at-notification-panel" *ngIf="showPanel" @slideInOut style="background-color: white;">
+    <div class="at-notification-panel-header">
+      <h4 class="at-notification-title">Notifications</h4>
+      <div class="at-notification-panel-controls">
+        <button class="at-notification-close" 
+                (click)="togglePanel()"
+                aria-label="Fermer le panneau de notifications">
+          <i class="fas fa-times"></i>
         </button>
       </div>
     </div>
-    
-    <div class="notification-list" *ngIf="notifications.length > 0" @listAnimation>
-      <div class="notification-item" 
-           *ngFor="let notification of notifications; trackBy: trackByNotification"
-           [class.unread]="!notification.read"
-           (click)="handleNotificationClick(notification)"
-           @notificationItem>
-        <div class="notification-icon" [ngClass]="notification.type">
-          <i class="material-icons">{{ getNotificationIcon(notification.type) }}</i>
-        </div>
-        <div class="notification-content">
-          <p class="notification-message">{{ notification.message }}</p>
-          <div class="notification-meta">
-            <span class="notification-date">{{ formatDate(notification.date) }}</span>
-            <button class="delete-btn" (click)="deleteNotification(notification, $event)" matTooltip="Supprimer">
-              <i class="material-icons">delete</i>
+
+    <div class="at-notification-panel-body" style="background-color:white;">
+      <!-- Empty State -->
+      <div *ngIf="notifications.length === 0" class="at-notification-empty">
+        <i class="fas fa-bell-slash"></i>
+        <p>Aucune notification</p>
+      </div>
+
+      <!-- Notification Groups -->
+      <ng-container *ngFor="let group of groupedNotifications | keyvalue: originalOrder">
+        <div class="at-notification-group">
+          <h5 class="at-notification-group-title">{{ group.key }}</h5>
+          
+          <!-- Notification Items -->
+          <div *ngFor="let notification of group.value" 
+               class="at-notification-item" 
+               (click)="markAsRead(notification)"
+               [ngClass]="{
+                 'at-notification-read': notification.read,
+                 'at-notification-order': notification.type === 'ORDER',
+                 'at-notification-payment': notification.type === 'PAYMENT',
+                 'at-notification-stock': notification.type === 'STOCK',
+                 'at-notification-info': notification.type === 'INFO'
+               }"
+               role="button"
+               tabindex="0">
+            <i class="fas fa-{{ getNotificationIcon(notification.type) }} at-notification-icon"></i>
+            <div class="at-notification-content">
+              <h5 class="at-notification-item-title">{{ notification.title }}</h5>
+              <p class="at-notification-item-message">{{ notification.message }}</p>
+              <span class="at-notification-date">{{ formatRelativeTime(notification.date) }}</span>
+            </div>
+            <button class="at-notification-delete" 
+                    (click)="deleteNotification(notification, $event)"
+                    aria-label="Supprimer la notification">
+              <i class="fas fa-trash"></i>
             </button>
           </div>
         </div>
-      </div>
+      </ng-container>
     </div>
-    
-    <div class="notification-empty" *ngIf="notifications.length === 0" @fadeIn>
-      <i class="material-icons">notifications_off</i>
-      <p>Aucune notification</p>
-      <small>Les nouvelles notifications apparaîtront ici</small>
-    </div>
-    
-    <div class="notification-footer" *ngIf="notifications.length > 0">
-      <button class="footer-btn" (click)="clearAllNotifications()">
-        <i class="material-icons">delete_sweep</i>
-        <span>Effacer tout</span>
+
+    <!-- Panel Footer -->
+    <div class="at-notification-panel-footer" *ngIf="notifications.length > 0">
+      <button class="at-notification-clear-all" 
+              (click)="clearAllNotifications()"
+              aria-label="Effacer toutes les notifications">
+        <i class="fas fa-trash"></i> Effacer tout
       </button>
     </div>
   </div>
-  
-  <div class="notification-backdrop" (click)="togglePanel()" [class.show]="showPanel"></div>
 </div>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css');
+
+:root {
+  --primary-color: #2563eb;
+  --secondary-color: #4b5563;
+  --order-color: #10b981; /* Green for orders */
+  --payment-color: #3b82f6; /* Blue for payments */
+  --stock-color: #f59e0b; /* Orange for stock */
+  --info-color: #6b7280; /* Gray for info */
+  --error-color: #dc2626;
+  --background-color: #ffffff;
+  --border-color: #e5e7eb;
+  --text-color: #111827;
+  --text-muted: #6b7280;
+  --hover-bg: #f3f4f6;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+  --transition: all 0.15s ease-in-out;
+}
+
+.at-notification-container {
+  position: relative;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Notification Bell */
+.at-notification-bell {
+  position: relative;
+  cursor: pointer;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--text-color);
+  font-size: 1.25rem;
+  transition: var(--transition);
+  background: var(--background-color);
+  border: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.at-notification-bell:hover {
+  background-color: var(--hover-bg);
+  color: var(--primary-color);
+  transform: scale(1.05);
+}
+
+.at-notification-badge {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  background-color: var(--error-color);
+  color: white;
+  border-radius: 50%;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  border: 2px solid var(--background-color);
+}
+
+/* Notification Panel */
+.at-notification-panel {
+  position: fixed;
+  top: 4.5rem;
+  right: 1.5rem;
+  width: 24rem;
+  max-height: 85vh;
+  background-color: var(--background-color);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+  z-index: 1000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 640px) {
+  .at-notification-panel {
+    width: 95vw;
+    right: 2.5vw;
+    top: 4rem;
+  }
+}
+
+/* Panel Header */
+.at-notification-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: var(--background-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.at-notification-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.at-notification-panel-controls {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.at-notification-close {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-muted);
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.at-notification-close:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-color);
+}
+
+/* Panel Body */
+.at-notification-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  background-color: var(--background-color);
+}
+
+.at-notification-panel-body::-webkit-scrollbar {
+  width: 0.375rem;
+}
+
+.at-notification-panel-body::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: var(--radius-sm);
+}
+
+/* Empty State */
+.at-notification-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 2rem 1.5rem;
+  font-size: 0.875rem;
+  background-color: var(--background-color);
+}
+
+.at-notification-empty i {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: var(--border-color);
+  opacity: 0.7;
+}
+
+/* Notification Groups */
+.at-notification-group {
+  margin-bottom: 1rem;
+  background-color: var(--background-color);
+}
+
+.at-notification-group-title {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin: 0.5rem 1.5rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Notification Items */
+.at-notification-item {
+  display: flex;
+  align-items: flex-start;
+  padding: 0.75rem 1.5rem;
+  transition: var(--transition);
+  cursor: pointer;
+  gap: 0.75rem;
+  background: var(--background-color);
+  border: none;
+  width: 100%;
+  text-align: left;
+  border-left: 4px solid transparent;
+  margin-bottom: 0.25rem;
+}
+
+.at-notification-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.at-notification-read {
+  opacity: 0.7;
+}
+
+.at-notification-order {
+  border-left-color: var(--order-color);
+}
+
+.at-notification-payment {
+  border-left-color: var(--payment-color);
+}
+
+.at-notification-stock {
+  border-left-color: var(--stock-color);
+}
+
+.at-notification-info {
+  border-left-color: var(--info-color);
+}
+
+.at-notification-icon {
+  font-size: 1.125rem;
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+.at-notification-order .at-notification-icon {
+  color: var(--order-color);
+}
+
+.at-notification-payment .at-notification-icon {
+  color: var(--payment-color);
+}
+
+.at-notification-stock .at-notification-icon {
+  color: var(--stock-color);
+}
+
+.at-notification-info .at-notification-icon {
+  color: var(--info-color);
+}
+
+.at-notification-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.at-notification-item-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.at-notification-item-message {
+  margin: 0 0 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.at-notification-date {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.at-notification-delete {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.25rem;
+  transition: var(--transition);
+  opacity: 0;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+}
+
+.at-notification-item:hover .at-notification-delete {
+  opacity: 1;
+}
+
+.at-notification-delete:hover {
+  background-color: rgba(220, 38, 38, 0.1);
+  color: var(--error-color);
+}
+
+/* Panel Footer */
+.at-notification-panel-footer {
+  padding: 0.75rem 1.5rem;
+  border-top: 1px solid var(--border-color);
+  text-align: center;
+  background-color: var(--background-color);
+  position: sticky;
+  bottom: 0;
+}
+
+.at-notification-clear-all {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--error-color);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.at-notification-clear-all:hover {
+  background-color: rgba(220, 38, 38, 0.1);
+}
+
+.at-notification-clear-all:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.3);
+}
+
+/* Animations */
+@keyframes slideInOut {
+  from { transform: translateY(-0.5rem); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+</style>

@@ -586,6 +586,7 @@ public class BassinRestController {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 	    }
 	}
+	
 @PostMapping("/{id}/mettre-a-jour-quantite")
     public ResponseEntity<?> mettreAJourQuantite(
             @PathVariable("id") Long id,
@@ -684,7 +685,9 @@ public class BassinRestController {
                     ));
         }
     }
-	@PostMapping("/transactions/process-order")
+	
+    
+    @PostMapping("/transactions/process-order")
 	@Transactional
 	public ResponseEntity<?> processOrderTransactions(@RequestBody List<TransactionDTO> transactions) {
 	    logger.info("Réception de {} transactions de commande", transactions.size());

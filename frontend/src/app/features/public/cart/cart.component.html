@@ -6,52 +6,560 @@
   <title>Panier d'achat | Bassins Pro</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
- 
+  <style>
+    /* Animation Keyframes */
+    @keyframes bp-cart-fade-in {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bp-cart-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes bp-cart-shake {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-4px); }
+      40%, 80% { transform: translateX(4px); }
+    }
+
+    /* Base Styles */
+    .bp-cart-container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 24px;
+      animation: bp-cart-fade-in 0.5s ease-out;
+    }
+
+    .bp-cart-breadcrumb {
+      padding: 16px 0;
+      background-color: transparent;
+    }
+
+    .bp-cart-title {
+      font-size: 1.875rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: #1a252f;
+      position: relative;
+      padding-bottom: 12px;
+    }
+
+    .bp-cart-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 64px;
+      height: 4px;
+      background-color: #2563eb;
+    }
+
+    /* Loading State */
+    .bp-cart-loading {
+      text-align: center;
+      padding: 48px 0;
+    }
+
+    .bp-cart-loading-spinner {
+      width: 2.5rem;
+      height: 2.5rem;
+    }
+
+    /* Empty Cart */
+    .bp-cart-empty {
+      text-align: center;
+      padding: 48px 16px;
+      background-color: #f8fafc;
+      border-radius: 8px;
+      animation: bp-cart-fade-in 0.6s;
+    }
+
+    .bp-cart-empty-icon {
+      font-size: 3.5rem;
+      color: #6b7280;
+      margin-bottom: 16px;
+    }
+
+    /* Cart Content */
+    .bp-cart-content {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 32px;
+    }
+
+    .bp-cart-items {
+      min-width: 0;
+    }
+
+    .bp-cart-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background-color: white;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .bp-cart-table thead {
+      background-color: #f1f5f9;
+    }
+
+    .bp-cart-table th {
+      padding: 16px;
+      text-align: left;
+      font-weight: 600;
+      color: #1a252f;
+      font-size: 0.875rem;
+    }
+
+    .bp-cart-table td {
+      padding: 16px;
+      vertical-align: middle;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    /* Product Cell */
+    .bp-cart-product-cell {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .bp-cart-product-image-container {
+      flex-shrink: 0;
+      width: 96px;
+      height: 96px;
+      overflow: hidden;
+      border-radius: 6px;
+      background-color: #f3f4f6;
+    }
+
+    .bp-cart-product-image {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+      transition: transform 0.2s ease;
+    }
+
+    .bp-cart-product-image:hover {
+      transform: scale(1.03);
+    }
+
+    .bp-cart-product-info {
+      flex: 1;
+    }
+
+    .bp-cart-product-name {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #1a252f;
+    }
+
+    .bp-cart-product-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .bp-cart-badge {
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      line-height: 1.2;
+    }
+
+    .bp-cart-badge-stock {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .bp-cart-badge-custom {
+      background-color: #dbeafe;
+      color: #1e40af;
+    }
+
+    .bp-cart-badge-promo {
+      background-color: #fef3c7;
+      color: #d97706;
+    }
+
+    .bp-cart-badge-fabrication {
+      background-color: #f5e8ff;
+      color: #6b21a8;
+    }
+
+    .bp-cart-product-specs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 0.8125rem;
+      color: #4b5563;
+    }
+
+    .bp-cart-spec-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .bp-cart-color-preview {
+      display: inline-block;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid #d1d5db;
+    }
+
+    /* Price Cell */
+    .bp-cart-price-cell {
+      min-width: 100px;
+    }
+
+    .bp-cart-price-original {
+      text-decoration: line-through;
+      color: #6b7280;
+      font-size: 0.8125rem;
+    }
+
+    .bp-cart-price-current {
+      font-weight: 600;
+      color: #1a252f;
+      font-size: 1rem;
+    }
+
+    .bp-cart-price-discount {
+      font-size: 0.75rem;
+      color: #16a34a;
+    }
+
+    /* Quantity Controls */
+    .bp-cart-quantity-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: max-content;
+    }
+
+    .bp-cart-btn-quantity {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #d1d5db;
+      background-color: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .bp-cart-btn-quantity:hover {
+      background-color: #f8fafc;
+    }
+
+    .bp-cart-btn-quantity:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .bp-cart-quantity-input {
+      width: 48px;
+      height: 32px;
+      text-align: center;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 0.875rem;
+    }
+
+    /* Subtotal Cell */
+    .bp-cart-subtotal-cell {
+      font-weight: 600;
+      color: #1a252f;
+      min-width: 80px;
+    }
+
+    /* Remove Button */
+    .bp-cart-btn-remove {
+      background: none;
+      border: none;
+      color: #dc2626;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: transform 0.2s;
+    }
+
+    .bp-cart-btn-remove:hover {
+      transform: scale(1.1);
+    }
+
+    /* Cart Actions */
+    .bp-cart-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding: 16px 0;
+    }
+
+    /* Summary */
+    .bp-cart-summary {
+      min-width: 0;
+    }
+
+    .bp-cart-summary-card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 24px;
+      position: sticky;
+      top: 24px;
+      animation: bp-cart-fade-in 0.7s;
+    }
+
+    .bp-cart-summary-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: #1a252f;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bp-cart-summary-content {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .bp-cart-summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dashed #e5e7eb;
+      font-size: 0.875rem;
+    }
+
+    .bp-cart-summary-row.total {
+      font-weight: 600;
+      font-size: 1rem;
+      color: #1a252f;
+      border-bottom: none;
+      padding-top: 12px;
+    }
+
+    /* Checkout Button */
+    .bp-cart-btn-checkout {
+      width: 100%;
+      padding: 12px;
+      font-weight: 600;
+      margin-top: 16px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-radius: 6px;
+    }
+
+    .bp-cart-btn-checkout:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Secure Payment */
+    .bp-cart-secure-payment {
+      margin-top: 16px;
+      padding-top: 12px;
+      border-top: 1px solid #e5e7eb;
+      text-align: center;
+    }
+
+    .bp-cart-secure-payment-text {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: #16a34a;
+      font-size: 0.8125rem;
+    }
+
+    /* Animations */
+    .bp-cart-animate-fade-in {
+      animation: bp-cart-fade-in 0.5s ease-out;
+    }
+
+    .bp-cart-animate-pulse {
+      animation: bp-cart-pulse 1.5s infinite;
+    }
+
+    .bp-cart-animate-shake {
+      animation: bp-cart-shake 0.5s;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .bp-cart-content {
+        grid-template-columns: 1fr;
+      }
+
+      .bp-cart-summary {
+        width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .bp-cart-container {
+        padding: 16px;
+      }
+
+      .bp-cart-table {
+        border: 0;
+      }
+
+      .bp-cart-table thead {
+        display: none;
+      }
+
+      .bp-cart-table tbody {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      .bp-cart-table tr {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 16px;
+        background-color: white;
+      }
+
+      .bp-cart-table td {
+        padding: 8px 0;
+        border-bottom: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .bp-cart-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #6b7280;
+        width: 80px;
+        flex-shrink: 0;
+        font-size: 0.8125rem;
+      }
+
+      .bp-cart-product-cell {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .bp-cart-product-image-container {
+        width: 100%;
+        height: 160px;
+      }
+
+      .bp-cart-product-image {
+        object-fit: contain;
+        width: 100%;
+        height: 100%;
+      }
+
+      .bp-cart-actions {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .bp-cart-btn-quantity {
+        width: 36px;
+        height: 36px;
+      }
+
+      .bp-cart-quantity-input {
+        width: 56px;
+        height: 36px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .bp-cart-title {
+        font-size: 1.5rem;
+      }
+
+      .bp-cart-product-image-container {
+        height: 120px;
+      }
+
+      .bp-cart-product-name {
+        font-size: 0.9375rem;
+      }
+
+      .bp-cart-product-specs {
+        flex-direction: column;
+        gap: 8px;
+      }
+    }
+  </style>
 </head>
 <body>
   <header>
     <app-header></app-header>
   </header>
 
-  <div class="cart-container">
-    <!-- Fil d'Ariane -->
-    <nav aria-label="breadcrumb" class="breadcrumb-nav">
+  <div class="bp-cart-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="bp-cart-breadcrumb">
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a routerLink="/">Accueil</a></li>
         <li class="breadcrumb-item active" aria-current="page">Panier</li>
       </ol>
     </nav>
 
-    <h1 class="cart-title">Votre Panier</h1>
+    <h1 class="bp-cart-title">Votre Panier</h1>
 
-    <!-- État de chargement -->
-    <div *ngIf="isLoading" class="loading-state text-center py-5">
-      <div class="spinner-grow text-primary" role="status">
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="bp-cart-loading">
+      <div class="spinner-grow text-primary bp-cart-loading-spinner" role="status">
         <span class="visually-hidden">Chargement...</span>
       </div>
       <p class="mt-3">Chargement de votre panier...</p>
     </div>
 
-    <!-- Panier vide -->
-    <div *ngIf="!isLoading && cartItems.length === 0" class="empty-cart text-center py-5">
-      <div class="empty-cart-icon">
+    <!-- Empty Cart -->
+    <div *ngIf="!isLoading && cartItems.length === 0" class="bp-cart-empty">
+      <div class="bp-cart-empty-icon">
         <i class="fas fa-shopping-cart"></i>
       </div>
-      <h3 class="mt-4">Votre panier est vide</h3>
+      <h3 class="mt-3">Votre panier est vide</h3>
       <p class="text-muted mb-4">Commencez à ajouter des articles pour continuer</p>
-      <button (click)="goToShop()" class="btn btn-primary btn-lg">
+      <button (click)="goToShop()" class="btn btn-primary bp-cart-animate-pulse">
         <i class="fas fa-store me-2"></i>Continuer vos achats
       </button>
     </div>
 
-    <!-- Contenu du panier -->
-    <div *ngIf="!isLoading && cartItems.length > 0" class="cart-content">
-      <div class="cart-items">
-        <div class="cart-table">
+    <!-- Cart Content -->
+    <div *ngIf="!isLoading && cartItems.length > 0" class="bp-cart-content">
+      <div class="bp-cart-items">
+        <div class="bp-cart-table">
           <table>
             <thead>
               <tr>
-                <th>Produit</th>
+                <th>Article</th>
                 <th>Prix</th>
                 <th>Quantité</th>
                 <th>Total</th>
@@ -59,118 +567,89 @@
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let item of cartItems">
-                <td class="product-cell">
-                  <img [src]="getImageUrl(item)" 
-                       [alt]="getItemName(item)" 
-                       (error)="onImageError($event)"
-                       class="product-image">
-                  
-                  <div class="product-info">
-                    <h3 class="product-name">{{ getItemName(item) }}</h3>
-                    
-                    <div class="product-badges">
-                      <!-- Statut du produit -->
-                      <span class="badge badge-stock">{{ getStatusDisplay(item) }}</span>
-                      
-                      <!-- Badge personnalisé -->
-                      <span *ngIf="item.isCustomized" class="badge badge-custom">
-                        <i class="fas fa-palette me-1"></i>Personnalisé
-                      </span>
-                      
-                      <!-- Badge promotion -->
-                      <span *ngIf="item.promotionActive" class="badge badge-promo">
+              <tr *ngFor="let item of cartItems" class="bp-cart-animate-fade-in">
+                <td class="bp-cart-product-cell" data-label="Article">
+                  <div class="bp-cart-product-image-container">
+                    <img [src]="getImageUrl(item)" 
+                         [alt]="getItemFullName(item)" 
+                         (error)="onImageError($event)"
+                         class="bp-cart-product-image"
+                         loading="lazy">
+                  </div>
+                  <div class="bp-cart-product-info">
+                    <h3 class="bp-cart-product-name">{{ getItemFullName(item) }}</h3>
+                    <div class="bp-cart-product-badges">
+                      <span *ngIf="item.promotionActive" class="bp-cart-badge bp-cart-badge-promo">
                         <i class="fas fa-tags me-1"></i>-{{ getDiscountPercentage(item) }}%
                       </span>
-                      
-                      <!-- Badge fabrication -->
                       <span *ngIf="item.bassin?.surCommande || (item.isCustomized && item.customization?.dureeFabrication)" 
-                            class="badge badge-fabrication">
+                            class="bp-cart-badge bp-cart-badge-fabrication">
                         <i class="fas fa-clock me-1"></i>Sur commande
                       </span>
                     </div>
-                    
-                    <div class="product-specs">
-                      <!-- Dimensions -->
-                      <span *ngIf="item.isCustomized ? item.customization?.dimensionSelectionnee : item.bassin?.dimensions" class="spec-item">
+                    <div class="bp-cart-product-specs">
+                      <span *ngIf="item.isCustomized ? item.customization?.dimensionSelectionnee : item.bassin?.dimensions" class="bp-cart-spec-item">
                         <i class="fas fa-ruler-combined"></i>
                         {{ item.isCustomized ? item.customization?.dimensionSelectionnee : formatDimensions(item.bassin!.dimensions) }}
                       </span>
-                      
-                      <!-- Matériau -->
-                      <span *ngIf="item.isCustomized ? item.customization?.materiauSelectionne : item.bassin?.materiau" class="spec-item">
+                      <span *ngIf="item.isCustomized ? item.customization?.materiauSelectionne : item.bassin?.materiau" class="bp-cart-spec-item">
                         <i class="fas fa-cube"></i>
                         {{ item.isCustomized ? item.customization?.materiauSelectionne : formatMateriaux(item.bassin!.materiau) }}
                       </span>
-                      
-                      <!-- Couleur -->
-                      <span *ngIf="item.isCustomized ? item.customization?.couleurSelectionnee : item.bassin?.couleur" class="spec-item">
-                        <i class="fas fa-fill-drip"></i>
-                        {{ item.isCustomized ? item.customization?.couleurSelectionnee : item.bassin!.couleur }}
-                        <span class="color-preview" 
-                              [style.background-color]="getColorPreview(item.isCustomized ? item.customization!.couleurSelectionnee : item.bassin!.couleur)">
-                        </span>
-                      </span>
-                      
-                      <!-- Délai de fabrication -->
-                      <span *ngIf="item.isCustomized && item.customization?.dureeFabrication" class="spec-item">
+                   <span *ngIf="item.isCustomized ? item.customization?.couleurSelectionnee : item.bassin?.couleur" class="bp-cart-spec-item">
+  <i class="fas fa-fill-drip"></i>
+  {{ getColorName(item.isCustomized ? item.customization?.couleurSelectionnee : item.bassin!.couleur) }}
+  <span class="bp-cart-color-preview" 
+        [style.background-color]="getColorPreview(item.isCustomized ? item.customization?.couleurSelectionnee : item.bassin!.couleur)">
+  </span>
+</span>
+                      <span *ngIf="item.isCustomized && item.customization?.dureeFabrication" class="bp-cart-spec-item">
                         <i class="fas fa-business-time"></i>
-                        Délai: {{ item.customization!.dureeFabrication }} jours
+                        Délai: {{ item.customization!.dureeFabrication }}
                       </span>
-                      <span *ngIf="!item.isCustomized && item.bassin?.surCommande" class="spec-item">
+                      <span *ngIf="!item.isCustomized && item.bassin?.surCommande" class="bp-cart-spec-item">
                         <i class="fas fa-business-time"></i>
                         Délai: {{ item.bassin?.dureeFabricationDisplay || '2-3 semaines' }}
                       </span>
                     </div>
                   </div>
                 </td>
-                
-                <td class="price-cell">
-                  <!-- Prix original barré si promotion active -->
-                  <div *ngIf="item.promotionActive" class="price-original">
+                <td class="bp-cart-price-cell" data-label="Prix">
+                  <div *ngIf="item.promotionActive" class="bp-cart-price-original">
                     {{ item.prixOriginal | currency:'TND':'symbol':'1.2-2' }}
                   </div>
-                  
-                  <!-- Prix actuel -->
-                  <div class="price-current">
+                  <div class="bp-cart-price-current">
                     {{ getEffectivePrice(item) | currency:'TND':'symbol':'1.2-2' }}
                   </div>
-                  
-                  <!-- Affichage réduction si promotion -->
-                  <div *ngIf="item.promotionActive" class="price-discount">
+                  <div *ngIf="item.promotionActive" class="bp-cart-price-discount">
                     Économie: {{ calculateDiscount(item) | currency:'TND':'symbol':'1.2-2' }}
                   </div>
                 </td>
-                
-                <td class="quantity-cell">
-                  <div class="quantity-controls">
+                <td class="bp-cart-quantity-cell" data-label="Quantité">
+                  <div class="bp-cart-quantity-controls">
                     <button (click)="decrementQuantity(item)" 
                             [disabled]="item.quantity <= 1" 
-                            class="btn-quantity btn-quantity-minus">
+                            class="bp-cart-btn-quantity bp-cart-btn-quantity-minus">
                       <i class="fas fa-minus"></i>
                     </button>
-                    
                     <input type="number" 
                            [(ngModel)]="item.quantity" 
                            min="1" 
                            [max]="getMaxQuantity(item)"
                            (change)="updateQuantity(item, item.quantity)" 
-                           class="quantity-input">
-                    
+                           class="bp-cart-quantity-input">
                     <button (click)="incrementQuantity(item)" 
                             [disabled]="!canIncrementQuantity(item)"
-                            class="btn-quantity btn-quantity-plus">
+                            class="bp-cart-btn-quantity bp-cart-btn-quantity-plus">
                       <i class="fas fa-plus"></i>
                     </button>
                   </div>
                 </td>
-                
-                <td class="subtotal-cell">
+                <td class="bp-cart-subtotal-cell" data-label="Total">
                   {{ calculateSubtotal(item) | currency:'TND':'symbol':'1.2-2' }}
                 </td>
-                
-                <td class="actions-cell">
-                  <button (click)="removeFromCart(item)" class="btn-remove" title="Supprimer du panier">
+                <td class="bp-cart-actions-cell" data-label="Actions">
+                  <button (click)="removeFromCart(item)" class="bp-cart-btn-remove" title="Supprimer du panier">
                     <i class="fas fa-trash"></i>
                   </button>
                 </td>
@@ -178,75 +657,51 @@
             </tbody>
           </table>
         </div>
-        
-        <!-- Actions du panier -->
-        <div class="cart-actions">
+        <div class="bp-cart-actions">
           <button (click)="goToShop()" class="btn btn-outline-primary">
-            <i class="fas fa-arrow-left"></i>Continuer vos achats
+            <i class="fas fa-arrow-left me-2"></i>Continuer vos achats
           </button>
-          
-          <button (click)="clearCart()" class="btn btn-outline-danger">
-            <i class="fas fa-trash"></i>Vider le panier
+          <button (click)="clearCart()" class="btn btn-outline-danger bp-cart-animate-shake">
+            <i class="fas fa-trash me-2"></i>Vider le panier
           </button>
         </div>
       </div>
-
-      <!-- Résumé du panier -->
-      <div class="cart-summary">
-        <div class="summary-card">
-          <h3 class="summary-title">
+      <div class="bp-cart-summary">
+        <div class="bp-cart-summary-card">
+          <h3 class="bp-cart-summary-title">
             <i class="fas fa-receipt"></i>Récapitulatif
           </h3>
-          
-          <div class="summary-content">
-            <div class="summary-row">
+          <div class="bp-cart-summary-content">
+            <div class="bp-cart-summary-row">
               <span>Sous-total</span>
               <span>{{ subtotal | currency:'TND':'symbol':'1.2-2' }}</span>
             </div>
-            
-            <div class="summary-row" *ngIf="discount > 0">
+            <div class="bp-cart-summary-row" *ngIf="discount > 0">
               <span>Réduction</span>
               <span class="text-danger">-{{ discount | currency:'TND':'symbol':'1.2-2' }}</span>
             </div>
-            
-            <div class="summary-row">
+            <div class="bp-cart-summary-row">
               <span>TVA ({{ vatRate * 100 }}%)</span>
               <span>{{ vatAmount | currency:'TND':'symbol':'1.2-2' }}</span>
             </div>
-
-            <div class="summary-row" *ngIf="hasCustomItems()">
-              <span>Délai estimé</span>
-              <span>{{ getEstimatedDeliveryTime() }}</span>
-            </div>
-            
-            <div class="summary-row total">
+            <div class="bp-cart-summary-row total">
               <span>Total TTC</span>
               <span>{{ total | currency:'TND':'symbol':'1.2-2' }}</span>
             </div>
-
-            <!-- Bouton de paiement pour utilisateurs connectés -->
             <button *ngIf="authService.isLoggedIn" 
                    (click)="proceedToCheckout()" 
-                   class="btn btn-success btn-checkout">
+                   class="btn btn-success bp-cart-btn-checkout bp-cart-animate-pulse">
               <i class="fas fa-lock"></i>Procéder au paiement
             </button>
-
-            <!-- Bouton de connexion pour utilisateurs non connectés -->
             <button *ngIf="!authService.isLoggedIn" 
                    (click)="redirectToLogin()" 
-                   class="btn btn-primary btn-checkout">
+                   class="btn btn-primary bp-cart-btn-checkout">
               <i class="fas fa-sign-in-alt"></i>Connectez-vous pour commander
             </button>
-
-            <div class="secure-payment">
-              <div class="secure-payment-text">
+            <div class="bp-cart-secure-payment">
+              <div class="bp-cart-secure-payment-text">
                 <i class="fas fa-shield-alt"></i>
                 <span>Paiement sécurisé</span>
-              </div>
-              <div class="payment-methods">
-                <i class="fab fa-cc-visa"></i>
-                <i class="fab fa-cc-mastercard"></i>
-                <i class="fab fa-cc-paypal"></i>
               </div>
             </div>
           </div>

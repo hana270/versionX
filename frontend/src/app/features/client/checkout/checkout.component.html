@@ -1,0 +1,747 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Finaliser votre commande</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --primary-hover: #1d4ed8;
+      --secondary-color: #64748b;
+      --secondary-hover: #475569;
+      --accent-color: #10b981;
+      --error-color: #ef4444;
+      --text-color: #1e293b;
+      --background-color: #f8fafc;
+      --card-background: #ffffff;
+      --border-radius: 10px;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --button-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--text-color);
+      background-color: var(--background-color);
+      line-height: 1.6;
+    }
+
+    .shop-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .checkout-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 1rem;
+      background-color: var(--background-color);
+    }
+
+    .checkout-container {
+      max-width: 1280px;
+      width: 100%;
+      background: var(--card-background);
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      padding: 2.5rem;
+      margin: 1rem;
+    }
+
+    .checkout-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .checkout-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, #2563eb, #3b82f6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+   .checkout-progress {
+      display: flex;
+      justify-content: center;
+      gap: 2.5rem;
+      margin-bottom: 2.5rem;
+      position: relative;
+    }
+
+    .checkout-progress::before {
+      content: '';
+      position: absolute;
+      top: 1.375rem;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #e2e8f0;
+      z-index: 0;
+    }
+
+    .checkout-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+      position: relative;
+      z-index: 1;
+      opacity: 0.5;
+      transition: var(--transition);
+    }
+
+    .checkout-step-active {
+      opacity: 1;
+    }
+
+    .checkout-step-circle {
+      width: 2.75rem;
+      height: 2.75rem;
+      background-color: #2563eb;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.25rem;
+      box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+      transition: var(--transition);
+    }
+
+    .checkout-step-active .checkout-step-circle {
+      transform: scale(1.1);
+      box-shadow: 0 6px 12px rgba(37, 99, 235, 0.4);
+    }
+
+    .checkout-step-label {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .checkout-loading {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .checkout-spinner {
+      border: 4px solid rgba(37, 99, 235, 0.1);
+      border-top: 4px solid var(--primary-color);
+      border-radius: 50%;
+      width: 3rem;
+      height: 3rem;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .checkout-loading-text {
+      font-size: 1.1rem;
+      color: var(--text-color);
+    }
+
+    .checkout-section {
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .checkout-section-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      text-align: center;
+      position: relative;
+      padding-bottom: 0.5rem;
+    }
+
+    .checkout-section-title::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(to right, #2563eb, #3b82f6);
+      border-radius: 3px;
+    }
+
+    .checkout-form {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .checkout-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .checkout-form-full {
+      grid-column: span 2;
+    }
+
+    .checkout-form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .checkout-label {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-color);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .checkout-label i {
+      color: var(--primary-color);
+      font-size: 0.9rem;
+    }
+
+    .checkout-input,
+    .checkout-input select,
+    .checkout-input textarea {
+      padding: 0.875rem;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--border-radius);
+      font-size: 1rem;
+      transition: var(--transition);
+      background-color: #f8fafc;
+      width: 100%;
+    }
+
+    .checkout-input:focus,
+    .checkout-input select:focus,
+    .checkout-input textarea:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+      background-color: white;
+    }
+
+    .checkout-input-error {
+      border-color: var(--error-color);
+    }
+
+    .checkout-error {
+      color: var(--error-color);
+      font-size: 0.85rem;
+      margin-top: 0.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .checkout-error i {
+      font-size: 0.9rem;
+    }
+
+    .checkout-button-group {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .checkout-order-summary {
+      background-color: #f8fafc;
+      padding: 1.5rem;
+      border-radius: var(--border-radius);
+      margin-top: 2rem;
+      border: 1px solid #e2e8f0;
+    }
+
+    .checkout-order-title {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .checkout-order-title i {
+      font-size: 1.1rem;
+    }
+
+    .checkout-order-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      font-size: 0.95rem;
+    }
+
+    .checkout-order-total {
+      font-weight: 700;
+      font-size: 1.1rem;
+      border-top: 2px solid #e2e8f0;
+      padding-top: 1rem;
+      margin-top: 0.5rem;
+      color: var(--primary-color);
+    }
+
+    .checkout-radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .checkout-radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem;
+      border-radius: var(--border-radius);
+      border: 1px solid #e2e8f0;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .checkout-radio-option:hover {
+      border-color: var(--primary-color);
+      background-color: #f8fafc;
+    }
+
+    .checkout-radio {
+      accent-color: var(--primary-color);
+      width: 1.1rem;
+      height: 1.1rem;
+      cursor: pointer;
+    }
+
+    .checkout-radio-label {
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    /* Button Styles */
+    .btn-checkout-retour {
+      background: linear-gradient(135deg, #6b7280, #475569);
+      color: white;
+      padding: 0.875rem 1.75rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: none;
+      box-shadow: 0 4px 8px rgba(71, 85, 105, 0.2);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-checkout-retour:hover {
+      background: linear-gradient(135deg, #5b6373, #3b4757);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(71, 85, 105, 0.3);
+    }
+
+    .btn-checkout-retour:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(71, 85, 105, 0.2);
+    }
+
+    .btn-checkout-retour i {
+      font-size: 1rem;
+    }
+
+    .btn-checkout-continuer {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: white;
+      padding: 0.875rem 1.75rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      border: none;
+      box-shadow: 0 4px 8px rgba(37, 99, 235, 0.2);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-checkout-continuer:hover {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-checkout-continuer:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-checkout-continuer:disabled {
+      background: #cbd5e1;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+
+    .btn-checkout-continuer i {
+      font-size: 1rem;
+    }
+
+    .btn-checkout-retour::after,
+    .btn-checkout-continuer::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%, -50%);
+      transform-origin: 50% 50%;
+    }
+
+    .btn-checkout-retour:focus:not(:active)::after,
+    .btn-checkout-continuer:focus:not(:active)::after {
+      animation: ripple 0.6s ease-out;
+    }
+
+    @keyframes ripple {
+      0% { transform: scale(0, 0); opacity: 0.5; }
+      100% { transform: scale(20, 20); opacity: 0; }
+    }
+
+    /* Responsive styles */
+    @media (max-width: 1024px) {
+      .checkout-form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .checkout-form-full {
+        grid-column: span 1;
+      }
+
+      .checkout-container {
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .checkout-progress {
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .checkout-progress::before {
+        display: none;
+      }
+
+      .checkout-step {
+        flex-direction: row;
+        width: 100%;
+        justify-content: flex-start;
+        gap: 1rem;
+      }
+
+      .checkout-step-circle {
+        width: 2rem;
+        height: 2rem;
+        font-size: 1rem;
+      }
+
+      .checkout-step-label {
+        font-size: 0.9rem;
+      }
+
+      .checkout-button-group {
+        flex-direction: column-reverse;
+      }
+
+      .btn-checkout-retour,
+      .btn-checkout-continuer {
+        width: 100%;
+        justify-content: center;
+        padding: 0.75rem;
+        font-size: 0.95rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .checkout-container {
+        padding: 1rem;
+      }
+
+      .checkout-title {
+        font-size: 1.5rem;
+      }
+
+      .checkout-section-title {
+        font-size: 1.25rem;
+      }
+
+      .checkout-input,
+      .checkout-input select,
+      .checkout-input textarea {
+        padding: 0.75rem;
+        font-size: 0.95rem;
+      }
+
+      .btn-checkout-retour,
+      .btn-checkout-continuer {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shop-container">
+    <header>
+      <app-header></app-header>
+    </header>
+
+    <div class="checkout-wrapper">
+      <div class="checkout-container">
+        <div class="checkout-header">
+          <h1 class="checkout-title">Finaliser votre commande</h1>
+        </div>
+
+        <div class="checkout-progress">
+          <div class="checkout-step" [ngClass]="{'checkout-step-active': currentStep === 'info' || currentStep === 'delivery'}">
+            <div class="checkout-step-circle">1</div>
+            <span class="checkout-step-label">Informations client</span>
+          </div>
+          <div class="checkout-step" [ngClass]="{'checkout-step-active': currentStep === 'delivery'}">
+            <div class="checkout-step-circle">2</div>
+            <span class="checkout-step-label">Livraison</span>
+          </div>
+        </div>
+
+        <div *ngIf="isLoading" class="checkout-loading">
+          <div class="checkout-spinner"></div>
+          <span class="checkout-loading-text">Chargement en cours...</span>
+        </div>
+
+        <div *ngIf="!isLoading" class="checkout-content">
+          <!-- Client Information Step -->
+          <div *ngIf="currentStep === 'info'" class="checkout-section">
+        <!--     <h2 class="checkout-section-title">
+              <i class="fas fa-user-circle"></i> Vos informations
+            </h2>-->
+            <form [formGroup]="clientInfoForm" (ngSubmit)="onSubmitClientInfo()" class="checkout-form">
+              <div class="checkout-form-grid">
+                <div class="checkout-form-group">
+                  <label for="lastName" class="checkout-label">
+                    <i class="fas fa-user"></i> Nom*
+                  </label>
+                  <input type="text" id="lastName" formControlName="lastName" class="checkout-input"
+                         [ngClass]="{'checkout-input-error': clientInfoForm.get('lastName')?.invalid && (clientInfoForm.get('lastName')?.touched || submissionAttempted)}">
+                  <div *ngIf="clientInfoForm.get('lastName')?.invalid && (clientInfoForm.get('lastName')?.touched || submissionAttempted)"
+                       class="checkout-error">
+                    <i class="fas fa-exclamation-circle"></i> Nom requis
+                  </div>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label for="firstName" class="checkout-label">
+                    <i class="fas fa-user"></i> Prénom*
+                  </label>
+                  <input type="text" id="firstName" formControlName="firstName" class="checkout-input"
+                         [ngClass]="{'checkout-input-error': clientInfoForm.get('firstName')?.invalid && (clientInfoForm.get('firstName')?.touched || submissionAttempted)}">
+                  <div *ngIf="clientInfoForm.get('firstName')?.invalid && (clientInfoForm.get('firstName')?.touched || submissionAttempted)"
+                       class="checkout-error">
+                    <i class="fas fa-exclamation-circle"></i> Prénom requis
+                  </div>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label for="email" class="checkout-label">
+                    <i class="fas fa-envelope"></i> Email*
+                  </label>
+                  <input type="email" id="email" formControlName="email" class="checkout-input"
+                         [ngClass]="{'checkout-input-error': clientInfoForm.get('email')?.invalid && (clientInfoForm.get('email')?.touched || submissionAttempted)}">
+                  <div *ngIf="clientInfoForm.get('email')?.invalid && (clientInfoForm.get('email')?.touched || submissionAttempted)"
+                       class="checkout-error">
+                    <i class="fas fa-exclamation-circle"></i> Email valide requis
+                  </div>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label for="phone" class="checkout-label">
+                    <i class="fas fa-phone"></i> Téléphone*
+                  </label>
+                  <input type="tel" id="phone" formControlName="phone" class="checkout-input"
+                         [ngClass]="{'checkout-input-error': clientInfoForm.get('phone')?.invalid && (clientInfoForm.get('phone')?.touched || submissionAttempted)}">
+                  <div *ngIf="clientInfoForm.get('phone')?.invalid && (clientInfoForm.get('phone')?.touched || submissionAttempted)"
+                       class="checkout-error">
+                    <i class="fas fa-exclamation-circle"></i> Numéro valide requis (8 chiffres)
+                  </div>
+                </div>
+              </div>
+
+              <div class="checkout-button-group">
+                <button type="button" (click)="router.navigate(['/cart'])" class="btn-checkout-retour">
+                  <i class="fas fa-arrow-left"></i> Retour au panier
+                </button>
+                <button type="submit" class="btn-checkout-continuer" [disabled]="clientInfoForm.invalid">
+                  Continuer <i class="fas fa-arrow-right"></i>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Delivery Step -->
+          <div *ngIf="currentStep === 'delivery'" class="checkout-section">
+        <!--        <h2 class="checkout-section-title">
+              <i class="fas fa-truck"></i> Adresse de livraison
+            </h2>-->
+
+            <form [formGroup]="checkoutForm" (ngSubmit)="onSubmitDelivery()" class="checkout-form">
+              <div class="checkout-form-grid">
+                <div class="checkout-form-group checkout-form-full">
+                  <label for="adresseLivraison" class="checkout-label">
+                    <i class="fas fa-map-marker-alt"></i> Adresse complète*
+                  </label>
+                  <input type="text" id="adresseLivraison" formControlName="adresseLivraison" class="checkout-input"
+                         [ngClass]="{'checkout-input-error': checkoutForm.get('adresseLivraison')?.invalid && (checkoutForm.get('adresseLivraison')?.touched || submissionAttempted)}">
+                  <div *ngIf="checkoutForm.get('adresseLivraison')?.invalid && (checkoutForm.get('adresseLivraison')?.touched || submissionAttempted)"
+                       class="checkout-error">
+                    <i class="fas fa-exclamation-circle"></i> Adresse requise
+                  </div>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label for="codePostal" class="checkout-label">
+                    <i class="fas fa-mail-bulk"></i> Code postal*
+                  </label>
+                  <input type="text" id="codePostal" formControlName="codePostal" class="checkout-input"
+                         [ngClass]="{'checkout-input-error': checkoutForm.get('codePostal')?.invalid && (checkoutForm.get('codePostal')?.touched || submissionAttempted)}">
+                  <div *ngIf="checkoutForm.get('codePostal')?.invalid && (checkoutForm.get('codePostal')?.touched || submissionAttempted)"
+                       class="checkout-error">
+                    <i class="fas fa-exclamation-circle"></i> Code postal valide requis (4 chiffres)
+                  </div>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label for="ville" class="checkout-label">
+                    <i class="fas fa-city"></i> Ville*
+                  </label>
+                  <input type="text" id="ville" formControlName="ville" class="checkout-input"
+                         [ngClass]="{'checkout-input-error': checkoutForm.get('ville')?.invalid && (checkoutForm.get('ville')?.touched || submissionAttempted)}">
+                  <div *ngIf="checkoutForm.get('ville')?.invalid && (checkoutForm.get('ville')?.touched || submissionAttempted)"
+                       class="checkout-error">
+                    <i class="fas fa-exclamation-circle"></i> Ville requise
+                  </div>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label for="region" class="checkout-label">
+                    <i class="fas fa-map"></i> Région*
+                  </label>
+                  <select id="region" formControlName="region" class="checkout-input"
+                          [ngClass]="{'checkout-input-error': checkoutForm.get('region')?.invalid && (checkoutForm.get('region')?.touched || submissionAttempted)}">
+                    <option value="">Sélectionnez une région</option>
+                    <option *ngFor="let region of regions" [value]="region">{{ region }}</option>
+                  </select>
+                  <div *ngIf="checkoutForm.get('region')?.invalid && (checkoutForm.get('region')?.touched || submissionAttempted)"
+                       class="checkout-error">
+                    <i class="fas fa-exclamation-circle"></i> Région requise
+                  </div>
+                </div>
+
+                <div class="checkout-form-group checkout-form-full">
+                  <label for="commentaires" class="checkout-label">
+                    <i class="fas fa-comment"></i> Commentaires (facultatif)
+                  </label>
+                  <textarea id="commentaires" formControlName="commentaires" rows="4" class="checkout-input"></textarea>
+                </div>
+
+                <div class="checkout-form-group">
+                  <label class="checkout-label">
+                    <i class="fas fa-shipping-fast"></i> Mode de livraison*
+                  </label>
+                  <div class="checkout-radio-group">
+                    <div class="checkout-radio-option">
+                      <input type="radio" id="standard" value="STANDARD" formControlName="modeLivraison" class="checkout-radio">
+                      <label for="standard" class="checkout-radio-label">
+                        Livraison standard ({{ formatPrice(20) }} )
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="checkout-order-summary">
+                <h3 class="checkout-order-title">
+                  <i class="fas fa-receipt"></i> Récapitulatif de la commande
+                </h3>
+                <div class="checkout-order-details">
+                  <div class="checkout-order-line">
+                    <span>Sous-total</span>
+                    <span>{{ formatPrice(subtotal) }}</span>
+                  </div>
+                  <div class="checkout-order-line">
+                    <span>TVA ({{ vatRate * 100 }}%)</span>
+                    <span>{{ formatPrice(vatAmount) }}</span>
+                  </div>
+                  <div class="checkout-order-line">
+                    <span>Frais de livraison</span>
+                    <span>{{ formatPrice(shippingCost) }}</span>
+                  </div>
+                  <div class="checkout-order-line checkout-order-total">
+                    <span>Total à payer</span>
+                    <span>{{ formatPrice(total) }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="checkout-button-group">
+                <button type="button" (click)="goBack()" class="btn-checkout-retour">
+                  <i class="fas fa-arrow-left"></i> Retour
+                </button>
+                <button type="submit" class="btn-checkout-continuer" [disabled]="checkoutForm.invalid">
+                  <i class="fas fa-credit-card"></i> Procéder au paiement
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <app-footer></app-footer>
+    </footer>
+  </div>
+</body>
+</html>

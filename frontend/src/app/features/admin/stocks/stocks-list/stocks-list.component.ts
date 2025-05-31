@@ -5,6 +5,7 @@ import { Bassin } from '../../../../core/models/bassin.models';
 import { MatDialog } from '@angular/material/dialog';
 import { StockActionDialogComponent } from '../stock-action-dialog/stock-action-dialog.component';
 import { NotificationService } from '../../../../core/services/notification.service';
+import { Notification } from '../../../../core/models/notification.models'; // Explicit import
 import { trigger, transition, style, animate } from '@angular/animations';
 import Swal from 'sweetalert2';
 
@@ -42,6 +43,46 @@ export class StocksListComponent implements OnInit {
     this.loadCategories();
   }
 
+  loadBassins(): void {
+    if (this.showArchived) {
+      this.bassinService.getBassinsArchives().subscribe((data) => {
+        this.bassins = data.map(bassin => {
+          // Forcer la mise à jour du statut selon le stock
+          bassin.statut = bassin.stock === 0 ? 'SUR_COMMANDE' : 'DISPONIBLE';
+          return bassin;
+        });
+        this.applyFilters();
+      });
+    } else {
+      this.bassinService.getBassinsNonArchives().subscribe((data) => {
+        this.bassins = data.map(bassin => {
+          // Forcer la mise à jour du statut selon le stock
+          bassin.statut = bassin.stock === 0 ? 'SUR_COMMANDE' : 'DISPONIBLE';
+          return bassin;
+        });
+
+        // Notification pour les bassins avec stock 0 non archivés
+        const unarchivedZeroStock = this.bassins.filter(b => b.stock === 0 && !b.archive);
+        if (unarchivedZeroStock.length > 0) {
+          const notification: Notification = {
+            title: 'Avertissement Stock',
+            message: `${unarchivedZeroStock.length} bassin(s) avec stock à 0 non archivé(s).`,
+            type: 'STOCK',
+            read: false,
+            date: new Date().toISOString(),
+            username: 'admin' // Assuming admin user
+            ,
+            id: 0
+          };
+          this.notificationService.createNotification(notification).subscribe({
+            next: () => console.log('Notification de stock envoyée pour admin'),
+            error: (err) => console.error('Erreur lors de l\'envoi de la notification de stock', err)
+          });
+        }
+        this.applyFilters();
+      });
+    }
+  }
 
   loadCategories(): void {
     this.bassinService.getAllCategories().subscribe((data) => {
@@ -136,71 +177,40 @@ export class StocksListComponent implements OnInit {
     });
   }
 
-openAdjustDialogForArchive(bassin: Bassin): void {
-  const dialogRef = this.dialog.open(StockActionDialogComponent, {
-    width: '500px',
-    data: { 
-      bassin: bassin, 
-      action: 'ajuster',
-      presetValues: {
-        quantite: 0,
-        raison: 'Ajustement pour archivage'
+  openAdjustDialogForArchive(bassin: Bassin): void {
+    const dialogRef = this.dialog.open(StockActionDialogComponent, {
+      width: '500px',
+      data: { 
+        bassin: bassin, 
+        action: 'ajuster',
+        presetValues: {
+          quantite: 0,
+          raison: 'Ajustement pour archivage'
+        }
       }
-    }
-  });
-
-  dialogRef.afterClosed().subscribe(result => {
-    if (result) {
-      this.mettreAJourQuantite(bassin.idBassin, 0, result.raison, true);
-    }
-  });
-}
-
-confirmArchive(bassin: Bassin): void {
-  Swal.fire({
-    title: 'Confirmer l\'archivage',
-    html: `Êtes-vous sûr de vouloir archiver le bassin <strong>${bassin.nomBassin}</strong> ?`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonText: 'Oui, archiver',
-    cancelButtonText: 'Annuler'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.archiverBassin(bassin.idBassin);
-    }
-  });
-}
-// Modifiez la méthode loadBassins pour charger automatiquement les bassins non archivés
-loadBassins(): void {
-  if (this.showArchived) {
-    this.bassinService.getBassinsArchives().subscribe((data) => {
-      this.bassins = data.map(bassin => {
-        // Forcer la mise à jour du statut selon le stock
-        bassin.statut = bassin.stock === 0 ? 'SUR_COMMANDE' : 'DISPONIBLE';
-        return bassin;
-      });
-      this.applyFilters();
     });
-  } else {
-    this.bassinService.getBassinsNonArchives().subscribe((data) => {
-      this.bassins = data.map(bassin => {
-        // Forcer la mise à jour du statut selon le stock
-        bassin.statut = bassin.stock === 0 ? 'SUR_COMMANDE' : 'DISPONIBLE';
-        return bassin;
-      });
-      
-      // Notification pour les bassins avec stock 0 non archivés
-      const unarchivedZeroStock = this.bassins.filter(b => b.stock === 0 && !b.archive);
-      if (unarchivedZeroStock.length > 0) {
-        this.notificationService.showWarning(
-          `${unarchivedZeroStock.length} bassin(s) avec stock à 0 non archivé(s)`,
-          5000
-        );
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.mettreAJourQuantite(bassin.idBassin, 0, result.raison, true);
       }
-      this.applyFilters();
     });
   }
-}
+
+  confirmArchive(bassin: Bassin): void {
+    Swal.fire({
+      title: 'Confirmer l\'archivage',
+      html: `Êtes-vous sûr de vouloir archiver le bassin <strong>${bassin.nomBassin}</strong> ?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Oui, archiver',
+      cancelButtonText: 'Annuler'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.archiverBassin(bassin.idBassin);
+      }
+    });
+  }
 
   desarchiverBassin(id: number, nouvelleQuantite: number): void {
     Swal.fire({
@@ -242,7 +252,8 @@ loadBassins(): void {
       }
     );
   }
-exportStockReport(): void {
+
+  exportStockReport(): void {
     // Calculer la date de début (2 mois avant aujourd'hui)
     const endDate = new Date();
     const startDate = new Date();
@@ -265,7 +276,7 @@ exportStockReport(): void {
       a.click();
       window.URL.revokeObjectURL(url);
     });
-}
+  }
 
   resetFilters(): void {
     this.searchQuery = '';
@@ -274,231 +285,229 @@ exportStockReport(): void {
     this.applyFilters();
   }
 
-  // Modifiez la méthode handleArchiveAction
   handleArchiveAction(bassin: Bassin): void {
     if (bassin.stock !== 0) {
-        Swal.fire({
-            title: 'Archivage impossible',
-            html: `Le bassin <strong>${bassin.nomBassin}</strong> ne peut pas être archivé car son stock est à ${bassin.stock}.<br><br>
-                   Seuls les bassins avec stock à 0 peuvent être archivés.`,
-            icon: 'warning',
-            confirmButtonText: 'Compris'
-        });
-        return;
+      Swal.fire({
+        title: 'Archivage impossible',
+        html: `Le bassin <strong>${bassin.nomBassin}</strong> ne peut pas être archivé car son stock est à ${bassin.stock}.<br><br>Seuls les bassins avec stock à 0 peuvent être archivés.`,
+        icon: 'warning',
+        confirmButtonText: 'Compris'
+      });
+      return;
     }
 
     Swal.fire({
-        title: 'Confirmer l\'archivage',
-        html: `Êtes-vous sûr de vouloir archiver le bassin <strong>${bassin.nomBassin}</strong> ?<br><br>
-               Cela marquera le bassin comme "Rupture de stock définitive".`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Oui, archiver',
-        cancelButtonText: 'Annuler'
+      title: 'Confirmer l\'archivage',
+      html: `Êtes-vous sûr de vouloir archiver le bassin <strong>${bassin.nomBassin}</strong> ?<br><br>Cela marquera le bassin comme "Rupture de stock définitive".`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Oui, archiver',
+      cancelButtonText: 'Annuler'
     }).then((result) => {
-        if (result.isConfirmed) {
-            this.bassinService.archiverBassin(bassin.idBassin).subscribe({
-                next: () => {
-                    Swal.fire('Archivé!', 'Le bassin a été marqué comme rupture de stock définitive', 'success');
-                    this.loadBassins();
-                },
-                error: (err) => {
-                    Swal.fire('Erreur', err.error || 'Erreur lors de l\'archivage', 'error');
-                }
-            });
-        }
+      if (result.isConfirmed) {
+        this.bassinService.archiverBassin(bassin.idBassin).subscribe({
+          next: () => {
+            Swal.fire('Archivé!', 'Le bassin a été marqué comme rupture de stock définitive', 'success');
+            this.loadBassins();
+          },
+          error: (err) => {
+            Swal.fire('Erreur', err.error || 'Erreur lors de l\'archivage', 'error');
+          }
+        });
+      }
     });
-}
-
-// Ajoutez cette méthode pour ajuster la quantité à 0 puis proposer l'archivage
-ajusterQuantiteVerZero(bassin: Bassin): void {
-  Swal.fire({
-    title: 'Mettre le stock à zéro',
-    html: `Pour archiver le bassin <strong>${bassin.nomBassin}</strong>, son stock doit être à 0.<br>Voulez-vous mettre le stock à 0 maintenant?`,
-    showCancelButton: true,
-    confirmButtonText: 'Oui, mettre à 0',
-    cancelButtonText: 'Annuler'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      this.bassinService.mettreAJourQuantite(bassin.idBassin, 0, 'Mise à 0 pour archivage potentiel').subscribe({
-        next: () => {
-          Swal.fire({
-            title: 'Stock mis à jour',
-            text: 'Le stock a été mis à 0. Voulez-vous archiver ce bassin maintenant?',
-            icon: 'question',
-            showCancelButton: true,
-            showDenyButton: true,
-            confirmButtonText: 'Oui, archiver',
-            denyButtonText: 'Non, mettre sur commande',
-            cancelButtonText: 'Plus tard'
-          }).then((actionResult) => {
-            if (actionResult.isConfirmed) {
-              this.archiverBassin(bassin.idBassin);
-            } else if (actionResult.isDenied) {
-              this.bassinService.updateBassinStatus(bassin.idBassin, 'SUR_COMMANDE').subscribe(() => {
-                Swal.fire('Sur commande', 'Le bassin a été marqué comme "Sur commande"', 'info');
-                this.loadBassins();
-              });
-            } else {
-              this.loadBassins();
-            }
-          });
-        },
-        error: () => {
-          Swal.fire('Erreur', 'Erreur lors de la mise à jour du stock.', 'error');
-        }
-      });
-    }
-  });
-}
-updateFabricationDuration(bassin: Bassin): void {
-  if (bassin.statut !== 'SUR_COMMANDE' || bassin.archive) {
-    Swal.fire('Action non autorisée', 'La durée ne peut être modifiée que pour les bassins sur commande non archivés', 'error');
-    return;
   }
 
-  Swal.fire({
-    title: 'Modifier la durée de fabrication',
-    html: `
-      <div class="swal-custom-container">
-        <div class="bassin-info">
-          <h4>${bassin.nomBassin}</h4>
-          <p>Durée actuelle: ${bassin.dureeFabricationDisplay}</p>
-        </div>
-        
-        <div class="duration-options">
-          <div class="form-group">
-            <label for="duration-type">Type de durée:</label>
-            <select id="duration-type" class="form-control">
-              <option value="single">Durée fixe</option>
-              <option value="range">Fourchette de durée</option>
-            </select>
+  ajusterQuantiteVerZero(bassin: Bassin): void {
+    Swal.fire({
+      title: 'Mettre le stock à zéro',
+      html: `Pour archiver le bassin <strong>${bassin.nomBassin}</strong>, son stock doit être à 0.<br>Voulez-vous mettre le stock à 0 maintenant?`,
+      showCancelButton: true,
+      confirmButtonText: 'Oui, mettre à 0',
+      cancelButtonText: 'Annuler'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        this.bassinService.mettreAJourQuantite(bassin.idBassin, 0, 'Mise à 0 pour archivage potentiel').subscribe({
+          next: () => {
+            Swal.fire({
+              title: 'Stock mis à jour',
+              text: 'Le stock a été mis à 0. Voulez-vous archiver ce bassin maintenant?',
+              icon: 'question',
+              showCancelButton: true,
+              showDenyButton: true,
+              confirmButtonText: 'Oui, archiver',
+              denyButtonText: 'Non, mettre sur commande',
+              cancelButtonText: 'Plus tard'
+            }).then((actionResult) => {
+              if (actionResult.isConfirmed) {
+                this.archiverBassin(bassin.idBassin);
+              } else if (actionResult.isDenied) {
+                this.bassinService.updateBassinStatus(bassin.idBassin, 'SUR_COMMANDE').subscribe(() => {
+                  Swal.fire('Sur commande', 'Le bassin a été marqué comme "Sur commande"', 'info');
+                  this.loadBassins();
+                });
+              } else {
+                this.loadBassins();
+              }
+            });
+          },
+          error: () => {
+            Swal.fire('Erreur', 'Erreur lors de la mise à jour du stock.', 'error');
+          }
+        });
+      }
+    });
+  }
+
+  updateFabricationDuration(bassin: Bassin): void {
+    if (bassin.statut !== 'SUR_COMMANDE' || bassin.archive) {
+      Swal.fire('Action non autorisée', 'La durée ne peut être modifiée que pour les bassins sur commande non archivés', 'error');
+      return;
+    }
+
+    Swal.fire({
+      title: 'Modifier la durée de fabrication',
+      html: `
+        <div class="swal-custom-container">
+          <div class="bassin-info">
+            <h4>${bassin.nomBassin}</h4>
+            <p>Durée actuelle: ${bassin.dureeFabricationDisplay}</p>
           </div>
           
-          <div id="single-duration" class="duration-input">
-            <label>Durée (jours)</label>
-            <input id="swal-input1" type="number" min="1" class="form-control" 
-                   placeholder="Ex: 5" value="${bassin.dureeFabricationJours || bassin.dureeFabricationJoursMin || 5}">
-          </div>
-          
-          <div id="range-duration" class="duration-input" style="display:none">
-            <div class="row">
-              <div class="col-md-6">
-                <label>Durée min (jours)</label>
-                <input id="swal-input-min" type="number" min="1" class="form-control" 
-                       placeholder="Ex: 3" value="${bassin.dureeFabricationJoursMin || 3}">
-              </div>
-              <div class="col-md-6">
-                <label>Durée max (jours)</label>
-                <input id="swal-input-max" type="number" min="1" class="form-control" 
-                       placeholder="Ex: 15" value="${bassin.dureeFabricationJoursMax || 15}">
+          <div class="duration-options">
+            <div class="form-group">
+              <label for="duration-type">Type de durée:</label>
+              <select id="duration-type" class="form-control">
+                <option value="single">Durée fixe</option>
+                <option value="range">Fourchette de durée</option>
+              </select>
+            </div>
+            
+            <div id="single-duration" class="duration-input">
+              <label>Durée (jours)</label>
+              <input id="swal-input1" type="number" min="1" class="form-control" 
+                     placeholder="Ex: 5" value="${bassin.dureeFabricationJours || bassin.dureeFabricationJoursMin || 5}">
+            </div>
+            
+            <div id="range-duration" class="duration-input" style="display:none">
+              <div class="row">
+                <div class="col-md-6">
+                  <label>Durée min (jours)</label>
+                  <input id="swal-input-min" type="number" min="1" class="form-control" 
+                         placeholder="Ex: 3" value="${bassin.dureeFabricationJoursMin || 3}">
+                </div>
+                <div class="col-md-6">
+                  <label>Durée max (jours)</label>
+                  <input id="swal-input-max" type="number" min="1" class="form-control" 
+                         placeholder="Ex: 15" value="${bassin.dureeFabricationJoursMax || 15}">
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    `,
-    focusConfirm: false,
-    showCancelButton: true,
-    confirmButtonText: 'Mettre à jour',
-    cancelButtonText: 'Annuler',
-    didOpen: () => {
-      const durationType = document.getElementById('duration-type') as HTMLSelectElement;
-      const singleDiv = document.getElementById('single-duration') as HTMLDivElement;
-      const rangeDiv = document.getElementById('range-duration') as HTMLDivElement;
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Mettre à jour',
+      cancelButtonText: 'Annuler',
+      didOpen: () => {
+        const durationType = document.getElementById('duration-type') as HTMLSelectElement;
+        const singleDiv = document.getElementById('single-duration') as HTMLDivElement;
+        const rangeDiv = document.getElementById('range-duration') as HTMLDivElement;
 
-      durationType.addEventListener('change', () => {
-        if (durationType.value === 'single') {
-          singleDiv.style.display = 'block';
-          rangeDiv.style.display = 'none';
-        } else {
+        durationType.addEventListener('change', () => {
+          if (durationType.value === 'single') {
+            singleDiv.style.display = 'block';
+            rangeDiv.style.display = 'none';
+          } else {
+            singleDiv.style.display = 'none';
+            rangeDiv.style.display = 'block';
+          }
+        });
+
+        // Initialisation selon la durée actuelle
+        if (bassin.dureeFabricationJoursMin !== bassin.dureeFabricationJoursMax) {
+          durationType.value = 'range';
           singleDiv.style.display = 'none';
           rangeDiv.style.display = 'block';
         }
-      });
-
-      // Initialisation selon la durée actuelle
-      if (bassin.dureeFabricationJoursMin !== bassin.dureeFabricationJoursMax) {
-        durationType.value = 'range';
-        singleDiv.style.display = 'none';
-        rangeDiv.style.display = 'block';
-      }
-    },
-    preConfirm: () => {
-      const durationType = (document.getElementById('duration-type') as HTMLSelectElement).value;
-      
-      if (durationType === 'single') {
-        const days = parseInt((document.getElementById('swal-input1') as HTMLInputElement).value);
-        if (!days || days <= 0) {
-          Swal.showValidationMessage('La durée doit être un nombre positif');
-          return null;
-        }
-        return { min: days, max: days };
-      } else {
-        const min = parseInt((document.getElementById('swal-input-min') as HTMLInputElement).value);
-        const max = parseInt((document.getElementById('swal-input-max') as HTMLInputElement).value);
+      },
+      preConfirm: () => {
+        const durationType = (document.getElementById('duration-type') as HTMLSelectElement).value;
         
-        if (!min || !max || min <= 0 || max <= 0 || min > max) {
-          Swal.showValidationMessage('La fourchette doit être valide (min ≤ max)');
-          return null;
+        if (durationType === 'single') {
+          const days = parseInt((document.getElementById('swal-input1') as HTMLInputElement).value);
+          if (!days || days <= 0) {
+            Swal.showValidationMessage('La durée doit être un nombre positif');
+            return null;
+          }
+          return { min: days, max: days };
+        } else {
+          const min = parseInt((document.getElementById('swal-input-min') as HTMLInputElement).value);
+          const max = parseInt((document.getElementById('swal-input-max') as HTMLInputElement).value);
+          
+          if (!min || !max || min <= 0 || max <= 0 || min > max) {
+            Swal.showValidationMessage('La fourchette doit être valide (min ≤ max)');
+            return null;
+          }
+          return { min, max };
         }
-        return { min, max };
       }
-    }
-  }).then((result) => {
-    if (result.isConfirmed) {
-      if (result.value.min === result.value.max) {
-        this.bassinService.updateDureeFabrication(bassin.idBassin, result.value.min)
-          .subscribe({
-            next: () => {
-              Swal.fire('Succès', `Durée de fabrication mise à jour: ${result.value.min} jours`, 'success');
-              this.loadBassins();
-            },
-            error: (err) => {
-              Swal.fire('Erreur', err.error || 'Une erreur est survenue', 'error');
-            }
-          });
-      } else {
-        this.bassinService.updateDureeFabrication(bassin.idBassin, result.value.min, result.value.max)
-          .subscribe({
-            next: () => {
-              Swal.fire('Succès', `Durée de fabrication mise à jour: Entre ${result.value.min} et ${result.value.max} jours`, 'success');
-              this.loadBassins();
-            },
-            error: (err) => {
-              Swal.fire('Erreur', err.error || 'Une erreur est survenue', 'error');
-            }
-          });
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if (result.value.min === result.value.max) {
+          this.bassinService.updateDureeFabrication(bassin.idBassin, result.value.min)
+            .subscribe({
+              next: () => {
+                Swal.fire('Succès', `Durée de fabrication mise à jour: ${result.value.min} jours`, 'success');
+                this.loadBassins();
+              },
+              error: (err) => {
+                Swal.fire('Erreur', err.error || 'Une erreur est survenue', 'error');
+              }
+            });
+        } else {
+          this.bassinService.updateDureeFabrication(bassin.idBassin, result.value.min, result.value.max)
+            .subscribe({
+              next: () => {
+                Swal.fire('Succès', `Durée de fabrication mise à jour: Entre ${result.value.min} et ${result.value.max} jours`, 'success');
+                this.loadBassins();
+              },
+              error: (err) => {
+                Swal.fire('Erreur', err.error || 'Une erreur est survenue', 'error');
+              }
+            });
+        }
       }
-    }
-  });
-}
-openStockAdjustDialog(bassin: Bassin): void {
-  const dialogRef = this.dialog.open(StockActionDialogComponent, {
+    });
+  }
+
+  openStockAdjustDialog(bassin: Bassin): void {
+    const dialogRef = this.dialog.open(StockActionDialogComponent, {
       width: '500px',
       data: { 
-          bassin, 
-          action: 'ajuster',
-          allowNegative: false // Empêcher les quantités négatives
+        bassin, 
+        action: 'ajuster',
+        allowNegative: false // Empêcher les quantités négatives
       }
-  });
+    });
 
-  dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe(result => {
       if (result) {
-          // Si le nouveau stock sera 0, demander la durée de fabrication
-          const newStock = bassin.stock + result.quantite;
-          
-          if (newStock === 0) {
-              this.openSetOnCommandDialog(bassin, result.quantite, result.raison);
-          } else {
-              this.mettreAJourQuantite(bassin.idBassin, result.quantite, result.raison);
-          }
+        // Si le nouveau stock sera 0, demander la durée de fabrication
+        const newStock = bassin.stock + result.quantite;
+        
+        if (newStock === 0) {
+          this.openSetOnCommandDialog(bassin, result.quantite, result.raison);
+        } else {
+          this.mettreAJourQuantite(bassin.idBassin, result.quantite, result.raison);
+        }
       }
-  });
-}
+    });
+  }
 
-openSetOnCommandDialog(bassin: Bassin, quantite: number, raison: string): void {
-  Swal.fire({
+  openSetOnCommandDialog(bassin: Bassin, quantite: number, raison: string): void {
+    Swal.fire({
       title: 'Mettre sur commande',
       html: `Le stock de <strong>${bassin.nomBassin}</strong> sera à 0.<br>Veuillez définir la durée de fabrication:`,
       input: 'number',
@@ -509,36 +518,36 @@ openSetOnCommandDialog(bassin: Bassin, quantite: number, raison: string): void {
       confirmButtonText: 'Confirmer',
       cancelButtonText: 'Annuler',
       inputValidator: (value) => {
-          if (!value || parseInt(value) <= 0) {
-              return 'La durée doit être un nombre positif de jours';
-          }
-          return null;
+        if (!value || parseInt(value) <= 0) {
+          return 'La durée doit être un nombre positif de jours';
+        }
+        return null;
       }
-  }).then((result) => {
+    }).then((result) => {
       if (result.isConfirmed) {
-          const dureeJours = parseInt(result.value);
-          
-          // D'abord mettre à jour la quantité
-          this.bassinService.mettreAJourQuantite(bassin.idBassin, quantite, raison).subscribe({
+        const dureeJours = parseInt(result.value);
+        
+        // D'abord mettre à jour la quantité
+        this.bassinService.mettreAJourQuantite(bassin.idBassin, quantite, raison).subscribe({
+          next: () => {
+            // Ensuite mettre sur commande
+            this.bassinService.mettreSurCommande(bassin.idBassin, dureeJours).subscribe({
               next: () => {
-                  // Ensuite mettre sur commande
-                  this.bassinService.mettreSurCommande(bassin.idBassin, dureeJours).subscribe({
-                      next: () => {
-                          Swal.fire('Succès', 'Le bassin a été mis sur commande', 'success');
-                          this.loadBassins();
-                      },
-                      error: (err) => {
-                          Swal.fire('Erreur', err.error || 'Erreur lors de la mise sur commande', 'error');
-                      }
-                  });
+                Swal.fire('Succès', 'Le bassin a été mis sur commande', 'success');
+                this.loadBassins();
               },
               error: (err) => {
-                  Swal.fire('Erreur', err.error || 'Erreur lors de la mise à jour du stock', 'error');
+                Swal.fire('Erreur', err.error || 'Erreur lors de la mise sur commande', 'error');
               }
-          });
+            });
+          },
+          error: (err) => {
+            Swal.fire('Erreur', err.error || 'Erreur lors de la mise à jour du stock', 'error');
+          }
+        });
       }
-  });
-}
+    });
+  }
 
   getStatusText(bassin: Bassin): string {
     if (bassin.archive) {
@@ -581,11 +590,13 @@ openSetOnCommandDialog(bassin: Bassin, quantite: number, raison: string): void {
     const maxStock = bassin.stock || 100;
     return Math.min(100, Math.round((bassin.stock / maxStock) * 100));
   }
-applyGlobalFilter(): void {
-  this.applyFilters();
-}
 
-clearSearch(): void {
-  this.searchQuery = '';
-  this.applyFilters();
-}}
+  applyGlobalFilter(): void {
+    this.applyFilters();
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.applyFilters();
+  }
+}

@@ -1,9 +1,9 @@
-// notification.model.ts
-export interface AppNotification {
+export interface Notification {
   id: number;
   title: string;
   message: string;
-  date: Date | string;
+  type: 'ORDER' | 'PAYMENT' | 'STOCK' | 'INFO';
   read: boolean;
+  date: string; // ISO 8601 string (e.g., "2025-05-31T14:09:00")
   username?: string;
-type: 'info' | 'success' | 'warning' | 'error' | 'alert' | undefined;}
+}

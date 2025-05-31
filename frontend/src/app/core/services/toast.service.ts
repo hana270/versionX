@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 
 export interface ToastInfo {
-  id?: string;
+  id: string; // Change from id?: string to id: string
   header: string;
   message: string;
   classname: string;
@@ -20,6 +20,7 @@ export class ToastService {
 
   showSuccess(message: string, duration: number = 3000): void {
     this.show({
+      id: '', // Will be overwritten in show
       header: 'Succès',
       message: message,
       classname: 'bg-success text-light',
@@ -30,6 +31,7 @@ export class ToastService {
 
   showError(message: string, duration: number = 5000): void {
     this.show({
+      id: '',
       header: 'Erreur',
       message: message,
       classname: 'bg-danger text-light',
@@ -40,6 +42,7 @@ export class ToastService {
 
   showInfo(message: string, duration: number = 3000): void {
     this.show({
+      id: '',
       header: 'Information',
       message: message,
       classname: 'bg-info text-light',
@@ -50,6 +53,7 @@ export class ToastService {
 
   showWarning(message: string, duration: number = 4000): void {
     this.show({
+      id: '',
       header: 'Attention',
       message: message,
       classname: 'bg-warning text-dark',
@@ -63,12 +67,11 @@ export class ToastService {
     this.toasts.push(toast);
     this.toastsSubject.next([...this.toasts]);
 
-    setTimeout(() => this.remove(toast.id!), toast.duration);
+    setTimeout(() => this.remove(toast.id), toast.duration); // No ! needed since id is string
   }
 
   remove(toastId: string): void {
     this.toasts = this.toasts.filter(t => t.id !== toastId);
     this.toastsSubject.next([...this.toasts]);
   }
-  
 }

@@ -629,15 +629,16 @@ getProfileImageUrl(): Observable<string> {
     return null;
   }
   getInstallerss(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.apiURL}/installateurs`).pipe(
-      map(users => users.map(user => ({
-        ...user,
-        profileImage: user.profileImage ? `${this.apiURL}/uploads/${user.profileImage}` : 'assets/images/default-image-profile.webp',
-        specialty: user.specialty ? user.specialty : 'NON_SPECIFIED'
-      })))
-    );
+  return this.http.get<any[]>(`${this.apiURL}/installateurs`).pipe(
+    map(users => users.map(user => {
+      const u = new User(user.user_id);
+      Object.assign(u, user); // copie les propriétés
+      u.profileImage = user.profileImage ? `${this.apiURL}/uploads/${user.profileImage}` : 'assets/images/default-image-profile.webp';
+      u.specialty = user.specialty ? user.specialty : 'NON_SPECIFIED';
+      return u;
+    }))
+  );
   }
-
   /**
    * Rafraîchit le token JWT
    */
@@ -1358,5 +1359,24 @@ private handleSuccessfulAuth(jwt: string, userData?: any): void {
       })
     );
 }
- 
+  getCurrentUser(): User | null {
+    // First check if we already have the user in the subject
+    const currentUser = this.currentUserSubject.value;
+    if (currentUser) {
+      return currentUser;
+    }
+    
+    // If not, try to extract from token
+    const token = this.token;
+    if (token) {
+      const user = this.extractUserFromToken(token);
+      if (user) {
+        // Update the subject for consistency
+        this.currentUserSubject.next(user);
+        return user;
+      }
+    }
+    
+    return null;
+  }
 }
