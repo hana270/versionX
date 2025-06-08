@@ -1,0 +1,3 @@
+[submodule "version31"]
+	path = version31
+	url = https://github.com/TON-COMPTE/version31.git
